@@ -116,7 +116,7 @@ void update_halo_kernel_ocl_(
     /* Perform the halo updates for the top and bottom faces in parallel */
 
     events2.push_back(CloverCL::last_event);
-    CloverCL::outoforder_queue.enqueueBarrierWithWaitList(&events2);
+    CloverCL::outoforder_queue.enqueueWaitForEvents(events2);
 
     if ( fields[ARRAY1D(CloverCL::field_density0,1)] == 1 ) {
         if (chunk_neighbours[ARRAY1D(CloverCL::chunk_bottom,1)] == CloverCL::external_face) {
