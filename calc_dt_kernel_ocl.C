@@ -104,30 +104,7 @@ void calc_dt_kernel_ocl_(
 
 
 
-    // Run the reduction kernels CPU or GPU
-
-        //level 1 of CPU reduction
-       // dt_calc_red_cpu_knl.setArg(0, CloverCL::dt_min_val_array_buffer); 
-       // dt_calc_red_cpu_knl.setArg(1, CloverCL::cpu_min_red_buffer); 
-       // dt_calc_red_cpu_knl.setArg(2, CloverCL::num_elements_per_wi[0]); 
-       // dt_calc_red_cpu_knl.setArg(3, CloverCL::size_limits[0]); 
-
-       // err = queue.enqueueNDRangeKernel(dt_calc_red_cpu_knl, cl::NDRange(1), 
-       //                                 cl::NDRange(CloverCL::num_workitems_tolaunch[0]),
-       //     			                cl::NDRange(CloverCL::num_workitems_per_wg[0]), 
-       //     			                NULL, &reduction_event_array[0]);
-
-       // // level 2 of CPU reduction
-       // dt_calc_red_cpu_knl.setArg(0, CloverCL::cpu_min_red_buffer); 
-       // dt_calc_red_cpu_knl.setArg(1, CloverCL::dt_min_val_buffer); 
-       // dt_calc_red_cpu_knl.setArg(2, CloverCL::num_elements_per_wi[1]); 
-       // dt_calc_red_cpu_knl.setArg(3, CloverCL::size_limits[1]);
-
-       // err = queue.enqueueNDRangeKernel(dt_calc_red_cpu_knl, cl::NDRange(1), 
-       //                                 cl::NDRange(CloverCL::num_workitems_tolaunch[1]),
-       //     			                cl::NDRange(CloverCL::num_workitems_per_wg[1]), 
-       //     			                NULL, &reduction_event_array[1]);
-
+    // Run the reduction kernels 
     try {
     
         for (int i=1; i<=CloverCL::number_of_red_levels; i++) {
@@ -137,9 +114,9 @@ void calc_dt_kernel_ocl_(
 #endif
 
             err = CloverCL::queue.enqueueNDRangeKernel(CloverCL::min_reduction_kernels[i-1], cl::NullRange, 
-                                             cl::NDRange(CloverCL::num_workitems_tolaunch[i-1]),
-        				                     cl::NDRange(CloverCL::num_workitems_per_wg[i-1]), 
-        				                     NULL, NULL); 
+                                                       cl::NDRange(CloverCL::num_workitems_tolaunch[i-1]),
+        				                               cl::NDRange(CloverCL::num_workitems_per_wg[i-1]), 
+        				                               NULL, NULL); 
         } 
         
         //clfinish required to force execution of the above reduction kernels 
@@ -147,13 +124,7 @@ void calc_dt_kernel_ocl_(
         CloverCL::queue.finish();
     
     } catch(cl::Error err) {
-        std::cerr
-            << "[CloverCL] ERROR: at reduction kernel launch in loop" 
-            << err.what()
-            << "("
-            << CloverCL::errToString(err.err())
-            << ")"
-            << std::endl;
+        CloverCL::reportError(err, "[CloverCL] ERROR: at min reduction kernel launch in loop");
     }
 
 
@@ -162,23 +133,11 @@ void calc_dt_kernel_ocl_(
      */
     try { 
 
-        err = CloverCL::queue.enqueueReadBuffer(
-                CloverCL::dt_min_val_buffer,
-                CL_TRUE,
-                0,
-                sizeof(double),
-                dt_min_val,
-                NULL,
-                NULL);
+        err = CloverCL::queue.enqueueReadBuffer(CloverCL::dt_min_val_buffer, CL_TRUE, 0, 
+                                                sizeof(double), dt_min_val, NULL, NULL);
 
     } catch(cl::Error err) {
-        std::cerr
-            << "[CloverCL] ERROR: at dt_calc_knl read data back stage" 
-            << err.what()
-            << "("
-            << CloverCL::errToString(err.err())
-            << ")"
-            << std::endl;
+        CloverCL::reportError(err, "[CloverCL] ERROR: at dt_calc_knl read data back stage");
     }
 
 
@@ -195,69 +154,26 @@ void calc_dt_kernel_ocl_(
 
     if (*small != 0) { 
         try { 
-            err = CloverCL::queue.enqueueReadBuffer(
-                    CloverCL::xvel0_buffer,
-                    CL_TRUE,
-                    0,
-                    (*xmax+5)*(*ymax+5)*sizeof(double),
-                    xvel0,
-                    NULL,
-                    NULL);
+            err = CloverCL::queue.enqueueReadBuffer(CloverCL::xvel0_buffer, CL_TRUE, 0, 
+                                                    (*xmax+5)*(*ymax+5)*sizeof(double), xvel0, NULL, NULL);
 
-            err = CloverCL::queue.enqueueReadBuffer(
-                    CloverCL::yvel0_buffer,
-                    CL_TRUE,
-                    0,
-                    (*xmax+5)*(*ymax+5)*sizeof(double),
-                    yvel0,
-                    NULL,
-                    NULL);
+            err = CloverCL::queue.enqueueReadBuffer(CloverCL::yvel0_buffer, CL_TRUE, 0, 
+                                                    (*xmax+5)*(*ymax+5)*sizeof(double), yvel0, NULL, NULL);
 
-            err = CloverCL::queue.enqueueReadBuffer(
-                    CloverCL::density0_buffer,
-                    CL_TRUE,
-                    0,
-                    (*xmax+4)*(*ymax+4)*sizeof(double),
-                    density0,
-                    NULL,
-                    NULL);
+            err = CloverCL::queue.enqueueReadBuffer(CloverCL::density0_buffer, CL_TRUE, 0, 
+                                                    (*xmax+4)*(*ymax+4)*sizeof(double), density0, NULL, NULL);
 
-            err = CloverCL::queue.enqueueReadBuffer(
-                    CloverCL::energy0_buffer,
-                    CL_TRUE,
-                    0,
-                    (*xmax+4)*(*ymax+4)*sizeof(double),
-                    energy0,
-                    NULL,
-                    NULL);
+            err = CloverCL::queue.enqueueReadBuffer(CloverCL::energy0_buffer, CL_TRUE, 0, 
+                                                    (*xmax+4)*(*ymax+4)*sizeof(double), energy0, NULL, NULL);
 
-            err = CloverCL::queue.enqueueReadBuffer(
-                    CloverCL::pressure_buffer,
-                    CL_TRUE,
-                    0,
-                    (*xmax+4)*(*ymax+4)*sizeof(double),
-                    pressure,
-                    NULL,
-                    NULL);
+            err = CloverCL::queue.enqueueReadBuffer(CloverCL::pressure_buffer, CL_TRUE, 0, 
+                                                    (*xmax+4)*(*ymax+4)*sizeof(double), pressure, NULL, NULL);
 
-            err = CloverCL::queue.enqueueReadBuffer(
-                    CloverCL::soundspeed_buffer,
-                    CL_TRUE,
-                    0,
-                    (*xmax+4)*(*ymax+4)*sizeof(double),
-                    soundspeed,
-                    NULL,
-                    NULL);
-
+            err = CloverCL::queue.enqueueReadBuffer(CloverCL::soundspeed_buffer, CL_TRUE, 0, 
+                                                    (*xmax+4)*(*ymax+4)*sizeof(double), soundspeed, NULL, NULL);
 
         } catch(cl::Error err) {
-            std::cerr
-                << "[CloverCL] ERROR: at dt_calc_knl read data back stage" 
-                << err.what()
-                << "("
-                << CloverCL::errToString(err.err())
-                << ")"
-                << std::endl;
+            CloverCL::reportError(err, "[CloverCL] ERROR: at dt_calc_knl read data back stage 2");
         }
 
         std::cout << "Timestep information:" << std::endl;
