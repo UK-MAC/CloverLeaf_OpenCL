@@ -105,7 +105,6 @@ void calc_dt_kernel_ocl_(
 
 
     // Run the reduction kernels CPU or GPU
-    if (CloverCL::device_type == CL_DEVICE_TYPE_CPU) {
 
         //level 1 of CPU reduction
        // dt_calc_red_cpu_knl.setArg(0, CloverCL::dt_min_val_array_buffer); 
@@ -129,40 +128,34 @@ void calc_dt_kernel_ocl_(
        //     			                cl::NDRange(CloverCL::num_workitems_per_wg[1]), 
        //     			                NULL, &reduction_event_array[1]);
 
-    }
-    else if (CloverCL::device_type == CL_DEVICE_TYPE_GPU) {
-
-        try {
-        
-            for (int i=1; i<=CloverCL::number_of_red_levels; i++) {
+    try {
+    
+        for (int i=1; i<=CloverCL::number_of_red_levels; i++) {
 
 #ifdef OCL_VERBOSE
-                std::cout << "Entering DT calc reduction level: " << i << std::endl; 
+            std::cout << "Entering DT calc reduction level: " << i << std::endl; 
 #endif
 
-                err = CloverCL::queue.enqueueNDRangeKernel(CloverCL::min_reduction_kernels[i-1], cl::NullRange, 
-                                                 cl::NDRange(CloverCL::num_workitems_tolaunch[i-1]),
-            				                     cl::NDRange(CloverCL::num_workitems_per_wg[i-1]), 
-            				                     NULL, NULL); 
-            } 
-            
-            //clfinish required to force execution of the above reduction kernels 
-            //as without this experience a large slowdown at least on Nvidia    
-            CloverCL::queue.finish();
+            err = CloverCL::queue.enqueueNDRangeKernel(CloverCL::min_reduction_kernels[i-1], cl::NullRange, 
+                                             cl::NDRange(CloverCL::num_workitems_tolaunch[i-1]),
+        				                     cl::NDRange(CloverCL::num_workitems_per_wg[i-1]), 
+        				                     NULL, NULL); 
+        } 
         
-        } catch(cl::Error err) {
-            std::cerr
-                << "[CloverCL] ERROR: at reduction kernel launch in loop" 
-                << err.what()
-                << "("
-                << CloverCL::errToString(err.err())
-                << ")"
-                << std::endl;
-        }
+        //clfinish required to force execution of the above reduction kernels 
+        //as without this experience a large slowdown at least on Nvidia    
+        CloverCL::queue.finish();
+    
+    } catch(cl::Error err) {
+        std::cerr
+            << "[CloverCL] ERROR: at reduction kernel launch in loop" 
+            << err.what()
+            << "("
+            << CloverCL::errToString(err.err())
+            << ")"
+            << std::endl;
     }
-    else {
-        std::cerr << "ERROR: in dt_calc device type not supported" << std::endl;
-    }
+
 
     /*
      * Read data back with a blocking read

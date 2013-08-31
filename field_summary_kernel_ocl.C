@@ -76,7 +76,6 @@ void field_summary_kernel_ocl_(
     events2.push_back(CloverCL::last_event);
 
     //Start of Reduction
-    if (CloverCL::device_type == CL_DEVICE_TYPE_CPU) {
 
         //// Level 1 of CPU redcution
         //vol_sum_red_cpu_knl.setArg(0, CloverCL::vol_tmp_buffer); 
@@ -185,8 +184,6 @@ void field_summary_kernel_ocl_(
 
 
         //outoforder_queue.enqueueBarrier();
-    }
-    else if (CloverCL::device_type == CL_DEVICE_TYPE_GPU) {
 
         CloverCL::outoforder_queue.enqueueWaitForEvents(events2);
 
@@ -231,10 +228,6 @@ void field_summary_kernel_ocl_(
                  << ")"
                  << std::endl;
         }
-    }
-    else {
-        std::cerr << "Error: in field summary device type not supported" << std::endl;
-    }
 
 
     /*
