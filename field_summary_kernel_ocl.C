@@ -73,161 +73,55 @@ void field_summary_kernel_ocl_(
     CloverCL::enqueueKernel_nooffsets(CloverCL::field_summary_knl, *xmax+2, *ymax+2);
 
 
+    //Enqueue a wait for events to stop the reduction kernels execution before the 
+    //main field summary kernel has executed     
     events2.push_back(CloverCL::last_event);
 
-    //Start of Reduction
-
-        //// Level 1 of CPU redcution
-        //vol_sum_red_cpu_knl.setArg(0, CloverCL::vol_tmp_buffer); 
-        //vol_sum_red_cpu_knl.setArg(1, CloverCL::cpu_vol_red_buffer); 
-        //vol_sum_red_cpu_knl.setArg(2, CloverCL::num_elements_per_wi[0]); 
-        //vol_sum_red_cpu_knl.setArg(3, CloverCL::size_limits[0]); 
-
-        //err = outoforder_queue.enqueueNDRangeKernel(vol_sum_red_cpu_knl, cl::NDRange(1), 
-        //                             cl::NDRange(CloverCL::num_workitems_tolaunch[0]),
-        //                             cl::NDRange(CloverCL::num_workitems_per_wg[0]), 
-        //                             &events2, &vol_reduction_event_array[0]);
-
-        //mass_sum_red_cpu_knl.setArg(0, CloverCL::mass_tmp_buffer); 
-        //mass_sum_red_cpu_knl.setArg(1, CloverCL::cpu_mass_red_buffer); 
-        //mass_sum_red_cpu_knl.setArg(2, CloverCL::num_elements_per_wi[0]); 
-        //mass_sum_red_cpu_knl.setArg(3, CloverCL::size_limits[0]); 
-
-        //err = outoforder_queue.enqueueNDRangeKernel(mass_sum_red_cpu_knl, cl::NDRange(1), 
-        //                             cl::NDRange(CloverCL::num_workitems_tolaunch[0]),
-        //                             cl::NDRange(CloverCL::num_workitems_per_wg[0]), 
-        //                             &events2, &mass_reduction_event_array[0]);
-
-        //ie_sum_red_cpu_knl.setArg(0, CloverCL::ie_tmp_buffer); 
-        //ie_sum_red_cpu_knl.setArg(1, CloverCL::cpu_ie_red_buffer); 
-        //ie_sum_red_cpu_knl.setArg(2, CloverCL::num_elements_per_wi[0]); 
-        //ie_sum_red_cpu_knl.setArg(3, CloverCL::size_limits[0]); 
-
-        //err = outoforder_queue.enqueueNDRangeKernel(ie_sum_red_cpu_knl, cl::NDRange(1), 
-        //                             cl::NDRange(CloverCL::num_workitems_tolaunch[0]),
-        //                             cl::NDRange(CloverCL::num_workitems_per_wg[0]), 
-        //                             &events2, &ie_reduction_event_array[0]);
-
-        //ke_sum_red_cpu_knl.setArg(0, CloverCL::ke_tmp_buffer); 
-        //ke_sum_red_cpu_knl.setArg(1, CloverCL::cpu_ke_red_buffer); 
-        //ke_sum_red_cpu_knl.setArg(2, CloverCL::num_elements_per_wi[0]); 
-        //ke_sum_red_cpu_knl.setArg(3, CloverCL::size_limits[0]); 
-
-        //err = outoforder_queue.enqueueNDRangeKernel(ke_sum_red_cpu_knl, cl::NDRange(1), 
-        //                             cl::NDRange(CloverCL::num_workitems_tolaunch[0]),
-        //                             cl::NDRange(CloverCL::num_workitems_per_wg[0]), 
-        //                             &events2, &ke_reduction_event_array[0]);
-
-        //press_sum_red_cpu_knl.setArg(0, CloverCL::press_tmp_buffer); 
-        //press_sum_red_cpu_knl.setArg(1, CloverCL::cpu_press_red_buffer); 
-        //press_sum_red_cpu_knl.setArg(2, CloverCL::num_elements_per_wi[0]); 
-        //press_sum_red_cpu_knl.setArg(3, CloverCL::size_limits[0]); 
-
-        //err = outoforder_queue.enqueueNDRangeKernel(press_sum_red_cpu_knl, cl::NDRange(1), 
-        //                             cl::NDRange(CloverCL::num_workitems_tolaunch[0]),
-        //                             cl::NDRange(CloverCL::num_workitems_per_wg[0]), 
-        //                             &events2, &press_reduction_event_array[0]);
-
-        //outoforder_queue.enqueueBarrier();
+    CloverCL::outoforder_queue.enqueueWaitForEvents(events2);
 
 
-        //// Level 2 of CPU reduction
-        //vol_sum_red_cpu_knl.setArg(0, CloverCL::cpu_vol_red_buffer); 
-        //vol_sum_red_cpu_knl.setArg(1, CloverCL::vol_sum_val_buffer); 
-        //vol_sum_red_cpu_knl.setArg(2, CloverCL::num_elements_per_wi[1]); 
-        //vol_sum_red_cpu_knl.setArg(3, CloverCL::size_limits[1]); 
+    //Run the reduction kernels 
+    try {
 
-        //err = outoforder_queue.enqueueNDRangeKernel(vol_sum_red_cpu_knl, cl::NDRange(1), 
-        //                             cl::NDRange(CloverCL::num_workitems_tolaunch[1]),
-        //                             cl::NDRange(CloverCL::num_workitems_per_wg[1]), 
-        //                             NULL, &vol_reduction_event_array[1]);
+        for (int i=1; i<=CloverCL::number_of_red_levels; i++) {
 
-        //mass_sum_red_cpu_knl.setArg(0, CloverCL::cpu_mass_red_buffer); 
-        //mass_sum_red_cpu_knl.setArg(1, CloverCL::mass_sum_val_buffer); 
-        //mass_sum_red_cpu_knl.setArg(2, CloverCL::num_elements_per_wi[1]); 
-        //mass_sum_red_cpu_knl.setArg(3, CloverCL::size_limits[1]); 
+            err = CloverCL::outoforder_queue.enqueueNDRangeKernel(CloverCL::vol_sum_reduction_kernels[i-1], cl::NullRange,
+                                             cl::NDRange(CloverCL::num_workitems_tolaunch[i-1]),
+                                             cl::NDRange(CloverCL::num_workitems_per_wg[i-1]),
+                                             NULL, NULL); 
+            err = CloverCL::outoforder_queue.enqueueNDRangeKernel(CloverCL::mass_sum_reduction_kernels[i-1], cl::NullRange,
+                                             cl::NDRange(CloverCL::num_workitems_tolaunch[i-1]),
+                                             cl::NDRange(CloverCL::num_workitems_per_wg[i-1]),
+                                             NULL, NULL); 
+            err = CloverCL::outoforder_queue.enqueueNDRangeKernel(CloverCL::ie_sum_reduction_kernels[i-1], cl::NullRange,
+                                             cl::NDRange(CloverCL::num_workitems_tolaunch[i-1]),
+                                             cl::NDRange(CloverCL::num_workitems_per_wg[i-1]),
+                                             NULL, NULL); 
+            err = CloverCL::outoforder_queue.enqueueNDRangeKernel(CloverCL::ke_sum_reduction_kernels[i-1], cl::NullRange,
+                                             cl::NDRange(CloverCL::num_workitems_tolaunch[i-1]),
+                                             cl::NDRange(CloverCL::num_workitems_per_wg[i-1]),
+                                             NULL, NULL); 
+            err = CloverCL::outoforder_queue.enqueueNDRangeKernel(CloverCL::press_sum_reduction_kernels[i-1], cl::NullRange,
+                                             cl::NDRange(CloverCL::num_workitems_tolaunch[i-1]),
+                                             cl::NDRange(CloverCL::num_workitems_per_wg[i-1]),
+                                             NULL, NULL); 
 
-        //err = outoforder_queue.enqueueNDRangeKernel(mass_sum_red_cpu_knl, cl::NDRange(1), 
-        //                             cl::NDRange(CloverCL::num_workitems_tolaunch[1]),
-        //                             cl::NDRange(CloverCL::num_workitems_per_wg[1]), 
-        //                             NULL, &mass_reduction_event_array[1]);
-
-        //ie_sum_red_cpu_knl.setArg(0, CloverCL::cpu_ie_red_buffer); 
-        //ie_sum_red_cpu_knl.setArg(1, CloverCL::ie_sum_val_buffer); 
-        //ie_sum_red_cpu_knl.setArg(2, CloverCL::num_elements_per_wi[1]); 
-        //ie_sum_red_cpu_knl.setArg(3, CloverCL::size_limits[1]); 
-
-        //err = outoforder_queue.enqueueNDRangeKernel(ie_sum_red_cpu_knl, cl::NDRange(1), 
-        //                             cl::NDRange(CloverCL::num_workitems_tolaunch[1]),
-        //                             cl::NDRange(CloverCL::num_workitems_per_wg[1]), 
-        //                             NULL, &ie_reduction_event_array[1]);
-
-        //ke_sum_red_cpu_knl.setArg(0, CloverCL::cpu_ke_red_buffer); 
-        //ke_sum_red_cpu_knl.setArg(1, CloverCL::ke_sum_val_buffer); 
-        //ke_sum_red_cpu_knl.setArg(2, CloverCL::num_elements_per_wi[1]); 
-        //ke_sum_red_cpu_knl.setArg(3, CloverCL::size_limits[1]); 
-
-        //err = outoforder_queue.enqueueNDRangeKernel(ke_sum_red_cpu_knl, cl::NDRange(1), 
-        //                             cl::NDRange(CloverCL::num_workitems_tolaunch[1]),
-        //                             cl::NDRange(CloverCL::num_workitems_per_wg[1]), 
-        //                             NULL, &ke_reduction_event_array[1]);
-
-        //press_sum_red_cpu_knl.setArg(0, CloverCL::cpu_press_red_buffer); 
-        //press_sum_red_cpu_knl.setArg(1, CloverCL::press_sum_val_buffer); 
-        //press_sum_red_cpu_knl.setArg(2, CloverCL::num_elements_per_wi[1]); 
-        //press_sum_red_cpu_knl.setArg(3, CloverCL::size_limits[1]); 
-
-        //err = outoforder_queue.enqueueNDRangeKernel(press_sum_red_cpu_knl, cl::NDRange(1), 
-        //                             cl::NDRange(CloverCL::num_workitems_tolaunch[1]),
-        //                             cl::NDRange(CloverCL::num_workitems_per_wg[1]), 
-        //                             NULL, &press_reduction_event_array[1]);
-
-
-        //outoforder_queue.enqueueBarrier();
-
-        CloverCL::outoforder_queue.enqueueWaitForEvents(events2);
-
-        try {
-
-            for (int i=1; i<=CloverCL::number_of_red_levels; i++) {
-
-                err = CloverCL::outoforder_queue.enqueueNDRangeKernel(CloverCL::vol_sum_reduction_kernels[i-1], cl::NullRange,
-                                                 cl::NDRange(CloverCL::num_workitems_tolaunch[i-1]),
-                                                 cl::NDRange(CloverCL::num_workitems_per_wg[i-1]),
-                                                 NULL, NULL); 
-                err = CloverCL::outoforder_queue.enqueueNDRangeKernel(CloverCL::mass_sum_reduction_kernels[i-1], cl::NullRange,
-                                                 cl::NDRange(CloverCL::num_workitems_tolaunch[i-1]),
-                                                 cl::NDRange(CloverCL::num_workitems_per_wg[i-1]),
-                                                 NULL, NULL); 
-                err = CloverCL::outoforder_queue.enqueueNDRangeKernel(CloverCL::ie_sum_reduction_kernels[i-1], cl::NullRange,
-                                                 cl::NDRange(CloverCL::num_workitems_tolaunch[i-1]),
-                                                 cl::NDRange(CloverCL::num_workitems_per_wg[i-1]),
-                                                 NULL, NULL); 
-                err = CloverCL::outoforder_queue.enqueueNDRangeKernel(CloverCL::ke_sum_reduction_kernels[i-1], cl::NullRange,
-                                                 cl::NDRange(CloverCL::num_workitems_tolaunch[i-1]),
-                                                 cl::NDRange(CloverCL::num_workitems_per_wg[i-1]),
-                                                 NULL, NULL); 
-                err = CloverCL::outoforder_queue.enqueueNDRangeKernel(CloverCL::press_sum_reduction_kernels[i-1], cl::NullRange,
-                                                 cl::NDRange(CloverCL::num_workitems_tolaunch[i-1]),
-                                                 cl::NDRange(CloverCL::num_workitems_per_wg[i-1]),
-                                                 NULL, NULL); 
-
-                if (i < CloverCL::number_of_red_levels) { CloverCL::outoforder_queue.enqueueBarrier(); }
-            }
-
-            //required in order to force the execution of the above reduction kernels
-            //without this overall runtime increases hugely, at least on Nvidia
-            CloverCL::outoforder_queue.finish();
-
-        } catch(cl::Error err) {
-             std::cerr
-                 << "[CloverCL] ERROR: at sum reduction kernel launch in loop"
-                 << err.what()
-                 << "("
-                 << CloverCL::errToString(err.err())
-                 << ")"
-                 << std::endl;
+            if (i < CloverCL::number_of_red_levels) { CloverCL::outoforder_queue.enqueueBarrier(); }
         }
+
+        //required in order to force the execution of the above reduction kernels
+        //without this overall runtime increases hugely, at least on Nvidia
+        CloverCL::outoforder_queue.finish();
+
+    } catch(cl::Error err) {
+         std::cerr
+             << "[CloverCL] ERROR: at sum reduction kernel launch in loop"
+             << err.what()
+             << "("
+             << CloverCL::errToString(err.err())
+             << ")"
+             << std::endl;
+    }
 
 
     /*
@@ -235,50 +129,20 @@ void field_summary_kernel_ocl_(
      */
     try {
 
-        CloverCL::outoforder_queue.enqueueReadBuffer(
-                CloverCL::vol_sum_val_buffer,
-                CL_FALSE,
-                0,
-                sizeof(double),
-                vol,
-                NULL,
-                NULL);
+        CloverCL::outoforder_queue.enqueueReadBuffer(CloverCL::vol_sum_val_buffer, CL_FALSE, 0, 
+                                                     sizeof(double), vol, NULL, NULL);
 
-        CloverCL::outoforder_queue.enqueueReadBuffer(
-                CloverCL::mass_sum_val_buffer,
-                CL_FALSE,
-                0,
-                sizeof(double),
-                mass,
-                NULL,
-                NULL);
+        CloverCL::outoforder_queue.enqueueReadBuffer(CloverCL::mass_sum_val_buffer, CL_FALSE, 0, 
+                                                     sizeof(double), mass, NULL, NULL);
 
-        CloverCL::outoforder_queue.enqueueReadBuffer(
-                CloverCL::ie_sum_val_buffer,
-                CL_FALSE,
-                0,
-                sizeof(double),
-                ie,
-                NULL,
-                NULL);
+        CloverCL::outoforder_queue.enqueueReadBuffer(CloverCL::ie_sum_val_buffer, CL_FALSE, 0, 
+                                                     sizeof(double), ie, NULL, NULL);
 
-        CloverCL::outoforder_queue.enqueueReadBuffer(
-                CloverCL::ke_sum_val_buffer,
-                CL_FALSE,
-                0,
-                sizeof(double),
-                ke,
-                NULL,
-                NULL);
+        CloverCL::outoforder_queue.enqueueReadBuffer(CloverCL::ke_sum_val_buffer, CL_FALSE, 0, 
+                                                     sizeof(double), ke, NULL, NULL);
 
-        CloverCL::outoforder_queue.enqueueReadBuffer(
-                CloverCL::press_sum_val_buffer,
-                CL_FALSE,
-                0,
-                sizeof(double),
-                press,
-                NULL,
-                NULL);
+        CloverCL::outoforder_queue.enqueueReadBuffer(CloverCL::press_sum_val_buffer, CL_FALSE, 0, 
+                                                     sizeof(double), press, NULL, NULL);
 
     } catch(cl::Error err) {
         CloverCL::reportError(err, "field_summary reading buffers");
@@ -292,7 +156,9 @@ void field_summary_kernel_ocl_(
     timeval t_end;
     gettimeofday(&t_end, NULL);
 
-    std::cout << "[PROFILING]: field_summary OpenCL kernel took " << (t_end.tv_usec - t_start.tv_usec)*CloverCL::US_TO_SECONDS << " seconds (host time)" << std::endl;
+    std::cout << "[PROFILING]: field_summary OpenCL kernel took " 
+              << (t_end.tv_usec - t_start.tv_usec)*CloverCL::US_TO_SECONDS 
+              << " seconds (host time)" << std::endl;
 
 #endif
 
