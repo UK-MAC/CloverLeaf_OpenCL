@@ -399,8 +399,8 @@ void CloverCL::build_reduction_kernel_objects() {
     ke_sum_reduction_kernels.clear();
     press_sum_reduction_kernels.clear();
 
-    if (CloverCL::device_type == CL_DEVICE_TYPE_CPU) {
-        //build the CPU reduction objects 
+    if ( (device_type == CL_DEVICE_TYPE_CPU) || (device_type == CL_DEVICE_TYPE_ACCELERATOR) ) {
+        //build the CPU and Phi reduction objects 
 
         //build level 1 of CPU reduction 
         min_reduction_kernels.push_back( cl::Kernel(program, "reduction_minimum_cpu_ocl_kernel", &err) );
@@ -612,6 +612,10 @@ void CloverCL::build_reduction_kernel_objects() {
             }
         }
 
+    }
+    else {
+        std::cout << "ERROR in CloverCL build reduction structure objectes method: device type is unsupported" 
+                  << std::endl;
     }
 }
 
