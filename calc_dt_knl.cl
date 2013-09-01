@@ -110,22 +110,26 @@ __kernel void calc_dt_ocl_kernel(
             dtdivt = g_big;
 	    }
 
-	    //dt_min_val_array[ARRAYXY(j-2,k-2,XMAX)] = fmin( fmin( fmin(dtvt, dtdivt), dtut ), dtct ); 
 	    dt_min_local[localid] = fmin( fmin( fmin(dtvt, dtdivt), dtut ), dtct ); 
 
     }
 
-    barrier(CLK_LOCAL_MEM_FENCE);
+    if ((j>=2) || (k>=2) ) { 
 
-    for (int limit = WORKGROUP_SIZE_DIVTWO; limit > 0; limit >>= 1 ) {
-
-        if (localid < limit) {
-        
-            dt_min_local[localid] = fmin(dt_min_local[localid], dt_min_local[localid + limit]);
-
-        }
         barrier(CLK_LOCAL_MEM_FENCE);
+
+        for (int limit = WORKGROUP_SIZE_DIVTWO; limit > 0; limit >>= 1 ) {
+
+            if (localid < limit) {
+            
+                dt_min_local[localid] = fmin(dt_min_local[localid], dt_min_local[localid + limit]);
+
+            }
+            barrier(CLK_LOCAL_MEM_FENCE);
+        }
+
     }
+
     if (localid==0) { dt_min_val_array[get_group_id(1)*get_num_groups(0) + get_group_id(0)] = dt_min_local[0]; }
 }
 

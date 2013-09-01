@@ -73,12 +73,6 @@ __kernel void field_summary_ocl_kernel(
         cell_vol = volume[ARRAYXY(j, k, XMAXPLUSFOUR)];
         cell_mass = cell_vol * density0[ARRAYXY(j, k, XMAXPLUSFOUR)];
 
-        //vol_tmp_array[ARRAYXY(j-2, k-2, XMAX)] = cell_vol;
-        //mass_tmp_array[ARRAYXY(j-2, k-2, XMAX)] = cell_mass;
-        //ie_tmp_array[ARRAYXY(j-2, k-2, XMAX)] = cell_mass * energy0[ARRAYXY(j, k, XMAXPLUSFOUR)]; 
-        //ke_tmp_array[ARRAYXY(j-2, k-2, XMAX)] = cell_mass * 0.5 * vsqrd;
-        //press_tmp_array[ARRAYXY(j-2, k-2, XMAX)] = cell_vol * pressure[ARRAYXY(j, k, XMAXPLUSFOUR)];
-
         vol_sum_local[localid] = cell_vol;
         mass_sum_local[localid] = cell_mass;
         ie_sum_local[localid] = cell_mass * energy0[ARRAYXY(j, k, XMAXPLUSFOUR)]; 
@@ -87,28 +81,32 @@ __kernel void field_summary_ocl_kernel(
 
     }
 
-    barrier(CLK_LOCAL_MEM_FENCE);
+    if ((j>=2) || (k>=2)) {
 
-    for (int limit = WORKGROUP_SIZE_DIVTWO; limit > 0; limit >>= 1) {
+        barrier(CLK_LOCAL_MEM_FENCE);
 
-        if (localid < limit) {
+        for (int limit = WORKGROUP_SIZE_DIVTWO; limit > 0; limit >>= 1) {
 
-            vol_sum_local[localid] = vol_sum_local[localid] + vol_sum_local[localid + limit];
-            mass_sum_local[localid] = mass_sum_local[localid] + mass_sum_local[localid + limit];
-            ie_sum_local[localid] = ie_sum_local[localid] + ie_sum_local[localid + limit];
-            ke_sum_local[localid] = ke_sum_local[localid] + ke_sum_local[localid + limit];
-            press_sum_local[localid] = press_sum_local[localid] + press_sum_local[localid + limit];
+            if (localid < limit) {
+
+                vol_sum_local[localid] = vol_sum_local[localid] + vol_sum_local[localid + limit];
+                mass_sum_local[localid] = mass_sum_local[localid] + mass_sum_local[localid + limit];
+                ie_sum_local[localid] = ie_sum_local[localid] + ie_sum_local[localid + limit];
+                ke_sum_local[localid] = ke_sum_local[localid] + ke_sum_local[localid + limit];
+                press_sum_local[localid] = press_sum_local[localid] + press_sum_local[localid + limit];
+            }
+            barrier(CLK_LOCAL_MEM_FENCE);  
         }
-        barrier(CLK_LOCAL_MEM_FENCE);  
     }
 
     if (localid==0) {
 
-        vol_tmp_array[get_group_id(1)*get_num_groups(0) + get_group_id(0)] = vol_sum_local[0];
-        mass_tmp_array[get_group_id(1)*get_num_groups(0) + get_group_id(0)] = mass_sum_local[0];
-        ie_tmp_array[get_group_id(1)*get_num_groups(0) + get_group_id(0)] = ie_sum_local[0]; 
-        ke_tmp_array[get_group_id(1)*get_num_groups(0) + get_group_id(0)] = ke_sum_local[0];
-        press_tmp_array[get_group_id(1)*get_num_groups(0) + get_group_id(0)] = press_sum_local[0];
+        int write_loc = get_group_id(1)*get_num_groups(0) + get_group_id(0);
+        vol_tmp_array[write_loc] = vol_sum_local[0];
+        mass_tmp_array[write_loc] = mass_sum_local[0];
+        ie_tmp_array[write_loc] = ie_sum_local[0]; 
+        ke_tmp_array[write_loc] = ke_sum_local[0];
+        press_tmp_array[write_loc] = press_sum_local[0];
     }
 
 }
