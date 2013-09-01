@@ -67,6 +67,8 @@ ifndef OCL_VENDOR
 	OCLMESSAGE=If you want to use OpenCL kernels, please specify the OCL_VENDOR variable
 endif
 
+OCL_LOCAL_WG_SIZE_XDIM=256 #this value must be a power of 2, less than the devices maximum size and a multiple of its preferred vector width 
+
 OMP_INTEL     = 
 OMP_SUN       = -xopenmp=parallel -vpara
 OMP_GNU       = -fopenmp
@@ -134,7 +136,7 @@ ifdef IEEE
 endif
 
 FLAGS=$(FLAGS_$(COMPILER)) $(I3E) $(OPTIONS) $(OCL_LIB)
-CFLAGS=$(CFLAGS_$(COMPILER)) $(I3E) $(COPTIONS) -c -DCL_USE_DEPRECATED_OPENCL_1_1_APIS #-DPROFILE_OCL_KERNELS=1 #-DOCL_VERBOSE=1
+CFLAGS=$(CFLAGS_$(COMPILER)) $(I3E) $(COPTIONS) -c -DCL_USE_DEPRECATED_OPENCL_1_1_APIS -DWG_SIZE_X=$(OCL_LOCAL_WG_SIZE_XDIM) #-DPROFILE_OCL_KERNELS=1 #-DOCL_VERBOSE=1
 MPI_COMPILER=mpif90
 C_MPI_COMPILER=mpicc
 CXX_MPI_COMPILER=mpiCC
