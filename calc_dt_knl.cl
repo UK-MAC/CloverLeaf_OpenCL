@@ -57,8 +57,13 @@ __kernel void calc_dt_ocl_kernel(
 {
     double dsx,dsy,cc,dv1,dv2,div,dtct,dtut,dtvt,dtdivt; 
 
+    __local double dt_min_local[WORKGROUP_SIZE];
+
     int k = get_global_id(1);
     int j = get_global_id(0);
+
+    int localid = get_local_id(0);
+    dt_min_local[localid] = 100000;
 
     if ( (j>=2) && (j<=XMAXPLUSONE) && (k>=2) && (k<=YMAXPLUSONE) ) {
 
@@ -105,9 +110,23 @@ __kernel void calc_dt_ocl_kernel(
             dtdivt = g_big;
 	    }
 
-	    dt_min_val_array[ARRAYXY(j-2,k-2,XMAX)] = fmin( fmin( fmin(dtvt, dtdivt), dtut ), dtct ); 
+	    //dt_min_val_array[ARRAYXY(j-2,k-2,XMAX)] = fmin( fmin( fmin(dtvt, dtdivt), dtut ), dtct ); 
+	    dt_min_local[localid] = fmin( fmin( fmin(dtvt, dtdivt), dtut ), dtct ); 
 
     }
+
+    barrier(CLK_LOCAL_MEM_FENCE);
+
+    for (int limit = WORKGROUP_SIZE_DIVTWO; limit > 0; limit >>= 1 ) {
+
+        if (localid < limit) {
+        
+            dt_min_local[localid] = fmin(dt_min_local[localid], dt_min_local[localid + limit]);
+
+        }
+        barrier(CLK_LOCAL_MEM_FENCE);
+    }
+    if (localid==0) { dt_min_val_array[get_group_id(1)*get_num_groups(0) + get_group_id(0)] = dt_min_local[0]; }
 }
 
 

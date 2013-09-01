@@ -617,7 +617,12 @@ void CloverCL::build_reduction_kernel_objects() {
 
 void CloverCL::calculateReductionStructure(int xmax, int ymax) {
 
-    int num_elements = xmax * ymax;
+    int x_rnd = ((xmax+2) / fixed_wg_min_size_large_dim ) * fixed_wg_min_size_large_dim;
+
+    if ((x_rnd != xmax+2))
+        x_rnd = x_rnd + fixed_wg_min_size_large_dim;
+
+    int num_elements = x_rnd / fixed_wg_min_size_large_dim * (ymax+2);
 
     num_workitems_tolaunch.clear();
     num_workitems_per_wg.clear();
@@ -1580,15 +1585,13 @@ void CloverCL::loadProgram(int xmin, int xmax, int ymin, int ymax)
         std::cout << build_log << std::endl; \
 
     cl_int prog_err;
-    char buildOptions [150];
+    char buildOptions [200];
 
     try {
         program = cl::Program(context, sources, &prog_err);
 
-        sprintf(buildOptions, "-DXMIN=%u -DXMAX=%u -DYMIN=%u -DYMINPLUSONE=%u -DYMINPLUSTWO=%u"
-                              " -DYMAX=%u -DXMAXPLUSONE=%u -D XMAXPLUSTWO=%u -DXMAXPLUSTHREE=%u"
-                              " -DXMAXPLUSFOUR=%u -DXMAXPLUSFIVE=%u -DYMAXPLUSONE=%u -DYMAXPLUSTWO=%u -DYMAXPLUSTHREE=%u", 
-                xmin, xmax, ymin, ymin+1, ymin+2, ymax, xmax+1, xmax+2, xmax+3, xmax+4, xmax+5, ymax+1, ymax+2, ymax+3);
+        sprintf(buildOptions, "-DXMIN=%u -DXMAX=%u -DYMIN=%u -DYMINPLUSONE=%u -DYMINPLUSTWO=%u -DYMAX=%u -DXMAXPLUSONE=%u -D XMAXPLUSTWO=%u -DXMAXPLUSTHREE=%u -DXMAXPLUSFOUR=%u -DXMAXPLUSFIVE=%u -DYMAXPLUSONE=%u -DYMAXPLUSTWO=%u -DYMAXPLUSTHREE=%u -DWORKGROUP_SIZE=%u -DWORKGROUP_SIZE_DIVTWO=%u", 
+                xmin, xmax, ymin, ymin+1, ymin+2, ymax, xmax+1, xmax+2, xmax+3, xmax+4, xmax+5, ymax+1, ymax+2, ymax+3, CloverCL::fixed_wg_min_size_large_dim, CloverCL::fixed_wg_min_size_large_dim/2);
 
 	    checkErr(prog_err, "Program object creation");
 
