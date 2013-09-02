@@ -114,7 +114,7 @@ __kernel void calc_dt_ocl_kernel(
 
     }
 
-    if ((j>=2) || (k>=2) ) { 
+    if ( k>=2 ) { 
 
         barrier(CLK_LOCAL_MEM_FENCE);
 
