@@ -81,7 +81,7 @@ __kernel void field_summary_ocl_kernel(
 
     }
 
-    if ((j>=2) || (k>=2)) {
+    //if ((j>=2) || (k>=2)) {
 
 #ifndef CPU_REDUCTION
 
@@ -104,6 +104,8 @@ __kernel void field_summary_ocl_kernel(
 #else
 
         //CPU reduction
+        barrier(CLK_LOCAL_MEM_FENCE);
+
         if (localid==0) {
             for (int index = 1; index < WORKGROUP_SIZE; index++ ) {
                 vol_sum_local[localid] += vol_sum_local[index];
@@ -116,7 +118,7 @@ __kernel void field_summary_ocl_kernel(
 
 #endif
 
-    }
+    //}
 
     if (localid==0) {
 

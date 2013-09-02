@@ -114,7 +114,7 @@ __kernel void calc_dt_ocl_kernel(
 
     }
 
-    if ((j>=2) || (k>=2) ) { 
+    //if ((j>=2) || (k>=2) ) { 
 
 #ifndef CPU_REDUCTION 
 
@@ -133,15 +133,17 @@ __kernel void calc_dt_ocl_kernel(
 
 #else 
         //CPU reduction 
+        barrier(CLK_LOCAL_MEM_FENCE);
+
         if (localid==0) {
             for (int index = 1; index < WORKGROUP_SIZE; index++) {
-               dt_min_local[localid] = fmin( dt_min_local[localid], dt_min_local[index] );  
+                dt_min_local[localid] = fmin( dt_min_local[localid], dt_min_local[index] );  
             }
         }
 
 #endif
 
-    }
+    //}
 
     if (localid==0) { dt_min_val_array[get_group_id(1)*get_num_groups(0) + get_group_id(0)] = dt_min_local[0]; }
 }
