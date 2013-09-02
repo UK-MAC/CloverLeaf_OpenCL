@@ -83,6 +83,9 @@ __kernel void field_summary_ocl_kernel(
 
     if ((j>=2) || (k>=2)) {
 
+#ifndef CPU_REDUCTION
+
+        //GPU reduction 
         barrier(CLK_LOCAL_MEM_FENCE);
 
         for (int limit = WORKGROUP_SIZE_DIVTWO; limit > 0; limit >>= 1) {
@@ -97,6 +100,22 @@ __kernel void field_summary_ocl_kernel(
             }
             barrier(CLK_LOCAL_MEM_FENCE);  
         }
+
+#else
+
+        //CPU reduction
+        if (localid==0) {
+            for (int index = 1; index < WORKGROUP_SIZE; index++ ) {
+                vol_sum_local[localid] += vol_sum_local[index];
+                mass_sum_local[localid] += mass_sum_local[index];
+                ie_sum_local[localid] += ie_sum_local[index];
+                ke_sum_local[localid] += ke_sum_local[index];
+                press_sum_local[localid] += press_sum_local[index];
+            }
+        }
+
+#endif
+
     }
 
     if (localid==0) {

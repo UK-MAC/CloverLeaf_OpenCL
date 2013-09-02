@@ -283,6 +283,7 @@ void CloverCL::init(
     initContext(platform_type);
     initDevice(0);
     initCommandQueue();
+    std::cout << "at end of init method" << std::endl; 
     loadProgram(x_min, x_max, y_min, y_max);
     determineWorkGroupSizeInfo();
 
@@ -299,6 +300,7 @@ void CloverCL::init(
                          g_small, g_big, dtmin, dtc_safe,
                          dtu_safe, dtv_safe, dtdiv_safe);
     initialised = true;
+
 }
 
 
@@ -1594,12 +1596,23 @@ void CloverCL::loadProgram(int xmin, int xmax, int ymin, int ymax)
     try {
         program = cl::Program(context, sources, &prog_err);
 
-        sprintf(buildOptions, "-DXMIN=%u -DXMAX=%u -DYMIN=%u -DYMINPLUSONE=%u -DYMINPLUSTWO=%u -DYMAX=%u -DXMAXPLUSONE=%u -D XMAXPLUSTWO=%u -DXMAXPLUSTHREE=%u -DXMAXPLUSFOUR=%u -DXMAXPLUSFIVE=%u -DYMAXPLUSONE=%u -DYMAXPLUSTWO=%u -DYMAXPLUSTHREE=%u -DWORKGROUP_SIZE=%u -DWORKGROUP_SIZE_DIVTWO=%u", 
+        if (device_type == CL_DEVICE_TYPE_GPU) {
+
+            sprintf(buildOptions, "-DXMIN=%u -DXMAX=%u -DYMIN=%u -DYMINPLUSONE=%u -DYMINPLUSTWO=%u -DYMAX=%u -DXMAXPLUSONE=%u -D XMAXPLUSTWO=%u -DXMAXPLUSTHREE=%u -DXMAXPLUSFOUR=%u -DXMAXPLUSFIVE=%u -DYMAXPLUSONE=%u -DYMAXPLUSTWO=%u -DYMAXPLUSTHREE=%u -DWORKGROUP_SIZE=%u -DWORKGROUP_SIZE_DIVTWO=%u", 
                 xmin, xmax, ymin, ymin+1, ymin+2, ymax, xmax+1, xmax+2, xmax+3, xmax+4, xmax+5, ymax+1, ymax+2, ymax+3, CloverCL::fixed_wg_min_size_large_dim, CloverCL::fixed_wg_min_size_large_dim/2);
+
+        } else {
+
+            std::cout << "Just before build options " << std::endl; 
+            sprintf(buildOptions, "-DXMIN=%u -DXMAX=%u -DYMIN=%u -DYMINPLUSONE=%u -DYMINPLUSTWO=%u -DYMAX=%u -DXMAXPLUSONE=%u -D XMAXPLUSTWO=%u -DXMAXPLUSTHREE=%u -DXMAXPLUSFOUR=%u -DXMAXPLUSFIVE=%u -DYMAXPLUSONE=%u -DYMAXPLUSTWO=%u -DYMAXPLUSTHREE=%u -DWORKGROUP_SIZE=%u -DWORKGROUP_SIZE_DIVTWO=%u -DCPU_REDUCTION", 
+                 xmin, xmax, ymin, ymin+1, ymin+2, ymax, xmax+1, xmax+2, xmax+3, xmax+4, xmax+5, ymax+1, ymax+2, ymax+3, CloverCL::fixed_wg_min_size_large_dim, CloverCL::fixed_wg_min_size_large_dim/2);
+            std::cout << "Just after build options " << std::endl; 
+        }
 
 	    checkErr(prog_err, "Program object creation");
 
         err = program.build(devices, buildOptions); 
+       std::cout << "Just after program build" << std::endl; 
 
     } catch (cl::Error err) {
         std::cerr
@@ -1916,6 +1929,7 @@ void CloverCL::loadProgram(int xmin, int xmax, int ymin, int ymax)
         reportError(err, "creating write_left_buffer_ocl_knl");
     }
 
+    std::cout << "after kernels are created" << std::endl; 
 }
 
 void CloverCL::readVisualisationBuffers(

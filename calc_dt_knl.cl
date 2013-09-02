@@ -116,6 +116,9 @@ __kernel void calc_dt_ocl_kernel(
 
     if ((j>=2) || (k>=2) ) { 
 
+#ifndef CPU_REDUCTION 
+
+        //GPU reduction 
         barrier(CLK_LOCAL_MEM_FENCE);
 
         for (int limit = WORKGROUP_SIZE_DIVTWO; limit > 0; limit >>= 1 ) {
@@ -127,6 +130,16 @@ __kernel void calc_dt_ocl_kernel(
             }
             barrier(CLK_LOCAL_MEM_FENCE);
         }
+
+#else 
+        //CPU reduction 
+        if (localid==0) {
+            for (int index = 1; index < WORKGROUP_SIZE; index++) {
+               dt_min_local[localid] = fmin( dt_min_local[localid], dt_min_local[index] );  
+            }
+        }
+
+#endif
 
     }
 
