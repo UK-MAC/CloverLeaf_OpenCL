@@ -79,21 +79,21 @@ void pack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right_n
     int launch_height; 
 
     switch(*nameoffield) {
-        case FIELD_DENSITY0: field_buffer = &CloverCL::density0_buffer; break;
-        case FIELD_DENSITY1: field_buffer = &CloverCL::density1_buffer; break;
-        case FIELD_ENERGY0: field_buffer = &CloverCL::energy0_buffer; break;
-        case FIELD_ENERGY1: field_buffer = &CloverCL::energy1_buffer; break;
-        case FIELD_PRESSURE: field_buffer = &CloverCL::pressure_buffer; break;
-        case FIELD_VISCOSITY: field_buffer = &CloverCL::viscosity_buffer; break;
-        case FIELD_SOUNDSPEED: field_buffer = &CloverCL::soundspeed_buffer; break;
-        case FIELD_XVEL0: field_buffer = &CloverCL::xvel0_buffer; break;
-        case FIELD_XVEL1: field_buffer = &CloverCL::xvel1_buffer; break;
-        case FIELD_YVEL0: field_buffer = &CloverCL::yvel0_buffer; break;
-        case FIELD_YVEL1: field_buffer = &CloverCL::yvel1_buffer; break;
-        case FIELD_VOL_FLUX_X: field_buffer = &CloverCL::vol_flux_x_buffer; break;
-        case FIELD_VOL_FLUX_Y: field_buffer = &CloverCL::vol_flux_y_buffer; break;
-        case FIELD_MASS_FLUX_X: field_buffer = &CloverCL::mass_flux_x_buffer; break;
-        case FIELD_MASS_FLUX_Y: field_buffer = &CloverCL::mass_flux_y_buffer; break;
+        case CloverCL::FIELD_DENSITY0: field_buffer = &CloverCL::density0_buffer; break;
+        case CloverCL::FIELD_DENSITY1: field_buffer = &CloverCL::density1_buffer; break;
+        case CloverCL::FIELD_ENERGY0: field_buffer = &CloverCL::energy0_buffer; break;
+        case CloverCL::FIELD_ENERGY1: field_buffer = &CloverCL::energy1_buffer; break;
+        case CloverCL::FIELD_PRESSURE: field_buffer = &CloverCL::pressure_buffer; break;
+        case CloverCL::FIELD_VISCOSITY: field_buffer = &CloverCL::viscosity_buffer; break;
+        case CloverCL::FIELD_SOUNDSPEED: field_buffer = &CloverCL::soundspeed_buffer; break;
+        case CloverCL::FIELD_XVEL0: field_buffer = &CloverCL::xvel0_buffer; break;
+        case CloverCL::FIELD_XVEL1: field_buffer = &CloverCL::xvel1_buffer; break;
+        case CloverCL::FIELD_YVEL0: field_buffer = &CloverCL::yvel0_buffer; break;
+        case CloverCL::FIELD_YVEL1: field_buffer = &CloverCL::yvel1_buffer; break;
+        case CloverCL::FIELD_VOL_FLUX_X: field_buffer = &CloverCL::vol_flux_x_buffer; break;
+        case CloverCL::FIELD_VOL_FLUX_Y: field_buffer = &CloverCL::vol_flux_y_buffer; break;
+        case CloverCL::FIELD_MASS_FLUX_X: field_buffer = &CloverCL::mass_flux_x_buffer; break;
+        case CloverCL::FIELD_MASS_FLUX_Y: field_buffer = &CloverCL::mass_flux_y_buffer; break;
     }
 
     if ( *yinc == 1 ) {
@@ -185,23 +185,24 @@ void unpack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right
 #endif
 
     cl::Buffer *field_buffer; 
+    int launch_height; 
 
     switch(*nameoffield) {
-        case FIELD_DENSITY0: field_buffer = &CloverCL::density0_buffer; break;
-        case FIELD_DENSITY1: field_buffer = &CloverCL::density1_buffer; break;
-        case FIELD_ENERGY0: field_buffer = &CloverCL::energy0_buffer; break;
-        case FIELD_ENERGY1: field_buffer = &CloverCL::energy1_buffer; break;
-        case FIELD_PRESSURE: field_buffer = &CloverCL::pressure_buffer; break;
-        case FIELD_VISCOSITY: field_buffer = &CloverCL::viscosity_buffer; break;
-        case FIELD_SOUNDSPEED: field_buffer = &CloverCL::soundspeed_buffer; break;
-        case FIELD_XVEL0: field_buffer = &CloverCL::xvel0_buffer; break;
-        case FIELD_XVEL1: field_buffer = &CloverCL::xvel1_buffer; break;
-        case FIELD_YVEL0: field_buffer = &CloverCL::yvel0_buffer; break;
-        case FIELD_YVEL1: field_buffer = &CloverCL::yvel1_buffer; break;
-        case FIELD_VOL_FLUX_X: field_buffer = &CloverCL::vol_flux_x_buffer; break;
-        case FIELD_VOL_FLUX_Y: field_buffer = &CloverCL::vol_flux_y_buffer; break;
-        case FIELD_MASS_FLUX_X: field_buffer = &CloverCL::mass_flux_x_buffer; break;
-        case FIELD_MASS_FLUX_Y: field_buffer = &CloverCL::mass_flux_y_buffer; break;
+        case CloverCL::FIELD_DENSITY0: field_buffer = &CloverCL::density0_buffer; break;
+        case CloverCL::FIELD_DENSITY1: field_buffer = &CloverCL::density1_buffer; break;
+        case CloverCL::FIELD_ENERGY0: field_buffer = &CloverCL::energy0_buffer; break;
+        case CloverCL::FIELD_ENERGY1: field_buffer = &CloverCL::energy1_buffer; break;
+        case CloverCL::FIELD_PRESSURE: field_buffer = &CloverCL::pressure_buffer; break;
+        case CloverCL::FIELD_VISCOSITY: field_buffer = &CloverCL::viscosity_buffer; break;
+        case CloverCL::FIELD_SOUNDSPEED: field_buffer = &CloverCL::soundspeed_buffer; break;
+        case CloverCL::FIELD_XVEL0: field_buffer = &CloverCL::xvel0_buffer; break;
+        case CloverCL::FIELD_XVEL1: field_buffer = &CloverCL::xvel1_buffer; break;
+        case CloverCL::FIELD_YVEL0: field_buffer = &CloverCL::yvel0_buffer; break;
+        case CloverCL::FIELD_YVEL1: field_buffer = &CloverCL::yvel1_buffer; break;
+        case CloverCL::FIELD_VOL_FLUX_X: field_buffer = &CloverCL::vol_flux_x_buffer; break;
+        case CloverCL::FIELD_VOL_FLUX_Y: field_buffer = &CloverCL::vol_flux_y_buffer; break;
+        case CloverCL::FIELD_MASS_FLUX_X: field_buffer = &CloverCL::mass_flux_x_buffer; break;
+        case CloverCL::FIELD_MASS_FLUX_Y: field_buffer = &CloverCL::mass_flux_y_buffer; break;
     }
 
     if ( *yinc == 1 ) {
@@ -235,7 +236,7 @@ void unpack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right
         CloverCL::write_left_buffer_knl.setArg(1, *xinc);
         CloverCL::write_left_buffer_knl.setArg(2, *yinc);
         CloverCL::write_left_buffer_knl.setArg(3, *field_buffer);
-        CloverCL::write_left_buffer_knl.setArg(4, CloverCL::left_recv_buffer) 
+        CloverCL::write_left_buffer_knl.setArg(4, CloverCL::left_recv_buffer); 
 
         CloverCL::outoforder_queue.enqueueNDRangeKernel(CloverCL::write_left_buffer_knl, cl::NullRange,
                                                         cl::NDRange(*depth, launch_height), 
@@ -288,23 +289,24 @@ void pack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom_n
 #endif
 
     cl::Buffer *field_buffer; 
+    int launch_width; 
 
     switch(*nameoffield) {
-        case FIELD_DENSITY0: field_buffer = &CloverCL::density0_buffer; break;
-        case FIELD_DENSITY1: field_buffer = &CloverCL::density1_buffer; break;
-        case FIELD_ENERGY0: field_buffer = &CloverCL::energy0_buffer; break;
-        case FIELD_ENERGY1: field_buffer = &CloverCL::energy1_buffer; break;
-        case FIELD_PRESSURE: field_buffer = &CloverCL::pressure_buffer; break;
-        case FIELD_VISCOSITY: field_buffer = &CloverCL::viscosity_buffer; break;
-        case FIELD_SOUNDSPEED: field_buffer = &CloverCL::soundspeed_buffer; break;
-        case FIELD_XVEL0: field_buffer = &CloverCL::xvel0_buffer; break;
-        case FIELD_XVEL1: field_buffer = &CloverCL::xvel1_buffer; break;
-        case FIELD_YVEL0: field_buffer = &CloverCL::yvel0_buffer; break;
-        case FIELD_YVEL1: field_buffer = &CloverCL::yvel1_buffer; break;
-        case FIELD_VOL_FLUX_X: field_buffer = &CloverCL::vol_flux_x_buffer; break;
-        case FIELD_VOL_FLUX_Y: field_buffer = &CloverCL::vol_flux_y_buffer; break;
-        case FIELD_MASS_FLUX_X: field_buffer = &CloverCL::mass_flux_x_buffer; break;
-        case FIELD_MASS_FLUX_Y: field_buffer = &CloverCL::mass_flux_y_buffer; break;
+        case CloverCL::FIELD_DENSITY0: field_buffer = &CloverCL::density0_buffer; break;
+        case CloverCL::FIELD_DENSITY1: field_buffer = &CloverCL::density1_buffer; break;
+        case CloverCL::FIELD_ENERGY0: field_buffer = &CloverCL::energy0_buffer; break;
+        case CloverCL::FIELD_ENERGY1: field_buffer = &CloverCL::energy1_buffer; break;
+        case CloverCL::FIELD_PRESSURE: field_buffer = &CloverCL::pressure_buffer; break;
+        case CloverCL::FIELD_VISCOSITY: field_buffer = &CloverCL::viscosity_buffer; break;
+        case CloverCL::FIELD_SOUNDSPEED: field_buffer = &CloverCL::soundspeed_buffer; break;
+        case CloverCL::FIELD_XVEL0: field_buffer = &CloverCL::xvel0_buffer; break;
+        case CloverCL::FIELD_XVEL1: field_buffer = &CloverCL::xvel1_buffer; break;
+        case CloverCL::FIELD_YVEL0: field_buffer = &CloverCL::yvel0_buffer; break;
+        case CloverCL::FIELD_YVEL1: field_buffer = &CloverCL::yvel1_buffer; break;
+        case CloverCL::FIELD_VOL_FLUX_X: field_buffer = &CloverCL::vol_flux_x_buffer; break;
+        case CloverCL::FIELD_VOL_FLUX_Y: field_buffer = &CloverCL::vol_flux_y_buffer; break;
+        case CloverCL::FIELD_MASS_FLUX_X: field_buffer = &CloverCL::mass_flux_x_buffer; break;
+        case CloverCL::FIELD_MASS_FLUX_Y: field_buffer = &CloverCL::mass_flux_y_buffer; break;
     }
 
     if (*xinc == 1) {
@@ -350,14 +352,14 @@ void pack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom_n
     if ( *bottom_neighbour == CloverCL::external_face ) {
 
         CloverCL::outoforder_queue.enqueueReadBuffer(CloverCL::bottom_send_buffer, CL_FALSE, 0, 
-                                                     *num_elements*sizeof(double), host_bottom_send_buffer);
+                                                     *num_elements*sizeof(double), host_bottom_snd_buffer);
     }
 
     // if top exchange enequeue a buffer read back for the top send buffer
     if ( *top_neighbour == CloverCL::external_face ) {
 
         CloverCL::outoforder_queue.enqueueReadBuffer(CloverCL::top_send_buffer, CL_FALSE, 0, 
-                                                     *num_elements*sizeof(double), host_top_send_buffer);
+                                                     *num_elements*sizeof(double), host_top_snd_buffer);
     }
 
     //call clfinish on the out of order queue
@@ -391,6 +393,7 @@ void unpack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom
 #endif
 
     cl::Buffer *field_buffer;
+    int launch_width; 
 
     //if bottom exchange then enqueue a buffer write to transfer the data to the card 
     if ( *bottom_neighbour == CloverCL::external_face) {
@@ -407,21 +410,21 @@ void unpack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom
     }
 
     switch(*nameoffield) {
-        case FIELD_DENSITY0: field_buffer = &CloverCL::density0_buffer; break;
-        case FIELD_DENSITY1: field_buffer = &CloverCL::density1_buffer; break;
-        case FIELD_ENERGY0: field_buffer = &CloverCL::energy0_buffer; break;
-        case FIELD_ENERGY1: field_buffer = &CloverCL::energy1_buffer; break;
-        case FIELD_PRESSURE: field_buffer = &CloverCL::pressure_buffer; break;
-        case FIELD_VISCOSITY: field_buffer = &CloverCL::viscosity_buffer; break;
-        case FIELD_SOUNDSPEED: field_buffer = &CloverCL::soundspeed_buffer; break;
-        case FIELD_XVEL0: field_buffer = &CloverCL::xvel0_buffer; break;
-        case FIELD_XVEL1: field_buffer = &CloverCL::xvel1_buffer; break;
-        case FIELD_YVEL0: field_buffer = &CloverCL::yvel0_buffer; break;
-        case FIELD_YVEL1: field_buffer = &CloverCL::yvel1_buffer; break;
-        case FIELD_VOL_FLUX_X: field_buffer = &CloverCL::vol_flux_x_buffer; break;
-        case FIELD_VOL_FLUX_Y: field_buffer = &CloverCL::vol_flux_y_buffer; break;
-        case FIELD_MASS_FLUX_X: field_buffer = &CloverCL::mass_flux_x_buffer; break;
-        case FIELD_MASS_FLUX_Y: field_buffer = &CloverCL::mass_flux_y_buffer; break;
+        case CloverCL::FIELD_DENSITY0: field_buffer = &CloverCL::density0_buffer; break;
+        case CloverCL::FIELD_DENSITY1: field_buffer = &CloverCL::density1_buffer; break;
+        case CloverCL::FIELD_ENERGY0: field_buffer = &CloverCL::energy0_buffer; break;
+        case CloverCL::FIELD_ENERGY1: field_buffer = &CloverCL::energy1_buffer; break;
+        case CloverCL::FIELD_PRESSURE: field_buffer = &CloverCL::pressure_buffer; break;
+        case CloverCL::FIELD_VISCOSITY: field_buffer = &CloverCL::viscosity_buffer; break;
+        case CloverCL::FIELD_SOUNDSPEED: field_buffer = &CloverCL::soundspeed_buffer; break;
+        case CloverCL::FIELD_XVEL0: field_buffer = &CloverCL::xvel0_buffer; break;
+        case CloverCL::FIELD_XVEL1: field_buffer = &CloverCL::xvel1_buffer; break;
+        case CloverCL::FIELD_YVEL0: field_buffer = &CloverCL::yvel0_buffer; break;
+        case CloverCL::FIELD_YVEL1: field_buffer = &CloverCL::yvel1_buffer; break;
+        case CloverCL::FIELD_VOL_FLUX_X: field_buffer = &CloverCL::vol_flux_x_buffer; break;
+        case CloverCL::FIELD_VOL_FLUX_Y: field_buffer = &CloverCL::vol_flux_y_buffer; break;
+        case CloverCL::FIELD_MASS_FLUX_X: field_buffer = &CloverCL::mass_flux_x_buffer; break;
+        case CloverCL::FIELD_MASS_FLUX_Y: field_buffer = &CloverCL::mass_flux_y_buffer; break;
     }
 
     if (*xinc == 1) {
