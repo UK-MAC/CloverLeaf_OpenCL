@@ -227,8 +227,8 @@ void unpack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right
     }
 
 
-    // call clfinish on the outof order queue if either left or rigth exchange
-    CloverCL::outoforder_queue.finish();
+    // call Barrier to prevent unpack kernels runnig before data is written 
+    CloverCL::outoforder_queue.enqueueBarrier(); 
 
     // if left exhange enqueue and unpack left kernel on the outorder queue
     if ( *left_neighbour != CloverCL::external_face) {

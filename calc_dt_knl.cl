@@ -114,21 +114,21 @@ __kernel void calc_dt_ocl_kernel(
 
     }
 
-    if ((j>=2) || (k>=2) ) { 
+    //if (k>=2) { 
 
-        barrier(CLK_LOCAL_MEM_FENCE);
+    barrier(CLK_LOCAL_MEM_FENCE);
 
-        for (int limit = WORKGROUP_SIZE_DIVTWO; limit > 0; limit >>= 1 ) {
+    for (int limit = WORKGROUP_SIZE_DIVTWO; limit > 0; limit >>= 1 ) {
 
-            if (localid < limit) {
-            
-                dt_min_local[localid] = fmin(dt_min_local[localid], dt_min_local[localid + limit]);
+        if (localid < limit) {
+        
+            dt_min_local[localid] = fmin(dt_min_local[localid], dt_min_local[localid + limit]);
 
-            }
-            barrier(CLK_LOCAL_MEM_FENCE);
         }
-
+        barrier(CLK_LOCAL_MEM_FENCE);
     }
+
+    //}
 
     if (localid==0) { dt_min_val_array[get_group_id(1)*get_num_groups(0) + get_group_id(0)] = dt_min_local[0]; }
 }
