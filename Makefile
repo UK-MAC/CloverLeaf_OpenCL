@@ -214,7 +214,7 @@ clover_ocl: Makefile
 	initialise_chunk_kernel_ocl.C \
 	field_summary_kernel_ocl.C    \
 	setup_ocl.C                   \
-	ocl_read_buffers.C            \
+	comms_buffers_kernel_ocl.C    \
 	CloverCL.C; echo $(OCLMESSAGE)
 
 clean:

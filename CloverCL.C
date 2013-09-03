@@ -141,6 +141,13 @@ cl::Buffer CloverCL::state_ymin_buffer;
 cl::Buffer CloverCL::state_ymax_buffer;
 cl::Buffer CloverCL::state_radius_buffer;
 cl::Buffer CloverCL::state_geometry_buffer;
+cl::Buffer CloverCL::cpu_min_red_buffer;
+cl::Buffer CloverCL::cpu_vol_red_buffer;
+cl::Buffer CloverCL::cpu_mass_red_buffer;
+cl::Buffer CloverCL::cpu_ie_red_buffer;
+cl::Buffer CloverCL::cpu_ke_red_buffer;
+cl::Buffer CloverCL::cpu_press_red_buffer;
+
 cl::Buffer CloverCL::top_send_buffer;
 cl::Buffer CloverCL::top_recv_buffer;
 cl::Buffer CloverCL::bottom_send_buffer;
@@ -149,12 +156,6 @@ cl::Buffer CloverCL::left_send_buffer;
 cl::Buffer CloverCL::left_recv_buffer;
 cl::Buffer CloverCL::right_send_buffer;
 cl::Buffer CloverCL::right_recv_buffer;
-cl::Buffer CloverCL::cpu_min_red_buffer;
-cl::Buffer CloverCL::cpu_vol_red_buffer;
-cl::Buffer CloverCL::cpu_mass_red_buffer;
-cl::Buffer CloverCL::cpu_ie_red_buffer;
-cl::Buffer CloverCL::cpu_ke_red_buffer;
-cl::Buffer CloverCL::cpu_press_red_buffer;
 
 cl::Kernel CloverCL::ideal_gas_predict_knl;
 cl::Kernel CloverCL::ideal_gas_NO_predict_knl;
@@ -1572,10 +1573,12 @@ void CloverCL::loadProgram(int xmin, int xmax, int ymin, int ymax)
     ADD_SOURCE("./initialise_chunk_knl.cl");
     ADD_SOURCE("./field_summary_knl.cl");
     ADD_SOURCE("./update_halo_knl.cl");
-    ADD_SOURCE("./read_comm_buffers_knl.cl");
-    ADD_SOURCE("./write_comm_buffers_knl.cl");
+    //ADD_SOURCE("./read_comm_buffers_knl.cl");
+    //ADD_SOURCE("./write_comm_buffers_knl.cl");
     ADD_SOURCE("./min_reduction_knl.cl");
     ADD_SOURCE("./sum_reduction_knl.cl");
+    ADD_SOURCE("./pack_comms_buffers_knl.cl");
+    ADD_SOURCE("./unpack_comms_buffers_knl.cl");
 
     sourceCode = ss.str();
     cl::Program::Sources sources;
@@ -1869,52 +1872,70 @@ void CloverCL::loadProgram(int xmin, int xmax, int ymin, int ymax)
     }
 
     try {
-        read_top_buffer_knl = cl::Kernel(program, "read_top_buffer_ocl_kernel");
-    } catch (cl::Error err) {
-        reportError(err, "creating read_top_buffer_ocl_kernel");
+        read_top_buffer_knl = cl::Kernel(program, "top_comm_buffer_pack");
+        read_bottom_buffer_knl = cl::Kernel(program, "bottom_comm_buffer_pack");
+        read_right_buffer_knl = cl::Kernel(program, "right_comm_buffer_pack");
+        read_left_buffer_knl = cl::Kernel(program, "left_comm_buffer_pack");
+    } catch(cl::Error err) {
+        reportError(err, "creating comms buffer pack kernels");
     }
 
     try {
-        read_right_buffer_knl = cl::Kernel(program, "read_right_buffer_ocl_kernel");
-    } catch (cl::Error err) {
-        reportError(err, "creating read_right_buffer_ocl_knl");
+        write_top_buffer_knl = cl::Kernel(program, "top_comm_buffer_unpack");
+        write_bottom_buffer_knl = cl::Kernel(program, "bottom_comm_buffer_unpack");
+        write_right_buffer_knl = cl::Kernel(program, "right_comm_buffer_unpack");
+        write_left_buffer_knl = cl::Kernel(program, "left_comm_buffer_unpack");
+    } catch(cl::Error err) {
+        reportError(err, "creating comms buffer unpack kernels");
     }
 
-    try {
-        read_bottom_buffer_knl = cl::Kernel(program, "read_bottom_buffer_ocl_kernel");
-    } catch (cl::Error err) {
-        reportError(err, "creating read_bottom_buffer_ocl_knl");
-    }
+    //try {
+    //    read_top_buffer_knl = cl::Kernel(program, "read_top_buffer_ocl_kernel");
+    //} catch (cl::Error err) {
+    //    reportError(err, "creating read_top_buffer_ocl_kernel");
+    //}
 
-    try {
-        read_left_buffer_knl = cl::Kernel(program, "read_left_buffer_ocl_kernel");
-    } catch (cl::Error err) {
-        reportError(err, "creating read_left_buffer_ocl_knl");
-    }
+    //try {
+    //    read_right_buffer_knl = cl::Kernel(program, "read_right_buffer_ocl_kernel");
+    //} catch (cl::Error err) {
+    //    reportError(err, "creating read_right_buffer_ocl_knl");
+    //}
 
-    try {
-        write_top_buffer_knl = cl::Kernel(program, "write_top_buffer_ocl_kernel"); 
-    } catch (cl::Error err) {
-        reportError(err, "creating write_top_buffer_ocl_knl");
-    }
+    //try {
+    //    read_bottom_buffer_knl = cl::Kernel(program, "read_bottom_buffer_ocl_kernel");
+    //} catch (cl::Error err) {
+    //    reportError(err, "creating read_bottom_buffer_ocl_knl");
+    //}
 
-    try {
-        write_right_buffer_knl = cl::Kernel(program, "write_right_buffer_ocl_kernel"); 
-    } catch (cl::Error err) {
-        reportError(err, "creating write_right_buffer_ocl_knl");
-    }
+    //try {
+    //    read_left_buffer_knl = cl::Kernel(program, "read_left_buffer_ocl_kernel");
+    //} catch (cl::Error err) {
+    //    reportError(err, "creating read_left_buffer_ocl_knl");
+    //}
 
-    try {
-        write_bottom_buffer_knl = cl::Kernel(program, "write_bottom_buffer_ocl_kernel"); 
-    } catch (cl::Error err) {
-        reportError(err, "creating write_bottom_buffer_ocl_knl");
-    }
+    //try {
+    //    write_top_buffer_knl = cl::Kernel(program, "write_top_buffer_ocl_kernel"); 
+    //} catch (cl::Error err) {
+    //    reportError(err, "creating write_top_buffer_ocl_knl");
+    //}
 
-    try {
-        write_left_buffer_knl = cl::Kernel(program, "write_left_buffer_ocl_kernel"); 
-    } catch (cl::Error err) {
-        reportError(err, "creating write_left_buffer_ocl_knl");
-    }
+    //try {
+    //    write_right_buffer_knl = cl::Kernel(program, "write_right_buffer_ocl_kernel"); 
+    //} catch (cl::Error err) {
+    //    reportError(err, "creating write_right_buffer_ocl_knl");
+    //}
+
+    //try {
+    //    write_bottom_buffer_knl = cl::Kernel(program, "write_bottom_buffer_ocl_kernel"); 
+    //} catch (cl::Error err) {
+    //    reportError(err, "creating write_bottom_buffer_ocl_knl");
+    //}
+
+    //try {
+    //    write_left_buffer_knl = cl::Kernel(program, "write_left_buffer_ocl_kernel"); 
+    //} catch (cl::Error err) {
+    //    reportError(err, "creating write_left_buffer_ocl_knl");
+    //}
 
 }
 
