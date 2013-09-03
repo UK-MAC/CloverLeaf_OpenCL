@@ -107,7 +107,7 @@ void pack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right_n
     CloverCL::queue.finish(); 
 
     // if left exchange enqueue on outoforder pack kernel for left buffer after setting args
-    if ( *left_neighbour == CloverCL::external_face) {
+    if ( *left_neighbour != CloverCL::external_face) {
         CloverCL::read_left_buffer_knl.setArg(0, *depth);
         CloverCL::read_left_buffer_knl.setArg(1, *xinc);
         CloverCL::read_left_buffer_knl.setArg(2, *yinc);
@@ -122,7 +122,7 @@ void pack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right_n
     
 
     // if right exchange enqueue on outoforder pack kernel for right buffer after setting args
-    if ( *right_neighbour == CloverCL::external_face) {
+    if ( *right_neighbour != CloverCL::external_face) {
         CloverCL::read_right_buffer_knl.setArg(0, *depth);
         CloverCL::read_right_buffer_knl.setArg(1, *xinc);
         CloverCL::read_right_buffer_knl.setArg(2, *yinc);
@@ -137,18 +137,18 @@ void pack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right_n
     }
 
     // enqueue a barrier on the out of order queue
-    if ( (*left_neighbour == CloverCL::external_face) || (*right_neighbour == CloverCL::external_face)) 
+    if ( (*left_neighbour != CloverCL::external_face) || (*right_neighbour != CloverCL::external_face)) 
     {   CloverCL::outoforder_queue.enqueueBarrier(); }
 
     // if left exchange enqueue a buffer read back for the left send buffer
-    if ( *left_neighbour == CloverCL::external_face) {
+    if ( *left_neighbour != CloverCL::external_face) {
 
         CloverCL::outoforder_queue.enqueueReadBuffer(CloverCL::left_send_buffer, CL_FALSE, 0,
                                                      *num_elements*sizeof(double), host_left_snd_buffer, NULL, NULL);
     }
 
     // if right exchange enequeue a buffer read back for the right send buffer
-    if ( *right_neighbour == CloverCL::external_face) {
+    if ( *right_neighbour != CloverCL::external_face) {
 
         CloverCL::outoforder_queue.enqueueReadBuffer(CloverCL::right_send_buffer, CL_FALSE, 0, 
                                                      *num_elements*sizeof(double), host_right_snd_buffer, NULL, NULL);
@@ -213,14 +213,14 @@ void unpack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right
     } 
 
     //if left exchange then enqueue a biffer write to transfer the info from the host buffer to the card
-    if ( *left_neighbour == CloverCL::external_face) {
+    if ( *left_neighbour != CloverCL::external_face) {
 
         CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::left_recv_buffer, CL_FALSE, 0,
                                                      *num_elements*sizeof(double), host_left_rcv_buffer, NULL, NULL);
     }
 
     //if right exchange then enqueue a biffer write to transfer the info from the host buffer to the card
-    if ( *right_neighbour == CloverCL::external_face) {
+    if ( *right_neighbour != CloverCL::external_face) {
 
         CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::right_recv_buffer, CL_FALSE, 0,
                                                      *num_elements*sizeof(double), host_right_rcv_buffer, NULL, NULL);
@@ -231,7 +231,7 @@ void unpack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right
     CloverCL::outoforder_queue.finish();
 
     // if left exhange enqueue and unpack left kernel on the outorder queue
-    if ( *left_neighbour == CloverCL::external_face) {
+    if ( *left_neighbour != CloverCL::external_face) {
         CloverCL::write_left_buffer_knl.setArg(0, *depth);
         CloverCL::write_left_buffer_knl.setArg(1, *xinc);
         CloverCL::write_left_buffer_knl.setArg(2, *yinc);
@@ -245,7 +245,7 @@ void unpack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right
     }
 
     // if right exchange enqueue the unpack right kernel on the outoforder queue
-    if ( *right_neighbour == CloverCL::external_face) {
+    if ( *right_neighbour != CloverCL::external_face) {
         CloverCL::write_right_buffer_knl.setArg(0, *depth);
         CloverCL::write_right_buffer_knl.setArg(1, *xinc);
         CloverCL::write_right_buffer_knl.setArg(2, *yinc);
@@ -317,7 +317,7 @@ void pack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom_n
     }
 
     // if bottom exchange enqueue on outoforder pack kernel for bottom buffer after setting args
-    if ( *bottom_neighbour == CloverCL::external_face ) {
+    if ( *bottom_neighbour != CloverCL::external_face ) {
         CloverCL::read_bottom_buffer_knl.setArg(0, *depth);
         CloverCL::read_bottom_buffer_knl.setArg(1, *xinc);
         CloverCL::read_bottom_buffer_knl.setArg(2, *yinc);
@@ -331,7 +331,7 @@ void pack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom_n
     }
 
     // if top exchange enqueue on outoforder pack kernel for top buffer after setting args
-    if ( *top_neighbour == CloverCL::external_face ) {
+    if ( *top_neighbour != CloverCL::external_face ) {
         CloverCL::read_top_buffer_knl.setArg(0, *depth);
         CloverCL::read_top_buffer_knl.setArg(1, *xinc);
         CloverCL::read_top_buffer_knl.setArg(2, *yinc);
@@ -345,18 +345,18 @@ void pack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom_n
     }
 
     // enqueue a barrier on the out of order queue
-    if ( (*top_neighbour == CloverCL::external_face) || (*bottom_neighbour == CloverCL::external_face))
+    if ( (*top_neighbour != CloverCL::external_face) || (*bottom_neighbour != CloverCL::external_face))
     {   CloverCL::outoforder_queue.enqueueBarrier(); }
 
     // if bottom exchange enqueue a buffer read back for the bottom send buffer
-    if ( *bottom_neighbour == CloverCL::external_face ) {
+    if ( *bottom_neighbour != CloverCL::external_face ) {
 
         CloverCL::outoforder_queue.enqueueReadBuffer(CloverCL::bottom_send_buffer, CL_FALSE, 0, 
                                                      *num_elements*sizeof(double), host_bottom_snd_buffer);
     }
 
     // if top exchange enequeue a buffer read back for the top send buffer
-    if ( *top_neighbour == CloverCL::external_face ) {
+    if ( *top_neighbour != CloverCL::external_face ) {
 
         CloverCL::outoforder_queue.enqueueReadBuffer(CloverCL::top_send_buffer, CL_FALSE, 0, 
                                                      *num_elements*sizeof(double), host_top_snd_buffer);
@@ -396,14 +396,14 @@ void unpack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom
     int launch_width; 
 
     //if bottom exchange then enqueue a buffer write to transfer the data to the card 
-    if ( *bottom_neighbour == CloverCL::external_face) {
+    if ( *bottom_neighbour != CloverCL::external_face) {
 
         CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::bottom_recv_buffer, CL_FALSE, 0,
                                                      *num_elements*sizeof(double), host_bottom_rcv_buffer, NULL, NULL);
     }
 
     // if top exchage then enqueue a buffer write to transfer the data to  the card 
-    if ( *top_neighbour == CloverCL::external_face) {
+    if ( *top_neighbour != CloverCL::external_face) {
 
         CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::top_recv_buffer, CL_FALSE, 0,
                                                      *num_elements*sizeof(double), host_top_rcv_buffer, NULL, NULL);
@@ -439,7 +439,7 @@ void unpack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom
 
 
     // if bottom exhange enqueue and unpack bottom kernel on the outorder queue
-    if ( *bottom_neighbour == CloverCL::external_face) {
+    if ( *bottom_neighbour != CloverCL::external_face) {
         CloverCL::write_bottom_buffer_knl.setArg(0, *depth);
         CloverCL::write_bottom_buffer_knl.setArg(1, *xinc);
         CloverCL::write_bottom_buffer_knl.setArg(2, *yinc);
@@ -454,7 +454,7 @@ void unpack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom
 
 
     // if top exchange enqueue the unpack top kernel on the outoforder queue
-    if ( *top_neighbour == CloverCL::external_face) {
+    if ( *top_neighbour != CloverCL::external_face) {
         CloverCL::write_top_buffer_knl.setArg(0, *depth);
         CloverCL::write_top_buffer_knl.setArg(1, *xinc);
         CloverCL::write_top_buffer_knl.setArg(2, *yinc);
