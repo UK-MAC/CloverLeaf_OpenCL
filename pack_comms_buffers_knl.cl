@@ -12,7 +12,7 @@ __kernel void left_comm_buffer_pack(
     const int x_inc,
     const int y_inc,
     __global double *field,
-    __global doube *snd_buffer)
+    __global double *snd_buffer)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -32,7 +32,7 @@ __kernel void right_comm_buffer_pack(
     const int x_inc,
     const int y_inc,
     __global double *field,
-    __global doube *snd_buffer)
+    __global double *snd_buffer)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -52,7 +52,7 @@ __kernel void top_comm_buffer_pack(
     const int x_inc,
     const int y_inc,
     __global double *field,
-    __global doube *snd_buffer)
+    __global double *snd_buffer)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -73,7 +73,7 @@ __kernel void bottom_comm_buffer_pack(
     const int x_inc,
     const int y_inc,
     __global double *field,
-    __global doube *snd_buffer)
+    __global double *snd_buffer)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
