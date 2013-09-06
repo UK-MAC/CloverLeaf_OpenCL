@@ -80,6 +80,8 @@ int CloverCL::xmax_plusfive_rounded;
 int CloverCL::ymax_plusfour_rounded;
 int CloverCL::ymax_plusfive_rounded;
 
+int CloverCL::mpi_rank; 
+
 cl::Buffer CloverCL::density0_buffer;
 cl::Buffer CloverCL::density1_buffer;
 cl::Buffer CloverCL::energy0_buffer;
@@ -300,6 +302,8 @@ void CloverCL::init(
                          g_small, g_big, dtmin, dtc_safe,
                          dtu_safe, dtv_safe, dtdiv_safe);
     initialised = true;
+
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
 }
 
 

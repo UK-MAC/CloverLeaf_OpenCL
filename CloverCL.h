@@ -108,6 +108,8 @@ class CloverCL {
         static int number_of_red_levels;
         static cl::Event last_event;
 
+        static int mpi_rank; 
+
         static void init(
                 std::string platform_name,
                 std::string platform_type,
