@@ -98,7 +98,7 @@ void pack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right_n
 
 #ifdef OCL_VERBOSE
     std::cout << "Process: " << CloverCL::mpi_rank << " packing left and right comms buffers, left neighbour: " 
-              << *left_neighbour << " right neighbour: " << *right_neighbour << std::endl; 
+              << *left_neighbour << " right neighbour: " << *right_neighbour << " field name: " << *nameoffield << std::endl; 
 #endif
 
     if ( *yinc == 1 ) {
@@ -152,7 +152,12 @@ void pack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right_n
 
     // enqueue a barrier on the out of order queue
     if ( (*left_neighbour != CloverCL::external_face) || (*right_neighbour != CloverCL::external_face)) 
-    {   CloverCL::outoforder_queue.enqueueBarrier(); }
+    {   
+        CloverCL::outoforder_queue.enqueueBarrier(); 
+#ifdef OCL_VERBOSE
+        std::cout << "Process: " << CloverCL::mpi_rank << " enqueuing a barrier between l and r pack and read back functions" << std::endl;  
+#endif
+    }
 
     // if left exchange enqueue a buffer read back for the left send buffer
     if ( *left_neighbour != CloverCL::external_face) {
@@ -210,7 +215,7 @@ void unpack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right
 
 #ifdef OCL_VERBOSE
     std::cout << "Process: " << CloverCL::mpi_rank << " unpacking left and right comms buffers, left neighbour: " 
-              << *left_neighbour << " right neighbour: " << *right_neighbour << std::endl; 
+              << *left_neighbour << " right neighbour: " << *right_neighbour << " field name: " << *nameoffield << std::endl; 
 #endif
 
     switch(*nameoffield) {
