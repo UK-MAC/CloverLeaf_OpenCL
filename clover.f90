@@ -507,10 +507,13 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
   IF(parallel%task.EQ.chunks(chunk)%task) THEN
     size=(1+(chunks(chunk)%field%y_max+y_inc+depth)-(chunks(chunk)%field%y_min-depth))*depth
 
-    CALL pack_comms_buffers_left_right_kernel_ocl(chunks(chunk)%chunk_neighbours(chunk_left),          &
-                                                  chunks(chunk)%chunk_neighbours(chunk_right),         &
-                                                  x_inc, y_inc, depth, size, field_name,               &
-                                                  left_snd_buffer, right_snd_buffer)
+    IF ((chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) .OR. & 
+        (chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face)) THEN 
+        CALL pack_comms_buffers_left_right_kernel_ocl(chunks(chunk)%chunk_neighbours(chunk_left),          &
+                                                      chunks(chunk)%chunk_neighbours(chunk_right),         &
+                                                      x_inc, y_inc, depth, size, field_name,               &
+                                                      left_snd_buffer, right_snd_buffer)
+    ENDIF
 
 
     IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
@@ -554,10 +557,13 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
   ! Unpack buffers in halo cells
   IF(parallel%task.EQ.chunks(chunk)%task) THEN
 
-    CALL unpack_comms_buffers_left_right_kernel_ocl(chunks(chunk)%chunk_neighbours(chunk_left),          &
-                                                    chunks(chunk)%chunk_neighbours(chunk_right),         &
-                                                    x_inc, y_inc, depth, size, field_name,               &
-                                                    left_rcv_buffer, right_rcv_buffer)
+    IF ((chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) .OR.  &
+        (chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face)) THEN
+        CALL unpack_comms_buffers_left_right_kernel_ocl(chunks(chunk)%chunk_neighbours(chunk_left),          &
+                                                        chunks(chunk)%chunk_neighbours(chunk_right),         &
+                                                        x_inc, y_inc, depth, size, field_name,               &
+                                                        left_rcv_buffer, right_rcv_buffer)
+    ENDIF
 
     !IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
 
@@ -583,10 +589,13 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
   IF(parallel%task.EQ.chunks(chunk)%task) THEN
     size=(1+(chunks(chunk)%field%x_max+x_inc+depth)-(chunks(chunk)%field%x_min-depth))*depth
 
-    CALL pack_comms_buffers_top_bottom_kernel_ocl(chunks(chunk)%chunk_neighbours(chunk_top),           &
-                                                  chunks(chunk)%chunk_neighbours(chunk_bottom),        &
-                                                  x_inc, y_inc, depth, size, field_name,               &
-                                                  top_snd_buffer, bottom_snd_buffer)
+    IF ((chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) .OR. & 
+        (chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face)) THEN
+        CALL pack_comms_buffers_top_bottom_kernel_ocl(chunks(chunk)%chunk_neighbours(chunk_top),           &
+                                                      chunks(chunk)%chunk_neighbours(chunk_bottom),        &
+                                                      x_inc, y_inc, depth, size, field_name,               &
+                                                      top_snd_buffer, bottom_snd_buffer)
+    ENDIF
 
     IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
       !  CALL ocl_read_comm_buffer(chunks(chunk)%field%x_min, &
@@ -627,10 +636,13 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
   ! Unpack buffers in halo cells
   IF(parallel%task.EQ.chunks(chunk)%task) THEN
 
-    CALL unpack_comms_buffers_top_bottom_kernel_ocl(chunks(chunk)%chunk_neighbours(chunk_top),           &
-                                                    chunks(chunk)%chunk_neighbours(chunk_bottom),        &
-                                                    x_inc, y_inc, depth, size, field_name,               &
-                                                    top_rcv_buffer, bottom_rcv_buffer)
+    IF ((chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) .OR. & 
+        (chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face)) THEN
+        CALL unpack_comms_buffers_top_bottom_kernel_ocl(chunks(chunk)%chunk_neighbours(chunk_top),           &
+                                                        chunks(chunk)%chunk_neighbours(chunk_bottom),        &
+                                                        x_inc, y_inc, depth, size, field_name,               &
+                                                        top_rcv_buffer, bottom_rcv_buffer)
+    ENDIF
 
     !IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
 
