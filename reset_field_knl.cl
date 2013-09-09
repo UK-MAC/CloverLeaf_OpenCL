@@ -44,15 +44,16 @@ __kernel void reset_field_ocl_kernel(
     int k = get_global_id(1);
     int j = get_global_id(0);
 
-    if ((j>=2) && (j<=XMAXPLUSTWO) && (k>=2) && (k<=YMAXPLUSTWO)) 
+    if ((j>=2) && (j<=XMAXPLUSONE) && (k>=2) && (k<=YMAXPLUSONE)) 
     {
-
 	    density0[ARRAYXY(j,k,XMAXPLUSFOUR)] = density1[ARRAYXY(j,k,XMAXPLUSFOUR)];
 		energy0[ARRAYXY(j,k,XMAXPLUSFOUR)] = energy1[ARRAYXY(j,k,XMAXPLUSFOUR)];
+    }
 
+    if ((j>=2) && (j<=XMAXPLUSTWO) && (k>=2) && (k<=YMAXPLUSTWO)) 
+    {
         xvel0[ARRAYXY(j,k,XMAXPLUSFIVE)] = xvel1[ARRAYXY(j,k,XMAXPLUSFIVE)];
 	    yvel0[ARRAYXY(j,k,XMAXPLUSFIVE)] = yvel1[ARRAYXY(j,k,XMAXPLUSFIVE)];
-
     }
 }
 
