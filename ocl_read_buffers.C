@@ -23,36 +23,22 @@
 
 #include "CloverCL.h"
 
-extern "C" void ocl_read_vis_buffers_(
-        int* x_max,
-        int* y_max,
-        double* vertexx,
-        double* vertexy,
-        double* density0,
-        double* energy0,
-        double* pressure,
-        double* viscosity,
-        double* xvel0,
-        double* yvel0);
+extern "C" void ocl_read_back_all_buffers_(double* density0, double* density1, double* energy0, double* energy1,
+                                          double* pressure, double* viscosity, double* soundspeed, 
+                                          double* xvel0, double* xvel1, double* yvel0, double* yvel1,
+                                          double* vol_flux_x, double* mass_flux_x, 
+                                          double* vol_flux_y, double* mass_flux_y  );
 
-extern "C" void ocl_read_all_comm_buffers_(
-        int* x_max,
-        int* y_max,
-        double* denisty0,
-        double* density1,
-        double* energy0,
-        double* energy1,
-        double* pressure,
-        double* viscosity,
-        double* soundspeed,
-        double* xvel0,
-        double* xvel1,
-        double* yvel0,
-        double* yvel1,
-        double* vol_flux_x,
-        double* vol_flux_y,
-        double* mass_flux_x,
-        double* mass_flux_y);
+extern "C" void ocl_read_vis_buffers_(int* x_max, int* y_max, double* vertexx, double* vertexy, 
+                                      double* density0, double* energy0, double* pressure, 
+                                      double* viscosity, double* xvel0, double* yvel0);
+
+extern "C" void ocl_read_all_comm_buffers_(int* x_max, int* y_max, double* denisty0,
+                                           double* density1, double* energy0, double* energy1, 
+                                           double* pressure, double* viscosity, double* soundspeed, 
+                                           double* xvel0, double* xvel1, double* yvel0, double* yvel1, 
+                                           double* vol_flux_x, double* vol_flux_y, double* mass_flux_x,
+                                           double* mass_flux_y);
 
 extern "C" void ocl_write_all_comm_buffers_(
         int* x_max,
@@ -96,6 +82,17 @@ extern "C" void ocl_write_comm_buffer_(
         int* field_name,
         double* buffer,
         int* which_edge);
+
+void ocl_read_back_all_buffers_(double* density0, double* density1, double* energy0, double* energy1,
+                                          double* pressure, double* viscosity, double* soundspeed, 
+                                          double* xvel0, double* xvel1, double* yvel0, double* yvel1,
+                                          double* vol_flux_x, double* mass_flux_x, 
+                                          double* vol_flux_y, double* mass_flux_y  )
+{
+    CloverCL::read_back_all_ocl_buffers(density0, density1, energy0, energy1, pressure, viscosity, soundspeed, 
+                                        xvel0, xvel1, yvel0, yvel1, vol_flux_x, mass_flux_x, vol_flux_y, mass_flux_y);
+}
+
 
 void ocl_read_vis_buffers_(
         int* x_max,
