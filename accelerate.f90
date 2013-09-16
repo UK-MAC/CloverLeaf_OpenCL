@@ -41,21 +41,21 @@ SUBROUTINE accelerate()
                            chunks(c)%field%y_max,                  &
                            dt                                      )
 
-    CALL ocl_read_back_all_buffers(chunks(c)%field%density0,    &
-                                   chunks(c)%field%density1,    &
-                                   chunks(c)%field%energy0,     &
-                                   chunks(c)%field%energy1,     &
-                                   chunks(c)%field%pressure,    &
-                                   chunks(c)%field%viscosity,   &
-                                   chunks(c)%field%soundspeed,  &
-                                   chunks(c)%field%xvel0,       &
-                                   chunks(c)%field%xvel1,       &
-                                   chunks(c)%field%yvel0,       &
-                                   chunks(c)%field%yvel1,       &
-                                   chunks(c)%field%vol_flux_x,  &
-                                   chunks(c)%field%mass_flux_x, &
-                                   chunks(c)%field%vol_flux_y,  &
-                                   chunks(c)%field%mass_flux_y)
+    !CALL ocl_read_back_all_buffers(chunks(c)%field%density0,    &
+    !                               chunks(c)%field%density1,    &
+    !                               chunks(c)%field%energy0,     &
+    !                               chunks(c)%field%energy1,     &
+    !                               chunks(c)%field%pressure,    &
+    !                               chunks(c)%field%viscosity,   &
+    !                               chunks(c)%field%soundspeed,  &
+    !                               chunks(c)%field%xvel0,       &
+    !                               chunks(c)%field%xvel1,       &
+    !                               chunks(c)%field%yvel0,       &
+    !                               chunks(c)%field%yvel1,       &
+    !                               chunks(c)%field%vol_flux_x,  &
+    !                               chunks(c)%field%mass_flux_x, &
+    !                               chunks(c)%field%vol_flux_y,  &
+    !                               chunks(c)%field%mass_flux_y)
 
     ENDIF
 

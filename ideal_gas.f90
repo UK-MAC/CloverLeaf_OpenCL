@@ -49,21 +49,21 @@ SUBROUTINE ideal_gas(chunk,predict)
                         chunks(chunk)%field%y_max,      &
                         prdct)
 
-    CALL ocl_read_back_all_buffers(chunks(chunk)%field%density0,    &
-                                   chunks(chunk)%field%density1,    &
-                                   chunks(chunk)%field%energy0,     &
-                                   chunks(chunk)%field%energy1,     &
-                                   chunks(chunk)%field%pressure,    &
-                                   chunks(chunk)%field%viscosity,   &
-                                   chunks(chunk)%field%soundspeed,  &
-                                   chunks(chunk)%field%xvel0,       &
-                                   chunks(chunk)%field%xvel1,       &
-                                   chunks(chunk)%field%yvel0,       &
-                                   chunks(chunk)%field%yvel1,       &
-                                   chunks(chunk)%field%vol_flux_x,  &
-                                   chunks(chunk)%field%mass_flux_x, &
-                                   chunks(chunk)%field%vol_flux_y,  &
-                                   chunks(chunk)%field%mass_flux_y)
+    !CALL ocl_read_back_all_buffers(chunks(chunk)%field%density0,    &
+    !                               chunks(chunk)%field%density1,    &
+    !                               chunks(chunk)%field%energy0,     &
+    !                               chunks(chunk)%field%energy1,     &
+    !                               chunks(chunk)%field%pressure,    &
+    !                               chunks(chunk)%field%viscosity,   &
+    !                               chunks(chunk)%field%soundspeed,  &
+    !                               chunks(chunk)%field%xvel0,       &
+    !                               chunks(chunk)%field%xvel1,       &
+    !                               chunks(chunk)%field%yvel0,       &
+    !                               chunks(chunk)%field%yvel1,       &
+    !                               chunks(chunk)%field%vol_flux_x,  &
+    !                               chunks(chunk)%field%mass_flux_x, &
+    !                               chunks(chunk)%field%vol_flux_y,  &
+    !                               chunks(chunk)%field%mass_flux_y)
 
   ENDIF
 
