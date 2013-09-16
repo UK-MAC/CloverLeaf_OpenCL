@@ -2682,6 +2682,34 @@ void CloverCL::read_back_all_ocl_buffers(double* density0, double* density1, dou
 }
 
 
+void CloverCL::write_back_all_ocl_buffers(double* density0, double* density1, double* energy0, double* energy1,
+                                         double* pressure, double* viscosity, double* soundspeed,
+                                         double* xvel0, double* xvel1, double* yvel0, double* yvel1,
+                                         double* vol_flux_x, double* mass_flux_x,
+                                         double* vol_flux_y, double* mass_flux_y  )
+{
+
+    CloverCL::queue.finish();
+    CloverCL::outoforder_queue.finish(); 
+
+    CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::density0_buffer,    CL_FALSE, 0, (CloverCL::xmax_c+4)*(CloverCL::ymax_c+4)*sizeof(double), density0, NULL, NULL);
+    CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::density1_buffer,    CL_FALSE, 0, (CloverCL::xmax_c+4)*(CloverCL::ymax_c+4)*sizeof(double), density1, NULL, NULL);
+    CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::energy0_buffer,     CL_FALSE, 0, (CloverCL::xmax_c+4)*(CloverCL::ymax_c+4)*sizeof(double), energy0, NULL, NULL);
+    CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::energy1_buffer,     CL_FALSE, 0, (CloverCL::xmax_c+4)*(CloverCL::ymax_c+4)*sizeof(double), energy1, NULL, NULL);
+    CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::pressure_buffer,    CL_FALSE, 0, (CloverCL::xmax_c+4)*(CloverCL::ymax_c+4)*sizeof(double), pressure, NULL, NULL);
+    CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::viscosity_buffer,   CL_FALSE, 0, (CloverCL::xmax_c+4)*(CloverCL::ymax_c+4)*sizeof(double), viscosity, NULL, NULL);
+    CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::soundspeed_buffer,  CL_FALSE, 0, (CloverCL::xmax_c+4)*(CloverCL::ymax_c+4)*sizeof(double), soundspeed, NULL, NULL);
+    CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::xvel0_buffer,       CL_FALSE, 0, (CloverCL::xmax_c+5)*(CloverCL::ymax_c+5)*sizeof(double), xvel0, NULL, NULL);
+    CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::xvel1_buffer,       CL_FALSE, 0, (CloverCL::xmax_c+5)*(CloverCL::ymax_c+5)*sizeof(double), xvel1, NULL, NULL);
+    CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::yvel0_buffer,       CL_FALSE, 0, (CloverCL::xmax_c+5)*(CloverCL::ymax_c+5)*sizeof(double), yvel0, NULL, NULL);
+    CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::yvel1_buffer,       CL_FALSE, 0, (CloverCL::xmax_c+5)*(CloverCL::ymax_c+5)*sizeof(double), yvel1, NULL, NULL);
+    CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::vol_flux_x_buffer,  CL_FALSE, 0, (CloverCL::xmax_c+5)*(CloverCL::ymax_c+4)*sizeof(double), vol_flux_x, NULL, NULL);
+    CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::vol_flux_y_buffer,  CL_FALSE, 0, (CloverCL::xmax_c+4)*(CloverCL::ymax_c+5)*sizeof(double), vol_flux_y, NULL, NULL);
+    CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::mass_flux_x_buffer, CL_FALSE, 0, (CloverCL::xmax_c+5)*(CloverCL::ymax_c+4)*sizeof(double), mass_flux_x, NULL, NULL);
+    CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::mass_flux_y_buffer, CL_FALSE, 0, (CloverCL::xmax_c+4)*(CloverCL::ymax_c+5)*sizeof(double), mass_flux_y, NULL, NULL);
+
+    CloverCL::outoforder_queue.finish();
+}
 
 
 inline void CloverCL::checkErr(cl_int err, std::string name)
