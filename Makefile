@@ -166,6 +166,7 @@ clover_leaf: c_lover clover_ocl *.f90 Makefile
 	PdV.f90				\
 	flux_calc.f90			\
 	advec_cell_driver.f90		\
+	advec_mom_kernel.f90        \
 	advec_mom_driver.f90		\
 	advection.f90			\
 	reset_field.f90			\
