@@ -2656,7 +2656,8 @@ void CloverCL::read_back_all_ocl_buffers(double* density0, double* density1, dou
                                          double* pressure, double* viscosity, double* soundspeed,
                                          double* xvel0, double* xvel1, double* yvel0, double* yvel1,
                                          double* vol_flux_x, double* mass_flux_x,
-                                         double* vol_flux_y, double* mass_flux_y  )
+                                         double* vol_flux_y, double* mass_flux_y,
+                                         double* celldx, double* celldy, double* volume)
 {
 
     CloverCL::queue.finish();
@@ -2678,6 +2679,10 @@ void CloverCL::read_back_all_ocl_buffers(double* density0, double* density1, dou
     CloverCL::outoforder_queue.enqueueReadBuffer(CloverCL::mass_flux_x_buffer, CL_FALSE, 0, (CloverCL::xmax_c+5)*(CloverCL::ymax_c+4)*sizeof(double), mass_flux_x, NULL, NULL);
     CloverCL::outoforder_queue.enqueueReadBuffer(CloverCL::mass_flux_y_buffer, CL_FALSE, 0, (CloverCL::xmax_c+4)*(CloverCL::ymax_c+5)*sizeof(double), mass_flux_y, NULL, NULL);
 
+    CloverCL::outoforder_queue.enqueueReadBuffer(CloverCL::celldx_buffer, CL_FALSE, 0, (CloverCL::xmax_c+4)*sizeof(double), celldx, NULL, NULL);
+    CloverCL::outoforder_queue.enqueueReadBuffer(CloverCL::celldy_buffer, CL_FALSE, 0, (CloverCL::ymax_c+4)*sizeof(double), celldy, NULL, NULL);
+    CloverCL::outoforder_queue.enqueueReadBuffer(CloverCL::volume_buffer, CL_FALSE, 0, (CloverCL::xmax_c+4)*(CloverCL::ymax_c+4)*sizeof(double), volume, NULL, NULL);
+
     CloverCL::outoforder_queue.finish();
 }
 
@@ -2686,7 +2691,8 @@ void CloverCL::write_back_all_ocl_buffers(double* density0, double* density1, do
                                          double* pressure, double* viscosity, double* soundspeed,
                                          double* xvel0, double* xvel1, double* yvel0, double* yvel1,
                                          double* vol_flux_x, double* mass_flux_x,
-                                         double* vol_flux_y, double* mass_flux_y  )
+                                         double* vol_flux_y, double* mass_flux_y,
+                                         double* celldx, double* celldy, double* volume )
 {
 
     CloverCL::queue.finish();
@@ -2707,6 +2713,10 @@ void CloverCL::write_back_all_ocl_buffers(double* density0, double* density1, do
     CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::vol_flux_y_buffer,  CL_FALSE, 0, (CloverCL::xmax_c+4)*(CloverCL::ymax_c+5)*sizeof(double), vol_flux_y, NULL, NULL);
     CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::mass_flux_x_buffer, CL_FALSE, 0, (CloverCL::xmax_c+5)*(CloverCL::ymax_c+4)*sizeof(double), mass_flux_x, NULL, NULL);
     CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::mass_flux_y_buffer, CL_FALSE, 0, (CloverCL::xmax_c+4)*(CloverCL::ymax_c+5)*sizeof(double), mass_flux_y, NULL, NULL);
+
+    CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::celldx_buffer, CL_FALSE, 0, (CloverCL::xmax_c+4)*sizeof(double), celldx, NULL, NULL);
+    CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::celldy_buffer, CL_FALSE, 0, (CloverCL::ymax_c+4)*sizeof(double), celldy, NULL, NULL);
+    CloverCL::outoforder_queue.enqueueWriteBuffer(CloverCL::volume_buffer, CL_FALSE, 0, (CloverCL::xmax_c+4)*(CloverCL::ymax_c+4)*sizeof(double), volume, NULL, NULL);
 
     CloverCL::outoforder_queue.finish();
 }

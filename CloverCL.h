@@ -257,13 +257,15 @@ class CloverCL {
                                          double* pressure, double* viscosity, double* soundspeed,
                                          double* xvel0, double* xvel1, double* yvel0, double* yvel1,
                                          double* vol_flux_x, double* mass_flux_x,
-                                         double* vol_flux_y, double* mass_flux_y  ); 
+                                         double* vol_flux_y, double* mass_flux_y,
+                                         double* celldx, double* celldy, double* volume ); 
 
         static void write_back_all_ocl_buffers(double* density0, double* density1, double* energy0, double* energy1,
                                          double* pressure, double* viscosity, double* soundspeed,
                                          double* xvel0, double* xvel1, double* yvel0, double* yvel1,
                                          double* vol_flux_x, double* mass_flux_x,
-                                         double* vol_flux_y, double* mass_flux_y  ); 
+                                         double* vol_flux_y, double* mass_flux_y,
+                                         double* celldx, double* celldy, double* volume ); 
 
         static cl::Buffer density0_buffer;
         static cl::Buffer density1_buffer;
