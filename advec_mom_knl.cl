@@ -148,13 +148,12 @@ __kernel void advec_mom_flux_ocl_kernel_x_vec1(
           vdiffuw=vel1[ARRAYXY(j+1,k, XMAXPLUSFIVE)]-vel1[ARRAYXY(j+2, k, XMAXPLUSFIVE)];
           vdiffdw=vel1[ARRAYXY(j  ,k, XMAXPLUSFIVE)]-vel1[ARRAYXY(j+1, k, XMAXPLUSFIVE)];
           vdiffuw2=vel1[ARRAYXY(j ,k, XMAXPLUSFIVE)]-vel1[ARRAYXY(j-1, k, XMAXPLUSFIVE)];
-          vdiffdw2=-vdiffdw;
+          vdiffdw2=-1*vdiffdw;
           auw=fabs(vdiffuw);
           adw=fabs(vdiffdw);
           auw2=fabs(vdiffuw2);
           wind=1.0;
           wind2=1.0;
-          limiter=0.0;
 
           if(vdiffdw<=0.0) wind=-1.0;
           if(vdiffdw2<=0.0) wind2=-1.0;
