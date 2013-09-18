@@ -40,78 +40,78 @@ SUBROUTINE advec_mom_driver(chunk,which_vel,direction,sweep_number)
         vector=0
     ENDIF
 
-    CALL ocl_read_back_all_buffers(chunks(chunk)%field%density0,    &
-                                   chunks(chunk)%field%density1,    &
-                                   chunks(chunk)%field%energy0,     &
-                                   chunks(chunk)%field%energy1,     &
-                                   chunks(chunk)%field%pressure,    &
-                                   chunks(chunk)%field%viscosity,   &
-                                   chunks(chunk)%field%soundspeed,  &
-                                   chunks(chunk)%field%xvel0,       &
-                                   chunks(chunk)%field%xvel1,       &
-                                   chunks(chunk)%field%yvel0,       &
-                                   chunks(chunk)%field%yvel1,       &
-                                   chunks(chunk)%field%vol_flux_x,  &
-                                   chunks(chunk)%field%mass_flux_x, &
-                                   chunks(chunk)%field%vol_flux_y,  &
-                                   chunks(chunk)%field%mass_flux_y, &
-                                   chunks(chunk)%field%celldx,      &
-                                   chunks(chunk)%field%celldy,      &
-                                   chunks(chunk)%field%volume       )
+    !CALL ocl_read_back_all_buffers(chunks(chunk)%field%density0,    &
+    !                               chunks(chunk)%field%density1,    &
+    !                               chunks(chunk)%field%energy0,     &
+    !                               chunks(chunk)%field%energy1,     &
+    !                               chunks(chunk)%field%pressure,    &
+    !                               chunks(chunk)%field%viscosity,   &
+    !                               chunks(chunk)%field%soundspeed,  &
+    !                               chunks(chunk)%field%xvel0,       &
+    !                               chunks(chunk)%field%xvel1,       &
+    !                               chunks(chunk)%field%yvel0,       &
+    !                               chunks(chunk)%field%yvel1,       &
+    !                               chunks(chunk)%field%vol_flux_x,  &
+    !                               chunks(chunk)%field%mass_flux_x, &
+    !                               chunks(chunk)%field%vol_flux_y,  &
+    !                               chunks(chunk)%field%mass_flux_y, &
+    !                               chunks(chunk)%field%celldx,      &
+    !                               chunks(chunk)%field%celldy,      &
+    !                               chunks(chunk)%field%volume       )
 
-    !CALL advec_mom_kernel_ocl(chunks(chunk)%field%x_min,          &
-    !                          chunks(chunk)%field%x_max,          &
-    !                          chunks(chunk)%field%y_min,          &
-    !                          chunks(chunk)%field%y_max,          &
-    !                          which_vel,                          &
-    !                          sweep_number,                       &
-    !                          direction,                          &
-    !                          vector                              )
+    CALL advec_mom_kernel_ocl(chunks(chunk)%field%x_min,          &
+                              chunks(chunk)%field%x_max,          &
+                              chunks(chunk)%field%y_min,          &
+                              chunks(chunk)%field%y_max,          &
+                              which_vel,                          &
+                              sweep_number,                       &
+                              direction,                          &
+                              vector                              )
 
-    CALL advec_mom_kernel(chunks(chunk)%field%x_min,            &
-                        chunks(chunk)%field%x_max,              &
-                        chunks(chunk)%field%y_min,              &
-                        chunks(chunk)%field%y_max,              &
-                        chunks(chunk)%field%xvel1,              &
-                        chunks(chunk)%field%yvel1,              &
-                        chunks(chunk)%field%mass_flux_x,        &
-                        chunks(chunk)%field%vol_flux_x,         &
-                        chunks(chunk)%field%mass_flux_y,        &
-                        chunks(chunk)%field%vol_flux_y,         &
-                        chunks(chunk)%field%volume,             &
-                        chunks(chunk)%field%density1,           &
-                        chunks(chunk)%field%work_array1,        &
-                        chunks(chunk)%field%work_array2,        &
-                        chunks(chunk)%field%work_array3,        &
-                        chunks(chunk)%field%work_array4,        &
-                        chunks(chunk)%field%work_array5,        &
-                        chunks(chunk)%field%work_array6,        &
-                        chunks(chunk)%field%work_array7,        &
-                        chunks(chunk)%field%celldx,             &
-                        chunks(chunk)%field%celldy,             &
-                        which_vel,                              &
-                        sweep_number,                           &
-                        direction,                              &
-                        use_vector_loops                        )
+    !CALL advec_mom_kernel(chunks(chunk)%field%x_min,            &
+    !                    chunks(chunk)%field%x_max,              &
+    !                    chunks(chunk)%field%y_min,              &
+    !                    chunks(chunk)%field%y_max,              &
+    !                    chunks(chunk)%field%xvel1,              &
+    !                    chunks(chunk)%field%yvel1,              &
+    !                    chunks(chunk)%field%mass_flux_x,        &
+    !                    chunks(chunk)%field%vol_flux_x,         &
+    !                    chunks(chunk)%field%mass_flux_y,        &
+    !                    chunks(chunk)%field%vol_flux_y,         &
+    !                    chunks(chunk)%field%volume,             &
+    !                    chunks(chunk)%field%density1,           &
+    !                    chunks(chunk)%field%work_array1,        &
+    !                    chunks(chunk)%field%work_array2,        &
+    !                    chunks(chunk)%field%work_array3,        &
+    !                    chunks(chunk)%field%work_array4,        &
+    !                    chunks(chunk)%field%work_array5,        &
+    !                    chunks(chunk)%field%work_array6,        &
+    !                    chunks(chunk)%field%work_array7,        &
+    !                    chunks(chunk)%field%celldx,             &
+    !                    chunks(chunk)%field%celldy,             &
+    !                    which_vel,                              &
+    !                    sweep_number,                           &
+    !                    direction,                              &
+    !                    use_vector_loops                        )
 
-    CALL ocl_write_back_all_buffers(chunks(chunk)%field%density0,    &
-                                    chunks(chunk)%field%density1,    &
-                                    chunks(chunk)%field%energy0,     &
-                                    chunks(chunk)%field%energy1,     &
-                                    chunks(chunk)%field%pressure,    &
-                                    chunks(chunk)%field%viscosity,   &
-                                    chunks(chunk)%field%soundspeed,  &
-                                    chunks(chunk)%field%xvel0,       &
-                                    chunks(chunk)%field%xvel1,       &
-                                    chunks(chunk)%field%yvel0,       &
-                                    chunks(chunk)%field%yvel1,       &
-                                    chunks(chunk)%field%vol_flux_x,  &
-                                    chunks(chunk)%field%mass_flux_x, &
-                                    chunks(chunk)%field%vol_flux_y,  &
-                                    chunks(chunk)%field%mass_flux_y, &
-                                    chunks(chunk)%field%celldx,      &
-                                    chunks(chunk)%field%celldy,      &
-                                    chunks(chunk)%field%volume       )
+    !CALL ocl_write_back_all_buffers(chunks(chunk)%field%density0,    &
+    !                                chunks(chunk)%field%density1,    &
+    !                                chunks(chunk)%field%energy0,     &
+    !                                chunks(chunk)%field%energy1,     &
+    !                                chunks(chunk)%field%pressure,    &
+    !                                chunks(chunk)%field%viscosity,   &
+    !                                chunks(chunk)%field%soundspeed,  &
+    !                                chunks(chunk)%field%xvel0,       &
+    !                                chunks(chunk)%field%xvel1,       &
+    !                                chunks(chunk)%field%yvel0,       &
+    !                                chunks(chunk)%field%yvel1,       &
+    !                                chunks(chunk)%field%vol_flux_x,  &
+    !                                chunks(chunk)%field%mass_flux_x, &
+    !                                chunks(chunk)%field%vol_flux_y,  &
+    !                                chunks(chunk)%field%mass_flux_y, &
+    !                                chunks(chunk)%field%celldx,      &
+    !                                chunks(chunk)%field%celldy,      &
+    !                                chunks(chunk)%field%volume       )
 
 
 
