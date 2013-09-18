@@ -228,7 +228,7 @@ __kernel void advec_mom_vel_ocl_kernel_x(
     int k = get_global_id(1);
     int j = get_global_id(0);
 
-    if ( (j>=2) && (j<=XMAXPLUSONE) && (k>=2) && (k<=YMAXPLUSTWO) ) {
+    if ( (j>=2) && (j<=XMAXPLUSTWO) && (k>=2) && (k<=YMAXPLUSTWO) ) {
 
         vel1[ARRAYXY(j  ,k  ,XMAXPLUSFIVE)]=(vel1[ARRAYXY(j  ,k  ,XMAXPLUSFIVE)]
                                                         *node_mass_pre[ARRAYXY(j  ,k  ,XMAXPLUSFIVE)]
