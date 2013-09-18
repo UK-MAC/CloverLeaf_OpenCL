@@ -530,13 +530,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 #endif 
     ENDIF
 
-
     IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
-      !CALL ocl_read_comm_buffer(chunks(chunk)%field%x_min, &
-      !                          chunks(chunk)%field%x_max, chunks(chunk)%field%y_min, &
-      !                          chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
-      !                          left_snd_buffer, 4)
-
       tag=4*(chunk)+1 ! 4 because we have 4 faces, 1 because it is leaving the left face
       receiver=chunks(chunks(chunk)%chunk_neighbours(chunk_left))%task
       CALL MPI_ISEND(left_snd_buffer,size,MPI_DOUBLE_PRECISION,receiver,tag &
@@ -549,10 +543,6 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
     ENDIF
 
     IF(chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face) THEN
-      !CALL ocl_read_comm_buffer(chunks(chunk)%field%x_min, &
-      !    chunks(chunk)%field%x_max, chunks(chunk)%field%y_min, &
-      !    chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
-      !    right_snd_buffer, 2)
       tag=4*chunk+2 ! 4 because we have 4 faces, 2 because it is leaving the right face
       receiver=chunks(chunks(chunk)%chunk_neighbours(chunk_right))%task
       CALL MPI_ISEND(right_snd_buffer,size,MPI_DOUBLE_PRECISION,receiver,tag &
@@ -566,7 +556,6 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
   ENDIF
 
   ! Wait for the messages
-
   CALL MPI_WAITALL(message_count,request,status,err)
 
   ! Unpack buffers in halo cells
@@ -599,22 +588,6 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 #endif
     ENDIF
 
-    !IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
-
-    !    CALL ocl_write_comm_buffer(chunks(chunk)%field%x_min, & 
-    !        chunks(chunk)%field%x_max, chunks(chunk)%field%y_min,&
-    !        chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
-    !        left_rcv_buffer, 4)
-
-    !ENDIF
-    !IF(chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face) THEN
-
-    !    CALL ocl_write_comm_buffer(chunks(chunk)%field%x_min, &
-    !        chunks(chunk)%field%x_max, chunks(chunk)%field%y_min,&
-    !        chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
-    !        right_rcv_buffer, 2)
-
-    !ENDIF
   ENDIF
 
   request=0
@@ -647,10 +620,6 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
     ENDIF
 
     IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
-      !  CALL ocl_read_comm_buffer(chunks(chunk)%field%x_min, &
-      !      chunks(chunk)%field%x_max, chunks(chunk)%field%y_min,&
-      !      chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
-      !      bottom_snd_buffer, 3)
       tag=4*(chunk)+3 ! 4 because we have 4 faces, 3 because it is leaving the bottom face
       receiver=chunks(chunks(chunk)%chunk_neighbours(chunk_bottom))%task
       CALL MPI_ISEND(bottom_snd_buffer,size,MPI_DOUBLE_PRECISION,receiver,tag &
@@ -663,10 +632,6 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
     ENDIF
 
     IF(chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) THEN
-      !  CALL ocl_read_comm_buffer(chunks(chunk)%field%x_min, &
-      !      chunks(chunk)%field%x_max, chunks(chunk)%field%y_min,&
-      !      chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
-      !      top_snd_buffer, 1)
       tag=4*(chunk)+4 ! 4 because we have 4 faces, 4 because it is leaving the top face
       receiver=chunks(chunks(chunk)%chunk_neighbours(chunk_top))%task
       CALL MPI_ISEND(top_snd_buffer,size,MPI_DOUBLE_PRECISION,receiver,tag &
@@ -680,8 +645,8 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
   ENDIF
 
   ! Wait for the messages
-
   CALL MPI_WAITALL(message_count,request,status,err)
+
   ! Unpack buffers in halo cells
   IF(parallel%task.EQ.chunks(chunk)%task) THEN
 
@@ -712,22 +677,6 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 #endif
     ENDIF
 
-    !IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
-
-    !    CALL ocl_write_comm_buffer(chunks(chunk)%field%x_min, &
-    !        chunks(chunk)%field%x_max, chunks(chunk)%field%y_min,&
-    !        chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
-    !        bottom_rcv_buffer, 3)
-
-    !ENDIF
-    !IF(chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) THEN
-
-    !    CALL ocl_write_comm_buffer(chunks(chunk)%field%x_min, &
-    !        chunks(chunk)%field%x_max, chunks(chunk)%field%y_min,&
-    !        chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
-    !        top_rcv_buffer, 1)
-
-    !ENDIF
   ENDIF
 
 END SUBROUTINE clover_exchange_message
