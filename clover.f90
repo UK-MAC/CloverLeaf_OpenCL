@@ -509,10 +509,25 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 
     IF ((chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) .OR. & 
         (chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face)) THEN 
+#ifdef USE_EXPLICIT_COMMS_BUFF_PACK
         CALL pack_comms_buffers_left_right_kernel_ocl(chunks(chunk)%chunk_neighbours(chunk_left),          &
                                                       chunks(chunk)%chunk_neighbours(chunk_right),         &
                                                       x_inc, y_inc, depth, size, field_name,               &
                                                       left_snd_buffer, right_snd_buffer)
+#else
+        IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
+            CALL ocl_read_comm_buffer(chunks(chunk)%field%x_min, &
+                                      chunks(chunk)%field%x_max, chunks(chunk)%field%y_min, &
+                                      chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
+                                      left_snd_buffer, 4)
+        ENDIF
+        IF(chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face) THEN
+            CALL ocl_read_comm_buffer(chunks(chunk)%field%x_min, &
+                                      chunks(chunk)%field%x_max, chunks(chunk)%field%y_min, &
+                                      chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
+                                      right_snd_buffer, 2)
+        ENDIF
+#endif 
     ENDIF
 
 
@@ -559,10 +574,29 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 
     IF ((chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) .OR.  &
         (chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face)) THEN
+#ifdef USE_EXPLICIT_COMMS_BUFF_PACK
         CALL unpack_comms_buffers_left_right_kernel_ocl(chunks(chunk)%chunk_neighbours(chunk_left),          &
                                                         chunks(chunk)%chunk_neighbours(chunk_right),         &
                                                         x_inc, y_inc, depth, size, field_name,               &
                                                         left_rcv_buffer, right_rcv_buffer)
+#else
+        IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
+
+            CALL ocl_write_comm_buffer(chunks(chunk)%field%x_min, & 
+                                       chunks(chunk)%field%x_max, chunks(chunk)%field%y_min,&
+                                       chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
+                                       left_rcv_buffer, 4)
+
+        ENDIF
+        IF(chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face) THEN
+
+            CALL ocl_write_comm_buffer(chunks(chunk)%field%x_min, &
+                                       chunks(chunk)%field%x_max, chunks(chunk)%field%y_min,&
+                                       chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
+                                       right_rcv_buffer, 2)
+
+        ENDIF
+#endif
     ENDIF
 
     !IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
@@ -591,10 +625,25 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 
     IF ((chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) .OR. & 
         (chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face)) THEN
+#ifdef USE_EXPLICIT_COMMS_BUFF_PACK
         CALL pack_comms_buffers_top_bottom_kernel_ocl(chunks(chunk)%chunk_neighbours(chunk_top),           &
                                                       chunks(chunk)%chunk_neighbours(chunk_bottom),        &
                                                       x_inc, y_inc, depth, size, field_name,               &
                                                       top_snd_buffer, bottom_snd_buffer)
+#else
+        IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
+            CALL ocl_read_comm_buffer(chunks(chunk)%field%x_min, &
+                                      chunks(chunk)%field%x_max, chunks(chunk)%field%y_min,&
+                                      chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
+                                      bottom_snd_buffer, 3)
+        ENDIF
+        IF(chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) THEN
+            CALL ocl_read_comm_buffer(chunks(chunk)%field%x_min, &
+                                      chunks(chunk)%field%x_max, chunks(chunk)%field%y_min,&
+                                      chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
+                                      top_snd_buffer, 1)
+        ENDIF
+#endif
     ENDIF
 
     IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
@@ -638,10 +687,29 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 
     IF ((chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) .OR. & 
         (chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face)) THEN
+#ifdef USE_EXPLICIT_COMMS_BUFF_PACK
         CALL unpack_comms_buffers_top_bottom_kernel_ocl(chunks(chunk)%chunk_neighbours(chunk_top),           &
                                                         chunks(chunk)%chunk_neighbours(chunk_bottom),        &
                                                         x_inc, y_inc, depth, size, field_name,               &
                                                         top_rcv_buffer, bottom_rcv_buffer)
+#else
+        IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
+
+            CALL ocl_write_comm_buffer(chunks(chunk)%field%x_min, &
+                                       chunks(chunk)%field%x_max, chunks(chunk)%field%y_min,&
+                                       chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
+                                       bottom_rcv_buffer, 3)
+
+        ENDIF
+        IF(chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) THEN
+
+            CALL ocl_write_comm_buffer(chunks(chunk)%field%x_min, &
+                                       chunks(chunk)%field%x_max, chunks(chunk)%field%y_min,&
+                                       chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
+                                       top_rcv_buffer, 1)
+
+        ENDIF
+#endif
     ENDIF
 
     !IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
