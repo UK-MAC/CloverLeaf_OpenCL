@@ -18,7 +18,7 @@
  end_step=2955
 
  use_opencl_kernels
- opencl_vendor=Intel
- opencl_type=CPU
+ opencl_vendor=Nvidia
+ opencl_type=GPU
 
 *endclover
