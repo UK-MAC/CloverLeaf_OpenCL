@@ -116,17 +116,33 @@ __kernel void calc_dt_ocl_kernel(
 
     //if (k>=2) { 
 
-    barrier(CLK_LOCAL_MEM_FENCE);
+#ifndef CPU_REDUCTION 
 
-    for (int limit = WORKGROUP_SIZE_DIVTWO; limit > 0; limit >>= 1 ) {
-
-        if (localid < limit) {
-        
-            dt_min_local[localid] = fmin(dt_min_local[localid], dt_min_local[localid + limit]);
-
-        }
+        //GPU reduction 
         barrier(CLK_LOCAL_MEM_FENCE);
-    }
+
+        for (int limit = WORKGROUP_SIZE_DIVTWO; limit > 0; limit >>= 1 ) {
+
+            if (localid < limit) {
+            
+                dt_min_local[localid] = fmin(dt_min_local[localid], dt_min_local[localid + limit]);
+
+            }
+            barrier(CLK_LOCAL_MEM_FENCE);
+        }
+
+#else 
+
+        //CPU reduction 
+        barrier(CLK_LOCAL_MEM_FENCE);
+
+        if (localid==0) {
+            for (int index = 1; index < WORKGROUP_SIZE; index++) {
+                dt_min_local[localid] = fmin( dt_min_local[localid], dt_min_local[index] );  
+            }
+        }
+
+#endif
 
     //}
 
