@@ -116,7 +116,7 @@ __kernel void calc_dt_ocl_kernel(
 
     //if (k>=2) { 
 
-#ifndef CPU_REDUCTION 
+#ifdef GPU_REDUCTION 
 
         //GPU reduction 
         barrier(CLK_LOCAL_MEM_FENCE);
@@ -131,7 +131,7 @@ __kernel void calc_dt_ocl_kernel(
             barrier(CLK_LOCAL_MEM_FENCE);
         }
 
-#else 
+#else
 
         //CPU reduction 
         barrier(CLK_LOCAL_MEM_FENCE);
