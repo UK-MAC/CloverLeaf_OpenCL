@@ -131,8 +131,7 @@ __kernel void calc_dt_ocl_kernel(
             barrier(CLK_LOCAL_MEM_FENCE);
         }
 
-#endif
-#ifdef CPU_REDUCTION 
+#else
 
         //CPU reduction 
         barrier(CLK_LOCAL_MEM_FENCE);

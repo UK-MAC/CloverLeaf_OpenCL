@@ -370,7 +370,6 @@ void CloverCL::determineWorkGroupSizeInfo() {
     device.getInfo(CL_DEVICE_MAX_COMPUTE_UNITS, &device_procs);
     device.getInfo(CL_DEVICE_MAX_WORK_GROUP_SIZE, &device_max_wg_size);
     device.getInfo(CL_DEVICE_LOCAL_MEM_SIZE, &device_local_mem_size);
-    device.getInfo(CL_DEVICE_TYPE, &device_type);
 
 #ifdef OCL_VERBOSE
     std::cout << "Size of min reduction work group multiple: " << prefer_wg_multiple << std::endl;
@@ -1054,7 +1053,7 @@ void CloverCL::initContext(
           0
         };
 
-    cl_device_type device_type = CL_DEVICE_TYPE_DEFAULT;
+    device_type = CL_DEVICE_TYPE_DEFAULT;
 
     if (preferred_type == "gpu") {
         device_type = CL_DEVICE_TYPE_GPU;
@@ -1608,16 +1607,14 @@ void CloverCL::loadProgram(int xmin, int xmax, int ymin, int ymax)
 
         if (device_type == CL_DEVICE_TYPE_GPU) {
 
-        sprintf(buildOptions, "-DXMIN=%u -DXMINPLUSONE=%u -DXMAX=%u -DYMIN=%u -DYMINPLUSONE=%u -DYMINPLUSTWO=%u -DYMAX=%u -DXMAXPLUSONE=%u -DXMAXPLUSTWO=%u -DXMAXPLUSTHREE=%u -DXMAXPLUSFOUR=%u -DXMAXPLUSFIVE=%u -DYMAXPLUSONE=%u -DYMAXPLUSTWO=%u -DYMAXPLUSTHREE=%u -DWORKGROUP_SIZE=%u -DWORKGROUP_SIZE_DIVTWO=%u -DGPU_REDUCTION", 
+            sprintf(buildOptions, "-DXMIN=%u -DXMINPLUSONE=%u -DXMAX=%u -DYMIN=%u -DYMINPLUSONE=%u -DYMINPLUSTWO=%u -DYMAX=%u -DXMAXPLUSONE=%u -DXMAXPLUSTWO=%u -DXMAXPLUSTHREE=%u -DXMAXPLUSFOUR=%u -DXMAXPLUSFIVE=%u -DYMAXPLUSONE=%u -DYMAXPLUSTWO=%u -DYMAXPLUSTHREE=%u -DWORKGROUP_SIZE=%u -DWORKGROUP_SIZE_DIVTWO=%u -DGPU_REDUCTION", 
                 xmin, xmin+1, xmax, ymin, ymin+1, ymin+2, ymax, xmax+1, xmax+2, xmax+3, xmax+4, xmax+5, ymax+1, ymax+2, ymax+3, CloverCL::fixed_wg_min_size_large_dim, CloverCL::fixed_wg_min_size_large_dim/2);
 
         } else {
 
-        sprintf(buildOptions, "-DXMIN=%u -DXMINPLUSONE=%u -DXMAX=%u -DYMIN=%u -DYMINPLUSONE=%u -DYMINPLUSTWO=%u -DYMAX=%u -DXMAXPLUSONE=%u -DXMAXPLUSTWO=%u -DXMAXPLUSTHREE=%u -DXMAXPLUSFOUR=%u -DXMAXPLUSFIVE=%u -DYMAXPLUSONE=%u -DYMAXPLUSTWO=%u -DYMAXPLUSTHREE=%u -DWORKGROUP_SIZE=%u -DWORKGROUP_SIZE_DIVTWO=%u -DCPU_REDUCTION", 
+            sprintf(buildOptions, "-DXMIN=%u -DXMINPLUSONE=%u -DXMAX=%u -DYMIN=%u -DYMINPLUSONE=%u -DYMINPLUSTWO=%u -DYMAX=%u -DXMAXPLUSONE=%u -DXMAXPLUSTWO=%u -DXMAXPLUSTHREE=%u -DXMAXPLUSFOUR=%u -DXMAXPLUSFIVE=%u -DYMAXPLUSONE=%u -DYMAXPLUSTWO=%u -DYMAXPLUSTHREE=%u -DWORKGROUP_SIZE=%u -DWORKGROUP_SIZE_DIVTWO=%u -UGPU_REDUCTION", 
                 xmin, xmin+1, xmax, ymin, ymin+1, ymin+2, ymax, xmax+1, xmax+2, xmax+3, xmax+4, xmax+5, ymax+1, ymax+2, ymax+3, CloverCL::fixed_wg_min_size_large_dim, CloverCL::fixed_wg_min_size_large_dim/2);
 
-            //sprintf(buildOptions, "-DXMIN=%u -DXMAX=%u -DYMIN=%u -DYMINPLUSONE=%u -DYMINPLUSTWO=%u -DYMAX=%u -DXMAXPLUSONE=%u -D XMAXPLUSTWO=%u -DXMAXPLUSTHREE=%u -DXMAXPLUSFOUR=%u -DXMAXPLUSFIVE=%u -DYMAXPLUSONE=%u -DYMAXPLUSTWO=%u -DYMAXPLUSTHREE=%u -DWORKGROUP_SIZE=%u -DWORKGROUP_SIZE_DIVTWO=%u -DCPU_REDUCTION", 
-             //    xmin, xmax, ymin, ymin+1, ymin+2, ymax, xmax+1, xmax+2, xmax+3, xmax+4, xmax+5, ymax+1, ymax+2, ymax+3, CloverCL::fixed_wg_min_size_large_dim, CloverCL::fixed_wg_min_size_large_dim/2);
         }
 
         err = program.build(devices, buildOptions); 
