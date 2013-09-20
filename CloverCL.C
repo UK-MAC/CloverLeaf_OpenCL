@@ -1600,7 +1600,7 @@ void CloverCL::loadProgram(int xmin, int xmax, int ymin, int ymax)
         std::cout << build_log << std::endl; \
 
     cl_int prog_err;
-    char buildOptions [300];
+    char buildOptions [350];
 
     try {
         program = cl::Program(context, sources, &prog_err);
