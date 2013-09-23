@@ -23,14 +23,7 @@
  *  overwritten by further state definitions.
  */
 
-#ifdef cl_khr_fp64
-#pragma OPENCL EXTENSION cl_khr_fp64 : enable
-#elif defined(cl_amd_fp64)
-#pragma OPENCL EXTENSION cl_amd_fp64 : enable
-#endif
-
-#define ARRAY1D(i_index,i_lb) ((i_index)-(i_lb))
-#define ARRAY2D(i_index,j_index,i_size,i_lb,j_lb) ((i_size)*((j_index)-(j_lb))+(i_index)-(i_lb))
+#include "ocl_knls.h"
 
 __kernel void generate_chunk_ocl_kernel(
         __global double *vertexx,    
