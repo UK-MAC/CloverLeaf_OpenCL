@@ -22,13 +22,7 @@
  *  pressure for the chunk is calculated.
  */
 
-#ifdef cl_khr_fp64
-#pragma OPENCL EXTENSION cl_khr_fp64 : enable
-#elif defined(cl_amd_fp64)
-#pragma OPENCL EXTENSION cl_amd_fp64 : enable
-#endif
-
-#define ARRAYXY(x_index, y_index, x_width) ((y_index)*(x_width)+(x_index))
+#include "ocl_knls.h"
 
 __kernel void field_summary_ocl_kernel(
     __global double *volume,

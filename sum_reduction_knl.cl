@@ -21,11 +21,7 @@
  *  @details Calculates the sum of the input field (CPU and GPU)
  */
 
-#ifdef cl_khr_fp64
-#pragma OPENCL EXTENSION cl_khr_fp64 : enable
-#elif defined(cl_amd_fp64)
-#pragma OPENCL EXTENSION cl_amd_fp64 : enable
-#endif
+#include "ocl_knls.h"
 
 __kernel void reduction_sum_cpu_ocl_kernel(
 	__global double *sum_val_input,

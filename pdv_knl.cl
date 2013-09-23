@@ -24,13 +24,7 @@
  *  predictor or corrector.
  */
 
-#ifdef cl_khr_fp64
-#pragma OPENCL EXTENSION cl_khr_fp64 : enable
-#elif defined(cl_amd_fp64)
-#pragma OPENCL EXTENSION cl_amd_fp64 : enable
-#endif
-
-#define ARRAYXY(x_index, y_index, x_width) ((y_index)*(x_width)+(x_index))
+#include "ocl_knls.h"
 
 __kernel void pdv_correct_ocl_kernel(
         const double dt,
