@@ -15,7 +15,7 @@
  timestep_rise=1.5
  max_timestep=0.04
  end_time=15.5
- end_step=87
+ end_step=2955
 
  use_opencl_kernels
  opencl_vendor=Intel
