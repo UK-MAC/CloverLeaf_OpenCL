@@ -43,15 +43,15 @@ extern "C" void calc_dt_kernel_ocl_(
         int *ymin,
         int *ymax,
         double *dtmin,                 
-        double *cellx,                               
-        double *celly,                               
-        double *density0,                            
-        double *energy0,                             
-        double *pressure,                            
-        double *viscosity,                           
-        double *soundspeed,                          
-        double *xvel0,
-        double *yvel0,                         
+        //double *cellx,                               
+        //double *celly,                               
+        //double *density0,                            
+        //double *energy0,                             
+        //double *pressure,                            
+        //double *viscosity,                           
+        //double *soundspeed,                          
+        //double *xvel0,
+        //double *yvel0,                         
         double *dt_min_val, 
         int *dtl_control,
         double *xl_pos,     
@@ -66,15 +66,15 @@ void calc_dt_kernel_ocl_(
         int *ymin,
         int *ymax,
         double *dtmin,                 
-        double *cellx,                               
-        double *celly,                               
-        double *density0,                            
-        double *energy0,                             
-        double *pressure,                            
-        double *viscosity,                           
-        double *soundspeed,                          
-        double *xvel0,
-        double *yvel0,                         
+        //double *cellx,                               
+        //double *celly,                               
+        //double *density0,                            
+        //double *energy0,                             
+        //double *pressure,                            
+        //double *viscosity,                           
+        //double *soundspeed,                          
+        //double *xvel0,
+        //double *yvel0,                         
         double *dt_min_val, 
         int *dtl_control,
         double *xl_pos,     
@@ -145,51 +145,51 @@ void calc_dt_kernel_ocl_(
     jk_control = jk_control-(jk_control- (int) jk_control);
     *jldt = ((int) jk_control) % *xmax;
     *kldt = (int) 1+(jk_control / *xmax);
-    *xl_pos = cellx[ARRAY1D(*jldt, *xmin-2)];
-    *yl_pos = celly[ARRAY1D(*kldt, *ymin-2)];
+    //*xl_pos = cellx[ARRAY1D(*jldt, *xmin-2)];
+    //*yl_pos = celly[ARRAY1D(*kldt, *ymin-2)];
 
 
     if (*dt_min_val < *dtmin) { *small=1; }
 
     if (*small != 0) { 
-        try { 
-            err = CloverCL::queue.enqueueReadBuffer(CloverCL::xvel0_buffer, CL_TRUE, 0, 
-                                                    (*xmax+5)*(*ymax+5)*sizeof(double), xvel0, NULL, NULL);
+        //try { 
+        //    err = CloverCL::queue.enqueueReadBuffer(CloverCL::xvel0_buffer, CL_TRUE, 0, 
+        //                                            (*xmax+5)*(*ymax+5)*sizeof(double), xvel0, NULL, NULL);
 
-            err = CloverCL::queue.enqueueReadBuffer(CloverCL::yvel0_buffer, CL_TRUE, 0, 
-                                                    (*xmax+5)*(*ymax+5)*sizeof(double), yvel0, NULL, NULL);
+        //    err = CloverCL::queue.enqueueReadBuffer(CloverCL::yvel0_buffer, CL_TRUE, 0, 
+        //                                            (*xmax+5)*(*ymax+5)*sizeof(double), yvel0, NULL, NULL);
 
-            err = CloverCL::queue.enqueueReadBuffer(CloverCL::density0_buffer, CL_TRUE, 0, 
-                                                    (*xmax+4)*(*ymax+4)*sizeof(double), density0, NULL, NULL);
+        //    err = CloverCL::queue.enqueueReadBuffer(CloverCL::density0_buffer, CL_TRUE, 0, 
+        //                                            (*xmax+4)*(*ymax+4)*sizeof(double), density0, NULL, NULL);
 
-            err = CloverCL::queue.enqueueReadBuffer(CloverCL::energy0_buffer, CL_TRUE, 0, 
-                                                    (*xmax+4)*(*ymax+4)*sizeof(double), energy0, NULL, NULL);
+        //    err = CloverCL::queue.enqueueReadBuffer(CloverCL::energy0_buffer, CL_TRUE, 0, 
+        //                                            (*xmax+4)*(*ymax+4)*sizeof(double), energy0, NULL, NULL);
 
-            err = CloverCL::queue.enqueueReadBuffer(CloverCL::pressure_buffer, CL_TRUE, 0, 
-                                                    (*xmax+4)*(*ymax+4)*sizeof(double), pressure, NULL, NULL);
+        //    err = CloverCL::queue.enqueueReadBuffer(CloverCL::pressure_buffer, CL_TRUE, 0, 
+        //                                            (*xmax+4)*(*ymax+4)*sizeof(double), pressure, NULL, NULL);
 
-            err = CloverCL::queue.enqueueReadBuffer(CloverCL::soundspeed_buffer, CL_TRUE, 0, 
-                                                    (*xmax+4)*(*ymax+4)*sizeof(double), soundspeed, NULL, NULL);
+        //    err = CloverCL::queue.enqueueReadBuffer(CloverCL::soundspeed_buffer, CL_TRUE, 0, 
+        //                                            (*xmax+4)*(*ymax+4)*sizeof(double), soundspeed, NULL, NULL);
 
-        } catch(cl::Error err) {
-            CloverCL::reportError(err, "[CloverCL] ERROR: at dt_calc_knl read data back stage 2");
-        }
+        //} catch(cl::Error err) {
+        //    CloverCL::reportError(err, "[CloverCL] ERROR: at dt_calc_knl read data back stage 2");
+        //}
 
         std::cout << "Timestep information:" << std::endl;
         std::cout << "j, k                 : " << *jldt << "  " << *kldt << std::endl;
-        std::cout << "x, y                 : " << cellx[ARRAY1D(*jldt,*xmin-2)] << "  " << celly[ARRAY1D(*kldt,*ymin-2)] << std::endl;
+        //std::cout << "x, y                 : " << cellx[ARRAY1D(*jldt,*xmin-2)] << "  " << celly[ARRAY1D(*kldt,*ymin-2)] << std::endl;
         std::cout << "timestep : " << *dt_min_val << std::endl;
         std::cout << "dt_min : " << *dtmin << std::endl;
-        std::cout << "Cell velocities;" << std::endl;
-        std::cout << xvel0[ARRAY2D(*jldt  , *kldt  , *xmax+5, *xmin-2, *ymin-2)] << "  " << yvel0[ARRAY2D(*jldt  , *kldt   , *xmax+5, *xmin-2, *ymin-2)] << std::endl;
-        std::cout << xvel0[ARRAY2D(*jldt+1, *kldt  , *xmax+5, *xmin-2, *ymin-2)] << "  " << yvel0[ARRAY2D(*jldt+1, *kldt   , *xmax+5, *xmin-2, *ymin-2)] << std::endl;
-        std::cout << xvel0[ARRAY2D(*jldt+1, *kldt+1, *xmax+5, *xmin-2, *ymin-2)] << "  " << yvel0[ARRAY2D(*jldt+1, *kldt+1 , *xmax+5, *xmin-2, *ymin-2)] << std::endl;
-        std::cout << xvel0[ARRAY2D(*jldt  , *kldt+1, *xmax+5, *xmin-2, *ymin-2)] << "  " << yvel0[ARRAY2D(*jldt  , *kldt+1 , *xmax+5, *xmin-2, *ymin-2)] << std::endl;
-        std::cout << "density, energy, pressure, soundspeed " << std::endl;
-        std::cout << density0[ARRAY2D(*jldt, *kldt, *xmax+4, *xmin-2, *ymin-2)] << "  "
-                  << energy0[ARRAY2D(*jldt, *kldt, *xmax+4, *xmin-2, *ymin-2)] << "  "
-                  << pressure[ARRAY2D(*jldt, *kldt, *xmax+4, *xmin-2, *ymin-2)] << "  "
-                  << soundspeed[ARRAY2D(*jldt, *kldt, *xmax+4, *xmin-2, *ymin-2)] << std::endl;
+        //std::cout << "Cell velocities;" << std::endl;
+        //std::cout << xvel0[ARRAY2D(*jldt  , *kldt  , *xmax+5, *xmin-2, *ymin-2)] << "  " << yvel0[ARRAY2D(*jldt  , *kldt   , *xmax+5, *xmin-2, *ymin-2)] << std::endl;
+        //std::cout << xvel0[ARRAY2D(*jldt+1, *kldt  , *xmax+5, *xmin-2, *ymin-2)] << "  " << yvel0[ARRAY2D(*jldt+1, *kldt   , *xmax+5, *xmin-2, *ymin-2)] << std::endl;
+        //std::cout << xvel0[ARRAY2D(*jldt+1, *kldt+1, *xmax+5, *xmin-2, *ymin-2)] << "  " << yvel0[ARRAY2D(*jldt+1, *kldt+1 , *xmax+5, *xmin-2, *ymin-2)] << std::endl;
+        //std::cout << xvel0[ARRAY2D(*jldt  , *kldt+1, *xmax+5, *xmin-2, *ymin-2)] << "  " << yvel0[ARRAY2D(*jldt  , *kldt+1 , *xmax+5, *xmin-2, *ymin-2)] << std::endl;
+        //std::cout << "density, energy, pressure, soundspeed " << std::endl;
+        //std::cout << density0[ARRAY2D(*jldt, *kldt, *xmax+4, *xmin-2, *ymin-2)] << "  "
+        //          << energy0[ARRAY2D(*jldt, *kldt, *xmax+4, *xmin-2, *ymin-2)] << "  "
+        //          << pressure[ARRAY2D(*jldt, *kldt, *xmax+4, *xmin-2, *ymin-2)] << "  "
+        //          << soundspeed[ARRAY2D(*jldt, *kldt, *xmax+4, *xmin-2, *ymin-2)] << std::endl;
     }
 
 
