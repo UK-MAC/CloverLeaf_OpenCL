@@ -439,12 +439,12 @@ void CloverCL::build_reduction_kernel_objects() {
         ke_sum_reduction_kernels[0].setArg(2, CloverCL::num_elements_per_wi[0]); 
         press_sum_reduction_kernels[0].setArg(2, CloverCL::num_elements_per_wi[0]); 
 
-        min_reduction_kernels[0].setArg(      3, CloverCL::size_limits[0]);
-        vol_sum_reduction_kernels[0].setArg(3, CloverCL::size_limits[0]); 
-        mass_sum_reduction_kernels[0].setArg(3, CloverCL::size_limits[0]); 
-        ie_sum_reduction_kernels[0].setArg(3, CloverCL::size_limits[0]); 
-        ke_sum_reduction_kernels[0].setArg(3, CloverCL::size_limits[0]);
-        press_sum_reduction_kernels[0].setArg(3, CloverCL::size_limits[0]); 
+        //min_reduction_kernels[0].setArg(      3, CloverCL::size_limits[0]);
+        //vol_sum_reduction_kernels[0].setArg(3, CloverCL::size_limits[0]); 
+        //mass_sum_reduction_kernels[0].setArg(3, CloverCL::size_limits[0]); 
+        //ie_sum_reduction_kernels[0].setArg(3, CloverCL::size_limits[0]); 
+        //ke_sum_reduction_kernels[0].setArg(3, CloverCL::size_limits[0]);
+        //press_sum_reduction_kernels[0].setArg(3, CloverCL::size_limits[0]); 
 
 
 
@@ -477,12 +477,12 @@ void CloverCL::build_reduction_kernel_objects() {
         ke_sum_reduction_kernels[1].setArg(2, CloverCL::num_elements_per_wi[1]); 
         press_sum_reduction_kernels[1].setArg(2, CloverCL::num_elements_per_wi[1]); 
 
-        min_reduction_kernels[1].setArg(      3, CloverCL::size_limits[1]);
-        vol_sum_reduction_kernels[1].setArg(3, CloverCL::size_limits[1]); 
-        mass_sum_reduction_kernels[1].setArg(3, CloverCL::size_limits[1]); 
-        ie_sum_reduction_kernels[1].setArg(3, CloverCL::size_limits[1]); 
-        ke_sum_reduction_kernels[1].setArg(3, CloverCL::size_limits[1]); 
-        press_sum_reduction_kernels[1].setArg(3, CloverCL::size_limits[1]); 
+        //min_reduction_kernels[1].setArg(      3, CloverCL::size_limits[1]);
+        //vol_sum_reduction_kernels[1].setArg(3, CloverCL::size_limits[1]); 
+        //mass_sum_reduction_kernels[1].setArg(3, CloverCL::size_limits[1]); 
+        //ie_sum_reduction_kernels[1].setArg(3, CloverCL::size_limits[1]); 
+        //ke_sum_reduction_kernels[1].setArg(3, CloverCL::size_limits[1]); 
+        //press_sum_reduction_kernels[1].setArg(3, CloverCL::size_limits[1]); 
         
     }
     else if (CloverCL::device_type == CL_DEVICE_TYPE_GPU) {
@@ -647,35 +647,44 @@ void CloverCL::calculateReductionStructure(int xmax, int ymax) {
     if ( (device_type == CL_DEVICE_TYPE_CPU) || (device_type == CL_DEVICE_TYPE_ACCELERATOR) ) {
         number_of_red_levels = 2;
 
-        if (num_elements % device_procs == 0) {
-            //input to reduction is evenly divisible by number of "cores" on CPU
-            num_workitems_tolaunch.push_back(device_procs);
-            num_workitems_per_wg.push_back(1);
-            size_limits.push_back(num_elements/device_procs);
-            num_elements_per_wi.push_back(num_elements/device_procs);
+        
+        num_workitems_tolaunch.push_back(device_procs);
+        num_workitems_per_wg.push_back(1);
+        num_elements_per_wi.push_back(num_elements);
 
-            num_workitems_tolaunch.push_back(1);
-            num_workitems_per_wg.push_back(1);
-            size_limits.push_back(device_procs);
-            num_elements_per_wi.push_back(device_procs);
+        num_workitems_tolaunch.push_back(1);
+        num_workitems_per_wg.push_back(1);
+        num_elements_per_wi.push_back(device_procs);
 
-        } else {
-            //input to reduction is NOT evenly divisible by number of "cores" on CPU
-            num_workitems_tolaunch.push_back(device_procs);
-            num_workitems_per_wg.push_back(1);
+        //if (num_elements % device_procs == 0) {
+        //    //input to reduction is evenly divisible by number of "cores" on CPU
+        //    num_workitems_tolaunch.push_back(device_procs);
+        //    num_workitems_per_wg.push_back(1);
+        //    size_limits.push_back(num_elements/device_procs);
+        //    num_elements_per_wi.push_back(num_elements/device_procs);
 
-            int epi = num_elements/device_procs+1;
-            int limit = num_elements - epi*(device_procs-1);
-            if (limit <= 0) { std::cout << "ERROR: calc reduction strucuture limit on CPU reduction 0 or less" << std::endl; }
+        //    num_workitems_tolaunch.push_back(1);
+        //    num_workitems_per_wg.push_back(1);
+        //    size_limits.push_back(device_procs);
+        //    num_elements_per_wi.push_back(device_procs);
 
-            num_elements_per_wi.push_back(epi);
-            size_limits.push_back(limit);
+        //} else {
+        //    //input to reduction is NOT evenly divisible by number of "cores" on CPU
+        //    num_workitems_tolaunch.push_back(device_procs);
+        //    num_workitems_per_wg.push_back(1);
 
-            num_workitems_tolaunch.push_back(1);
-            num_workitems_per_wg.push_back(1);
-            size_limits.push_back(device_procs);
-            num_elements_per_wi.push_back(device_procs);
-        }
+        //    int epi = num_elements/device_procs+1;
+        //    int limit = num_elements - epi*(device_procs-1);
+        //    if (limit <= 0) { std::cout << "ERROR: calc reduction strucuture limit on CPU reduction 0 or less" << std::endl; }
+
+        //    num_elements_per_wi.push_back(epi);
+        //    size_limits.push_back(limit);
+
+        //    num_workitems_tolaunch.push_back(1);
+        //    num_workitems_per_wg.push_back(1);
+        //    size_limits.push_back(device_procs);
+        //    num_elements_per_wi.push_back(device_procs);
+        //}
 
 #ifdef OCL_VERBOSE
         std::cout << "number_of_red_levels after loop: " << number_of_red_levels << std::endl;
@@ -691,7 +700,7 @@ void CloverCL::calculateReductionStructure(int xmax, int ymax) {
             std::cout << "Red level:            " << i+1 << std::endl;
             std::cout << "Work items to launch: " << num_workitems_tolaunch[i] << std::endl;
             std::cout << "Work items per wg:    " << num_workitems_per_wg[i] << std::endl;
-            std::cout << "Size limit:           " << size_limits[i] << std::endl;
+            //std::cout << "Size limit:           " << size_limits[i] << std::endl;
             std::cout << "Num Element per wi:   " << num_elements_per_wi[i] << std::endl;
             std::cout << std::endl;
         }

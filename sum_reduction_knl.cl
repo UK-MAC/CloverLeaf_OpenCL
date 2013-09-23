@@ -30,26 +30,35 @@
 __kernel void reduction_sum_cpu_ocl_kernel(
 	__global double *sum_val_input,
 	__global double *sum_val_output,
-	const int numelements_wg,
-	const int limit)
+    const int total_num_elements)
 {
-    double sum_value = 0;
-    int wg_id_x = get_group_id(0);
-    int loop_limit;
-
-    if (wg_id_x == get_num_groups(0)-1) {
-        loop_limit = limit;
+    int group_id= get_group_id(0);
+    int num_groups = get_num_groups(0);
+    int inc; 
+    int one_more; 
+    int remainder = total_num_elements % num_groups;
+    int num_per_group = total_num_elements / num_groups;
+    double sum_value = 0; 
+    
+    if (group_id < remainder) {
+        inc = group_id;
+        one_more = 1;
     }   
     else {
-        loop_limit = numelements_wg;
+        inc = remainder; 
+        one_more = 0;
     }
 
-    for (int i=0; i<loop_limit; i++) {
-        sum_value += sum_val_input[wg_id_x*numelements_wg+i];
+    int start_index = group_id*num_per_group+inc;
+    int i;
+
+    for ( i=start_index; i<start_index+num_per_group+one_more; i++) {
+        sum_value += sum_val_input[i];    
     }
+    
+    sum_val_output[group_id] = sum_value; 
 
-    sum_val_output[wg_id_x] = sum_value;
-
+    printf("sum group id: %d num_gropus %d inc: %d one_more: %d remain %d num_per_group %d start_index %d total_eles: %d i: %d \n", group_id, num_groups, inc, one_more, remainder, num_per_group, start_index, total_num_elements, i); 
 }
 
 __kernel void reduction_sum_ocl_kernel(

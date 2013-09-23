@@ -127,6 +127,7 @@ void calc_dt_kernel_ocl_(
         CloverCL::reportError(err, "[CloverCL] ERROR: at min reduction kernel launch in loop");
     }
 
+    exit(6);
 
     /*
      * Read data back with a blocking read
