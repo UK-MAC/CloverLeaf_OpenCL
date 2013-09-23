@@ -884,15 +884,18 @@ void CloverCL::allocateReductionInterBuffers() {
     cl_int err;
 
     if ( (device_type == CL_DEVICE_TYPE_CPU) || (device_type==CL_DEVICE_TYPE_ACCELERATOR) ) {
+
         cpu_min_red_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, device_procs*sizeof(double), NULL, &err);
         cpu_vol_red_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, device_procs*sizeof(double), NULL, &err);
         cpu_mass_red_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, device_procs*sizeof(double), NULL, &err);
         cpu_ie_red_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, device_procs*sizeof(double), NULL, &err);
         cpu_ke_red_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, device_procs*sizeof(double), NULL, &err);
         cpu_press_red_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, device_procs*sizeof(double), NULL, &err);
+
 #ifdef OCL_VERBOSE
         std::cout << "Intermediate reduction buffers on CPU created with size: " << device_procs << std::endl;
 #endif
+
     }
     else if (device_type == CL_DEVICE_TYPE_GPU) {
 

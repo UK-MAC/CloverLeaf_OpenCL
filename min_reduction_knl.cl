@@ -58,7 +58,7 @@ __kernel void reduction_minimum_cpu_ocl_kernel(
     
     min_val_output[group_id] = min_value; 
 
-    printf("min group id: %d num_gropus %d inc: %d one_more: %d remain %d num_per_group %d start_index %d total_eles: %d i: %d\n", group_id, num_groups, inc, one_more, remainder, num_per_group, start_index, total_num_elements, i); 
+    //printf("min group id: %d num_gropus %d inc: %d one_more: %d remain %d num_per_group %d start_index %d total_eles: %d i: %d\n", group_id, num_groups, inc, one_more, remainder, num_per_group, start_index, total_num_elements, i); 
 }
 
 __kernel void reduction_minimum_ocl_kernel(

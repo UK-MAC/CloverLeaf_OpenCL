@@ -58,7 +58,7 @@ __kernel void reduction_sum_cpu_ocl_kernel(
     
     sum_val_output[group_id] = sum_value; 
 
-    printf("sum group id: %d num_gropus %d inc: %d one_more: %d remain %d num_per_group %d start_index %d total_eles: %d i: %d \n", group_id, num_groups, inc, one_more, remainder, num_per_group, start_index, total_num_elements, i); 
+    //printf("sum group id: %d num_gropus %d inc: %d one_more: %d remain %d num_per_group %d start_index %d total_eles: %d i: %d \n", group_id, num_groups, inc, one_more, remainder, num_per_group, start_index, total_num_elements, i); 
 }
 
 __kernel void reduction_sum_ocl_kernel(
