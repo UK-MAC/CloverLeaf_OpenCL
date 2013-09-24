@@ -25,10 +25,10 @@
 #include "ocl_knls.h"
 
 __kernel void ideal_gas_ocl_kernel(
-    __global double *density,
-    __global double *energy,
-    __global double *pressure,
-    __global double *soundspeed)
+    __global const double * restrict density,
+    __global const double * restrict energy,
+    __global const double * restrict pressure,
+    __global const double * restrict soundspeed)
 {
 
     int k = get_global_id(1);
