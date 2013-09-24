@@ -136,7 +136,7 @@ ifdef IEEE
 endif
 
 FLAGS=$(FLAGS_$(COMPILER)) $(I3E) $(OPTIONS) $(OCL_LIB) -DUSE_EXPLICIT_COMMS_BUFF_PACK 
-CFLAGS=$(CFLAGS_$(COMPILER)) $(I3E) $(COPTIONS) -c -DCL_USE_DEPRECATED_OPENCL_1_1_APIS -DWG_SIZE_X=$(OCL_LOCAL_WG_SIZE_XDIM) -DDUMP_BINARY  #-DOCL_VERBOSE=1 #-DPROFILE_OCL_KERNELS=1 
+CFLAGS=$(CFLAGS_$(COMPILER)) $(I3E) $(COPTIONS) -c -DCL_USE_DEPRECATED_OPENCL_1_1_APIS -DWG_SIZE_X=$(OCL_LOCAL_WG_SIZE_XDIM) #-DOCL_VERBOSE=1 #-DPROFILE_OCL_KERNELS=1 #-DDUMP_BINARY  
 MPI_COMPILER=mpif90
 C_MPI_COMPILER=mpicc
 CXX_MPI_COMPILER=mpiCC
@@ -221,4 +221,4 @@ clover_ocl: Makefile
 	CloverCL.C; echo $(OCLMESSAGE)
 
 clean:
-	rm -f *.o *.mod *genmod* *.lst *.cub *.ptx clover_leaf
+	rm -f *.o *.mod *genmod* *.lst *.cub *.ptx clover_leaf cloverleaf_ocl_binary
