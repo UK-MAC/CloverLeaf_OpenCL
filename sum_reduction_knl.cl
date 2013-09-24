@@ -24,8 +24,8 @@
 #include "ocl_knls.h"
 
 __kernel void reduction_sum_cpu_ocl_kernel(
-	__global double *sum_val_input,
-	__global double *sum_val_output,
+	__global const double * restrict sum_val_input,
+	__global double * restrict sum_val_output,
     const int total_num_elements)
 {
     int group_id= get_group_id(0);
@@ -58,9 +58,9 @@ __kernel void reduction_sum_cpu_ocl_kernel(
 }
 
 __kernel void reduction_sum_ocl_kernel(
-	__global double *sum_val_input,
-	__local double *sum_val_local,
-	__global double *sum_val_output)
+	__global const double * restrict sum_val_input,
+	__local double * restrict sum_val_local,
+	__global double * restrict sum_val_output)
 {
     uint lj = get_local_id(0);
     uint wg_size_x = get_local_size(0);
@@ -99,9 +99,9 @@ __kernel void reduction_sum_ocl_kernel(
 }
 
 __kernel void reduction_sum_last_ocl_kernel(
-	__global double *sum_val_input,
-	__local double *sum_val_local,
-	__global double *sum_val_output,
+	__global const double * restrict sum_val_input,
+	__local double * restrict sum_val_local,
+	__global double * restrict sum_val_output,
 	const int limit,
 	const int even)
 {

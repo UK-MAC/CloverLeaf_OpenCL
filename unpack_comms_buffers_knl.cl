@@ -27,8 +27,8 @@ __kernel void left_comm_buffer_unpack(
     const int depth,
     const int x_inc,
     const int y_inc,
-    __global double *field,
-    __global double *rcv_buffer)
+    __global double * restrict field,
+    __global const double * restrict rcv_buffer)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -46,8 +46,8 @@ __kernel void right_comm_buffer_unpack(
     const int depth,
     const int x_inc,
     const int y_inc,
-    __global double *field,
-    __global double *rcv_buffer)
+    __global double * restrict field,
+    __global const double * restrict rcv_buffer)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -65,8 +65,8 @@ __kernel void top_comm_buffer_unpack(
     const int depth,
     const int x_inc,
     const int y_inc,
-    __global double *field,
-    __global double *rcv_buffer)
+    __global double * restrict field,
+    __global const double * restrict rcv_buffer)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -84,8 +84,8 @@ __kernel void bottom_comm_buffer_unpack(
     const int depth,
     const int x_inc,
     const int y_inc,
-    __global double *field,
-    __global double *rcv_buffer)
+    __global double * restrict field,
+    __global const double * restrict rcv_buffer)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);

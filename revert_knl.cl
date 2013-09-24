@@ -27,10 +27,10 @@
 #include "ocl_knls.h"
 
 __kernel void revert_ocl_kernel(
-    __global double *density0,
-    __global double *density1,
-    __global double *energy0,
-    __global double *energy1)
+    __global const double * restrict density0,
+    __global double * restrict density1,
+    __global const double * restrict energy0,
+    __global double * restrict energy1)
 {
     int  k = get_global_id(1);
     int  j = get_global_id(0);

@@ -26,7 +26,7 @@
 
 __kernel void update_halo_bottom_cell_ocl_kernel(
     const int depth,
-    __global double *field)
+    __global double * restrict field)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -40,7 +40,7 @@ __kernel void update_halo_bottom_cell_ocl_kernel(
 
 __kernel void update_halo_bottom_vel_ocl_kernel(
     const int depth,
-    __global double *field,
+    __global double * restrict field,
     const int multiplier)
 {
     int k = get_global_id(1);
@@ -55,7 +55,7 @@ __kernel void update_halo_bottom_vel_ocl_kernel(
 
 __kernel void update_halo_bottom_flux_x_ocl_kernel(
     const int depth,
-    __global double *field)
+    __global double * restrict field)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -69,7 +69,7 @@ __kernel void update_halo_bottom_flux_x_ocl_kernel(
 
 __kernel void update_halo_bottom_flux_y_ocl_kernel(
     const int depth,
-    __global double *field)
+    __global double * restrict field)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -87,7 +87,7 @@ __kernel void update_halo_bottom_flux_y_ocl_kernel(
 
 __kernel void update_halo_top_cell_ocl_kernel(
     const int depth,
-    __global double *field)
+    __global double * restrict field)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -101,7 +101,7 @@ __kernel void update_halo_top_cell_ocl_kernel(
 
 __kernel void update_halo_top_vel_ocl_kernel(
     const int depth,
-    __global double *field,
+    __global double * restrict field,
     const int multiplier)
 {
     int k = get_global_id(1);
@@ -116,7 +116,7 @@ __kernel void update_halo_top_vel_ocl_kernel(
 
 __kernel void update_halo_top_flux_x_ocl_kernel(
     const int depth,
-    __global double *field)
+    __global double * restrict field)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -130,7 +130,7 @@ __kernel void update_halo_top_flux_x_ocl_kernel(
 
 __kernel void update_halo_top_flux_y_ocl_kernel(
     const int depth,
-    __global double *field)
+    __global double * restrict field)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -148,7 +148,7 @@ __kernel void update_halo_top_flux_y_ocl_kernel(
 
 __kernel void update_halo_left_cell_ocl_kernel(
     const int depth,
-    __global double *field)
+    __global double * restrict field)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -162,7 +162,7 @@ __kernel void update_halo_left_cell_ocl_kernel(
 
 __kernel void update_halo_left_vel_ocl_kernel(
     const int depth,
-    __global double *field,
+    __global double * restrict field,
     const int multiplier)
 {
     int k = get_global_id(1);
@@ -177,7 +177,7 @@ __kernel void update_halo_left_vel_ocl_kernel(
 
 __kernel void update_halo_left_flux_x_ocl_kernel(
     const int depth,
-    __global double *field)
+    __global double * restrict field)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -191,7 +191,7 @@ __kernel void update_halo_left_flux_x_ocl_kernel(
 
 __kernel void update_halo_left_flux_y_ocl_kernel(
     const int depth,
-    __global double *field)
+    __global double * restrict field)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -208,7 +208,7 @@ __kernel void update_halo_left_flux_y_ocl_kernel(
 
 __kernel void update_halo_right_cell_ocl_kernel(
     const int depth,
-    __global double *field)
+    __global double * restrict field)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -221,7 +221,7 @@ __kernel void update_halo_right_cell_ocl_kernel(
 
 __kernel void update_halo_right_vel_ocl_kernel(
     const int depth,
-    __global double *field,
+    __global double * restrict field,
     const int multiplier)
 {
     int k = get_global_id(1);
@@ -235,7 +235,7 @@ __kernel void update_halo_right_vel_ocl_kernel(
 
 __kernel void update_halo_right_flux_x_ocl_kernel(
     const int depth,
-    __global double *field)
+    __global double * restrict field)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -248,7 +248,7 @@ __kernel void update_halo_right_flux_x_ocl_kernel(
 
 __kernel void update_halo_right_flux_y_ocl_kernel(
     const int depth,
-    __global double *field)
+    __global double * restrict field)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
