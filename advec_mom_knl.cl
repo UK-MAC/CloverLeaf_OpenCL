@@ -27,11 +27,11 @@
 #include "ocl_knls.h"
 
 __kernel void advec_mom_vol_ocl_kernel(
-    __global double *volume,
-    __global double *vol_flux_x,
-    __global double *vol_flux_y,
-    __global double *pre_vol,
-    __global double *post_vol,
+    __global const double * restrict volume,
+    __global const double * restrict vol_flux_x,
+    __global const double * restrict vol_flux_y,
+    __global double * restrict pre_vol,
+    __global double * restrict post_vol,
     const int mom_sweep)
 {
 
@@ -72,11 +72,11 @@ __kernel void advec_mom_vol_ocl_kernel(
 }
 
 __kernel void advec_mom_node_ocl_kernel_x(
-    __global double *mass_flux_x,
-    __global double *node_flux,
-    __global double *density1,
-    __global double *post_vol,
-    __global double *node_mass_post)
+    __global const double * restrict mass_flux_x,
+    __global double * restrict node_flux,
+    __global const double * restrict density1,
+    __global const double * restrict post_vol,
+    __global double * restrict node_mass_post)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -104,9 +104,9 @@ __kernel void advec_mom_node_ocl_kernel_x(
 }
 
 __kernel void advec_mom_node_mass_pre_ocl_kernel_x(
-    __global double *node_mass_pre,
-    __global double *node_mass_post,
-    __global double *node_flux)
+    __global double * restrict node_mass_pre,
+    __global const double * restrict node_mass_post,
+    __global const double * restrict node_flux)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -120,12 +120,12 @@ __kernel void advec_mom_node_mass_pre_ocl_kernel_x(
 }
 
 __kernel void advec_mom_flux_ocl_kernel_x_vec1(
-    __global double *node_flux,
-    __global double *node_mass_pre,
-    __global double *vel1,
-    __global double *advec_vel,
-    __global double *mom_flux,
-    __global double *celldx)
+    __global const double * restrict node_flux,
+    __global const double * restrict node_mass_pre,
+    __global const double * restrict vel1,
+    __global double * restrict advec_vel,
+    __global double * restrict mom_flux,
+    __global const double * restrict celldx)
 {
     double sigma, sigma2, wind, wind2, width;
     double vdiffuw, vdiffdw, vdiffuw2, vdiffdw2, auw, adw, auw2, limiter, limiter2;
@@ -166,12 +166,12 @@ __kernel void advec_mom_flux_ocl_kernel_x_vec1(
 }
 
 __kernel void advec_mom_flux_ocl_kernel_x_notvec1(
-    __global double *node_flux,
-    __global double *node_mass_pre,
-    __global double *vel1,
-    __global double *advec_vel,
-    __global double *mom_flux,
-    __global double *celldx)
+    __global const double * restrict node_flux,
+    __global const double * restrict node_mass_pre,
+    __global const double * restrict vel1,
+    __global double * restrict advec_vel,
+    __global double * restrict mom_flux,
+    __global const double * restrict celldx)
 {
     int upwind, donor, downwind, dif;
     double sigma, width, wind;
@@ -213,10 +213,10 @@ __kernel void advec_mom_flux_ocl_kernel_x_notvec1(
 }
 
 __kernel void advec_mom_vel_ocl_kernel_x(
-    __global double *node_mass_post,
-    __global double *node_mass_pre,
-    __global double *mom_flux,
-    __global double *vel1)
+    __global const double * restrict node_mass_post,
+    __global const double * restrict node_mass_pre,
+    __global const double * restrict mom_flux,
+    __global double * restrict vel1)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -240,11 +240,11 @@ __kernel void advec_mom_vel_ocl_kernel_x(
 
 
 __kernel void advec_mom_node_ocl_kernel_y(
-    __global double *mass_flux_y,
-    __global double *node_flux,
-    __global double *node_mass_post,
-    __global double *density1,
-    __global double *post_vol)
+    __global const double * restrict mass_flux_y,
+    __global double * restrict node_flux,
+    __global double * restrict node_mass_post,
+    __global const double * restrict density1,
+    __global const double * restrict post_vol)
 {
 
     int k = get_global_id(1);
@@ -273,9 +273,9 @@ __kernel void advec_mom_node_ocl_kernel_y(
 }
 
 __kernel void advec_mom_node_mass_pre_ocl_kernel_y(
-    __global double *node_mass_pre,
-    __global double *node_mass_post,
-    __global double *node_flux)
+    __global double * restrict node_mass_pre,
+    __global const double * restrict node_mass_post,
+    __global const double * restrict node_flux)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -289,12 +289,12 @@ __kernel void advec_mom_node_mass_pre_ocl_kernel_y(
 }
 
 __kernel void advec_mom_flux_ocl_kernel_y_vec1(
-    __global double *node_flux,
-    __global double *node_mass_pre,
-    __global double *vel1,
-    __global double *advec_vel,
-    __global double *mom_flux,
-    __global double *celldy)
+    __global const double * restrict node_flux,
+    __global const double * restrict node_mass_pre,
+    __global const double * restrict vel1,
+    __global double * restrict advec_vel,
+    __global double * restrict mom_flux,
+    __global const double * restrict celldy)
 {
     double sigma, sigma2, width, wind, wind2;
     double vdiffuw, vdiffdw, vdiffuw2, vdiffdw2, auw, adw, auw2, limiter, limiter2;
@@ -334,12 +334,12 @@ __kernel void advec_mom_flux_ocl_kernel_y_vec1(
 }
 
 __kernel void advec_mom_flux_ocl_kernel_y_notvec1(
-    __global double *node_flux,
-    __global double *node_mass_pre,
-    __global double *vel1,
-    __global double *advec_vel,
-    __global double *mom_flux,
-    __global double *celldy)
+    __global const double * restrict node_flux,
+    __global const double * restrict node_mass_pre,
+    __global const double * restrict vel1,
+    __global double * restrict advec_vel,
+    __global double * restrict mom_flux,
+    __global const double * restrict celldy)
 {
     int upwind, donor, downwind, dif;
     double sigma, width, wind;
@@ -381,10 +381,10 @@ __kernel void advec_mom_flux_ocl_kernel_y_notvec1(
 }
 
 __kernel void advec_mom_vel_ocl_kernel_y(
-    __global double *node_mass_post,
-    __global double *node_mass_pre,
-    __global double *mom_flux,
-    __global double *vel1)
+    __global const double * restrict node_mass_post,
+    __global const double * restrict node_mass_pre,
+    __global const double * restrict mom_flux,
+    __global double * restrict vel1)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
