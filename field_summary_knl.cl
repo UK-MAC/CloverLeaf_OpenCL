@@ -25,17 +25,17 @@
 #include "ocl_knls.h"
 
 __kernel void field_summary_ocl_kernel(
-    __global double *volume,
-    __global double *density0,
-    __global double *energy0,
-    __global double *pressure,
-    __global double *xvel0,
-    __global double *yvel0,
-    __global double *vol_tmp_array,
-    __global double *mass_tmp_array,
-    __global double *ie_tmp_array,
-    __global double *ke_tmp_array,
-    __global double *press_tmp_array)
+    __global const double * restrict volume,
+    __global const double * restrict density0,
+    __global const double * restrict energy0,
+    __global const double * restrict pressure,
+    __global const double * restrict xvel0,
+    __global const double * restrict yvel0,
+    __global double * restrict vol_tmp_array,
+    __global double * restrict mass_tmp_array,
+    __global double * restrict ie_tmp_array,
+    __global double * restrict ke_tmp_array,
+    __global double * restrict press_tmp_array)
 {   
 
     double vsqrd,cell_vol,cell_mass;

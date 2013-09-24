@@ -25,14 +25,14 @@
 
 __kernel void flux_calc_ocl_kernel(
     const double dt,
-    __global double *xarea,
-    __global double *xvel0,
-    __global double *xvel1,
-    __global double *vol_flux_x,
-    __global double *yarea,
-    __global double *yvel0,
-    __global double *yvel1,
-    __global double *vol_flux_y)
+    __global const double * restrict xarea,
+    __global const double * restrict xvel0,
+    __global const double * restrict xvel1,
+    __global double * restrict vol_flux_x,
+    __global const double * restrict yarea,
+    __global const double * restrict yvel0,
+    __global const double * restrict yvel1,
+    __global double * restrict vol_flux_y)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
