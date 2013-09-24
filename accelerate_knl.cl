@@ -26,17 +26,17 @@
 
 __kernel void accelerate_ocl_kernel(
     const double dt,
-    __global double *xarea,
-    __global double *yarea,
-    __global double *volume,
-    __global double *density0,
-    __global double *pressure,
-    __global double *viscosity,
-    __global double *xvel0,
-    __global double *yvel0,
-    __global double *xvel1,
-    __global double *yvel1,
-    __global double *stepbymass)
+    __global const double * restrict xarea,
+    __global const double * restrict yarea,
+    __global const double * restrict volume,
+    __global const double * restrict density0,
+    __global const double * restrict pressure,
+    __global const double * restrict viscosity,
+    __global const double * restrict xvel0,
+    __global const double * restrict yvel0,
+    __global double * restrict xvel1,
+    __global double * restrict yvel1,
+    __global double * restrict stepbymass)
 {
     double nodal_mass;
 

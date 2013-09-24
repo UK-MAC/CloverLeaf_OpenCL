@@ -26,13 +26,13 @@
 #include "ocl_knls.h"
 
 __kernel void viscosity_ocl_kernel(
-        __global double *celldx,
-        __global double *celldy,
-        __global double *density0,
-        __global double *pressure,
-        __global double *viscosity,
-        __global double *xvel0,
-        __global double *yvel0)
+        __global const double * restrict celldx,
+        __global const double * restrict celldy,
+        __global const double * restrict density0,
+        __global const double * restrict pressure,
+        __global double * restrict viscosity,
+        __global const double * restrict xvel0,
+        __global const double * restrict yvel0)
 {
     double ugrad,vgrad,grad2,pgradx,pgrady,pgradx2,pgrady2,grad,ygrad,pgrad,xgrad,div,strain2,limiter;
 

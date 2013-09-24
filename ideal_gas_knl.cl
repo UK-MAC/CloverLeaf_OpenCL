@@ -27,8 +27,8 @@
 __kernel void ideal_gas_ocl_kernel(
     __global const double * restrict density,
     __global const double * restrict energy,
-    __global const double * restrict pressure,
-    __global const double * restrict soundspeed)
+    __global double * restrict pressure,
+    __global double * restrict soundspeed)
 {
 
     int k = get_global_id(1);
