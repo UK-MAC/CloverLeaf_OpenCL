@@ -26,7 +26,6 @@ CONTAINS
 SUBROUTINE advec_mom_driver(chunk,which_vel,direction,sweep_number)
 
   USE clover_module
-  USE advec_mom_kernel_mod
 
   IMPLICIT NONE
 
