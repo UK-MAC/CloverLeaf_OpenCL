@@ -25,11 +25,11 @@
 #include "ocl_knls.h"
 
 __kernel void advec_cell_xdir_section1_sweep1_kernel(
-    __global double *volume,      
-    __global double *vol_flux_x,  
-    __global double *vol_flux_y,  
-    __global double *pre_vol,     
-    __global double *post_vol)
+    __global const double *restrict volume,      
+    __global const double *restrict vol_flux_x,  
+    __global const double *restrict vol_flux_y,  
+    __global double *restrict pre_vol,     
+    __global double *restrict post_vol)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -47,10 +47,10 @@ __kernel void advec_cell_xdir_section1_sweep1_kernel(
 
 
 __kernel void advec_cell_xdir_section1_sweep2_kernel(
-    __global double *volume,      
-    __global double *vol_flux_x,  
-    __global double *pre_vol,     
-    __global double *post_vol)
+    __global const double * restrict volume,      
+    __global const double * restrict vol_flux_x,  
+    __global double * restrict pre_vol,     
+    __global double * restrict post_vol)
 {
 
     int k = get_global_id(1);
@@ -66,13 +66,13 @@ __kernel void advec_cell_xdir_section1_sweep2_kernel(
 
 
 __kernel void advec_cell_xdir_section2_kernel(
-    __global double *vertexdx,    
-    __global double *density1,    
-    __global double *energy1,     
-    __global double *mass_flux_x, 
-    __global double *vol_flux_x,  
-    __global double *pre_vol,     
-    __global double *ener_flux)
+    __global const double * restrict vertexdx,    
+    __global const double * restrict density1,    
+    __global const double * restrict energy1,     
+    __global double * restrict mass_flux_x, 
+    __global const double * restrict vol_flux_x,  
+    __global const double * restrict pre_vol,     
+    __global double * restrict ener_flux)
 {
     int upwind, donor, downwind, dif;
     double sigma, sigmat, sigmav, sigmam, sigma3, sigma4; 
@@ -132,16 +132,16 @@ __kernel void advec_cell_xdir_section2_kernel(
 }
 
 __kernel void advec_cell_xdir_section3_kernel(
-    __global double *density1,    
-    __global double *energy1,     
-    __global double *mass_flux_x, 
-    __global double *vol_flux_x,  
-    __global double *pre_vol,     
-    __global double *pre_mass,    
-    __global double *post_mass,   
-    __global double *advec_vol,   
-    __global double *post_ener,   
-    __global double *ener_flux)
+    __global double * restrict density1,    
+    __global double * restrict energy1,     
+    __global const double * restrict mass_flux_x, 
+    __global const double * restrict vol_flux_x,  
+    __global const double * restrict pre_vol,     
+    __global double * restrict pre_mass,    
+    __global double * restrict post_mass,   
+    __global double * restrict advec_vol,   
+    __global double * restrict post_ener,   
+    __global const double * restrict ener_flux)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -176,11 +176,11 @@ __kernel void advec_cell_xdir_section3_kernel(
 
 
 __kernel void advec_cell_ydir_section1_sweep1_kernel(
-    __global double *volume,      
-    __global double *vol_flux_x,  
-    __global double *vol_flux_y,  
-    __global double *pre_vol,     
-    __global double *post_vol)
+    __global const double * restrict volume,      
+    __global const double * restrict vol_flux_x,  
+    __global const double * restrict vol_flux_y,  
+    __global double * restrict pre_vol,     
+    __global double * restrict post_vol)
 {
     int k = get_global_id(1); 
     int j = get_global_id(0);
@@ -201,10 +201,10 @@ __kernel void advec_cell_ydir_section1_sweep1_kernel(
 }
 
 __kernel void advec_cell_ydir_section1_sweep2_kernel(
-    __global double *volume,      
-    __global double *vol_flux_y,  
-    __global double *pre_vol,     
-    __global double *post_vol)
+    __global const double * restrict volume,      
+    __global const double * restrict vol_flux_y,  
+    __global double * restrict pre_vol,     
+    __global double * restrict post_vol)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
@@ -221,13 +221,13 @@ __kernel void advec_cell_ydir_section1_sweep2_kernel(
 
 
 __kernel void advec_cell_ydir_section2_kernel(
-    __global double *vertexdy,    
-    __global double *density1,    
-    __global double *energy1,     
-    __global double *mass_flux_y, 
-    __global double *vol_flux_y,  
-    __global double *pre_vol,     
-    __global double *ener_flux)
+    __global const double * restrict vertexdy,    
+    __global const double * restrict density1,    
+    __global const double * restrict energy1,     
+    __global double * restrict mass_flux_y, 
+    __global const double * restrict vol_flux_y,  
+    __global const double * restrict pre_vol,     
+    __global double * restrict ener_flux)
 {
     int upwind, donor, downwind, dif;
     double sigma, sigmat, sigmav, sigmam, sigma3, sigma4; 
@@ -290,16 +290,16 @@ __kernel void advec_cell_ydir_section2_kernel(
 }
 
 __kernel void advec_cell_ydir_section3_kernel(
-    __global double *density1,    
-    __global double *energy1,     
-    __global double *mass_flux_y, 
-    __global double *vol_flux_y,  
-    __global double *pre_vol,     
-    __global double *pre_mass,    
-    __global double *post_mass,   
-    __global double *advec_vol,   
-    __global double *post_ener,   
-    __global double *ener_flux)
+    __global double * restrict density1,    
+    __global double * restrict energy1,     
+    __global const double * restrict mass_flux_y, 
+    __global const double * restrict vol_flux_y,  
+    __global const double * restrict pre_vol,     
+    __global double * restrict pre_mass,    
+    __global double * restrict post_mass,   
+    __global double * restrict advec_vol,   
+    __global double * restrict post_ener,   
+    __global const double * restrict ener_flux)
 {
     int k = get_global_id(1);
     int j = get_global_id(0);
