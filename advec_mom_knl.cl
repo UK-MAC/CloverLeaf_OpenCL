@@ -127,7 +127,6 @@ __kernel void advec_mom_flux_ocl_kernel_x_vec1(
     __global double *mom_flux,
     __global double *celldx)
 {
-    int upwind, donor, downwind, dif;
     double sigma, sigma2, wind, wind2, width;
     double vdiffuw, vdiffdw, vdiffuw2, vdiffdw2, auw, adw, auw2, limiter, limiter2;
 
@@ -297,7 +296,6 @@ __kernel void advec_mom_flux_ocl_kernel_y_vec1(
     __global double *mom_flux,
     __global double *celldy)
 {
-    int upwind, donor, downwind, dif;
     double sigma, sigma2, width, wind, wind2;
     double vdiffuw, vdiffdw, vdiffuw2, vdiffdw2, auw, adw, auw2, limiter, limiter2;
 
@@ -318,7 +316,6 @@ __kernel void advec_mom_flux_ocl_kernel_y_vec1(
           auw2=fabs(vdiffuw2);
           wind=1.0;
           wind2=1.0;
-          limiter=0.0;
           if(vdiffdw<=0.0) wind=-1.0;
           if(vdiffdw2<=0.0) wind2=-1.0;
           limiter=wind*fmin(width*((2.0-sigma)*adw/width+(1.0+sigma)*auw/celldy[k+1])/6.0,fmin(auw,adw));
