@@ -94,8 +94,6 @@ SUBROUTINE hydro
         WRITE(g_out,*) 'First step overhead', first_step-second_step
         WRITE(    0,*) 'Wall clock ', wall_clock
         WRITE(    0,*) 'First step overhead', first_step-second_step
-        !WRITE(g_out,*) 'Wall clock ', timer() - timerstart
-        !WRITE(    0,*) 'Wall clock ', timer() - timerstart
       ENDIF
 
       CALL clover_finalize
@@ -117,16 +115,6 @@ SUBROUTINE hydro
       WRITE(g_out,*)"Average time per cell ",grind_time
       WRITE(0    ,*)"Step time per cell    ",step_grind
       WRITE(g_out,*)"Step time per cell    ",step_grind
-
-      !WRITE(g_out,*)"Wall clock ",timer()-timerstart
-      !WRITE(0    ,*)"Wall clock ",timer()-timerstart
-      !cells = grid%x_cells * grid%y_cells
-      !grind_time   = (timer() - timerstart) / (step * cells)
-      !step_grind   = (timer() - step_time)/cells
-      !WRITE(0    ,*)"Average time per cell ",grind_time
-      !WRITE(g_out,*)"Average time per cell ",grind_time
-      !WRITE(0    ,*)"Step time per cell    ",step_grind
-      !WRITE(g_out,*)"Step time per cell    ",step_grind
 
      END IF
 
