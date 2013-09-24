@@ -25,9 +25,9 @@
 
 __kernel void initialise_chunk_cell_x_ocl_kernel(
     const double dx,
-    __global double *vertexx,
-    __global double *cellx,
-    __global double *celldx)
+    __global const double * restrict vertexx,
+    __global double * restrict cellx,
+    __global double * restrict celldx)
 {
 
     int j = get_global_id(0)-2;
@@ -44,9 +44,9 @@ __kernel void initialise_chunk_cell_x_ocl_kernel(
 
 __kernel void initialise_chunk_cell_y_ocl_kernel(
     const double dy,
-    __global double *vertexy,
-    __global double *celly,
-    __global double *celldy)
+    __global const double * restrict vertexy,
+    __global double * restrict celly,
+    __global double * restrict celldy)
 {
 
     int k = get_global_id(0)-2;
@@ -63,8 +63,8 @@ __kernel void initialise_chunk_cell_y_ocl_kernel(
 __kernel void initialise_chunk_vertex_x_ocl_kernel(
     const double xmin,
     const double dx,
-    __global double *vertexx,
-    __global double *vertexdx)
+    __global double * restrict vertexx,
+    __global double * restrict vertexdx)
 {
 
     int j = get_global_id(0)-2;
@@ -81,8 +81,8 @@ __kernel void initialise_chunk_vertex_x_ocl_kernel(
 __kernel void initialise_chunk_vertex_y_ocl_kernel(
     const double ymin,
     const double dy,
-    __global double *vertexy,
-    __global double *vertexdy)
+    __global double * restrict vertexy,
+    __global double * restrict vertexdy)
 {  
 
     int k = get_global_id(0)-2;
@@ -100,11 +100,11 @@ __kernel void initialise_chunk_vertex_y_ocl_kernel(
 __kernel void initialise_chunk_volume_area_ocl_kernel(
     const double dx,
     const double dy,
-    __global double *volume,
-    __global double *celldx,
-    __global double *celldy,
-    __global double *xarea,
-    __global double *yarea)
+    __global double * restrict volume,
+    __global const double * restrict celldx,
+    __global const double * restrict celldy,
+    __global double * restrict xarea,
+    __global double * restrict yarea)
 {   
     int k = get_global_id(1);
     int j = get_global_id(0);
