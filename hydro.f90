@@ -33,11 +33,11 @@ SUBROUTINE hydro
 
   IMPLICIT NONE
 
-  INTEGER         :: cells
-  REAL(KIND=8)    :: timer,timerstart,timerend
+  REAL(KIND=8)    :: timer,timerstart,wall_clock,step_clock
   
-  REAL(KIND=8)    :: grind_time
+  REAL(KIND=8)    :: grind_time,cells,rstep
   REAL(KIND=8)    :: step_time,step_grind
+  REAL(KIND=8)    :: first_step,second_step
 
   timerstart = timer()
 
@@ -72,17 +72,30 @@ SUBROUTINE hydro
       IF(MOD(step, visit_frequency).EQ.0) CALL visit()
     ENDIF
 
+    ! Sometimes there can be a significant start up cost that appears in the first step.
+    ! Sometimes it is due to the number of MPI tasks, or OpenCL kernel compilation.
+    ! On the short test runs, this can skew the results, so should be taken into account
+    !  in recorded run times.
+    IF(step.EQ.1) first_step=(timer() - step_time)
+    IF(step.EQ.2) second_step=(timer() - step_time)
+
     IF(time+g_small.GT.end_time.OR.step.GE.end_step) THEN
 
+      complete=.TRUE.
       CALL field_summary()
       IF(visit_frequency.NE.0) CALL visit()
 
+      wall_clock=timer() - timerstart
       IF ( parallel%boss ) THEN
         WRITE(g_out,*)
         WRITE(g_out,*) 'Calculation complete'
         WRITE(g_out,*) 'Clover is finishing'
-        WRITE(g_out,*) 'Wall clock ', timer() - timerstart
-        WRITE(    0,*) 'Wall clock ', timer() - timerstart
+        WRITE(g_out,*) 'Wall clock ', wall_clock
+        WRITE(g_out,*) 'First step overhead', first_step-second_step
+        WRITE(    0,*) 'Wall clock ', wall_clock
+        WRITE(    0,*) 'First step overhead', first_step-second_step
+        !WRITE(g_out,*) 'Wall clock ', timer() - timerstart
+        !WRITE(    0,*) 'Wall clock ', timer() - timerstart
       ENDIF
 
       CALL clover_finalize
@@ -92,15 +105,28 @@ SUBROUTINE hydro
     END IF
 
     IF (parallel%boss) THEN
-      WRITE(g_out,*)"Wall clock ",timer()-timerstart
-      WRITE(0    ,*)"Wall clock ",timer()-timerstart
+      wall_clock=timer()-timerstart
+      step_clock=timer()-step_time
+      WRITE(g_out,*)"Wall clock ",wall_clock
+      WRITE(0    ,*)"Wall clock ",wall_clock
       cells = grid%x_cells * grid%y_cells
-      grind_time   = (timer() - timerstart) / (step * cells)
-      step_grind   = (timer() - step_time)/cells
+      rstep = step
+      grind_time   = wall_clock/(rstep * cells)
+      step_grind   = step_clock/cells
       WRITE(0    ,*)"Average time per cell ",grind_time
       WRITE(g_out,*)"Average time per cell ",grind_time
       WRITE(0    ,*)"Step time per cell    ",step_grind
       WRITE(g_out,*)"Step time per cell    ",step_grind
+
+      !WRITE(g_out,*)"Wall clock ",timer()-timerstart
+      !WRITE(0    ,*)"Wall clock ",timer()-timerstart
+      !cells = grid%x_cells * grid%y_cells
+      !grind_time   = (timer() - timerstart) / (step * cells)
+      !step_grind   = (timer() - step_time)/cells
+      !WRITE(0    ,*)"Average time per cell ",grind_time
+      !WRITE(g_out,*)"Average time per cell ",grind_time
+      !WRITE(0    ,*)"Step time per cell    ",step_grind
+      !WRITE(g_out,*)"Step time per cell    ",step_grind
 
      END IF
 
