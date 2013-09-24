@@ -25,14 +25,14 @@
 #include "ocl_knls.h"
 
 __kernel void reset_field_ocl_kernel(
-    __global double *density0,
-    __global double *density1,
-    __global double *energy0,
-    __global double *energy1,
-    __global double *xvel0,
-    __global double *xvel1,
-    __global double *yvel0,
-    __global double *yvel1)
+    __global double * restrict density0,
+    __global const double * restrict density1,
+    __global double * restrict energy0,
+    __global const double * restrict energy1,
+    __global double * restrict xvel0,
+    __global const double * restrict xvel1,
+    __global double * restrict yvel0,
+    __global const double * restrict yvel1)
 {
 
     int k = get_global_id(1);

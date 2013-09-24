@@ -27,8 +27,8 @@ __kernel void read_top_buffer_ocl_kernel(
     const int depth,
     const int x_inc,
     const int y_inc,
-    __global double *field,
-    __global double *snd_buffer)
+    __global const double * restrict field,
+    __global double * restrict snd_buffer)
 {
     int k = get_global_id(1);
     int j = get_global_id(0)-depth;
@@ -43,8 +43,8 @@ __kernel void read_bottom_buffer_ocl_kernel(
     const int depth,
     const int x_inc,
     const int y_inc,
-    __global double *field,
-    __global double *snd_buffer)
+    __global const double * restrict field,
+    __global double * restrict snd_buffer)
 {
     int k = get_global_id(1);
     int j = get_global_id(0)-depth;
@@ -59,8 +59,8 @@ __kernel void read_left_buffer_ocl_kernel(
     const int depth,
     const int x_inc,
     const int y_inc,
-    __global double *field,
-    __global double *snd_buffer)
+    __global const double * restrict field,
+    __global double * restrict snd_buffer)
 {
     int j = get_global_id(1);
     int k = get_global_id(0)-depth;
@@ -75,8 +75,8 @@ __kernel void read_right_buffer_ocl_kernel(
     const int depth,
     const int x_inc,
     const int y_inc,
-    __global double *field,
-    __global double *snd_buffer)
+    __global const double * restrict field,
+    __global double * restrict snd_buffer)
 {
 
     int j = get_global_id(1);

@@ -28,20 +28,20 @@
 
 __kernel void pdv_correct_ocl_kernel(
         const double dt,
-        __global double *xarea,
-        __global double *yarea,
-        __global double *volume,
-        __global double *density0,
-        __global double *density1,
-        __global double *energy0,
-        __global double *energy1,
-        __global double *pressure,
-        __global double *viscosity,
-        __global double *xvel0,
-        __global double *xvel1,
-        __global double *yvel0,
-        __global double *yvel1,
-        __global double *volume_change)
+        __global const double * restrict xarea,
+        __global const double * restrict yarea,
+        __global const double * restrict volume,
+        __global const double * restrict density0,
+        __global double * restrict density1,
+        __global const double * restrict energy0,
+        __global double * restrict energy1,
+        __global const double * restrict pressure,
+        __global const double * restrict viscosity,
+        __global const double * restrict xvel0,
+        __global const double * restrict xvel1,
+        __global const double * restrict yvel0,
+        __global const double * restrict yvel1,
+        __global double * restrict volume_change)
 {
   double recip_volume,energy_change,min_cell_volume,right_flux,left_flux,top_flux,bottom_flux,total_flux;
 
@@ -99,20 +99,20 @@ __kernel void pdv_correct_ocl_kernel(
 
 __kernel void pdv_predict_ocl_kernel(
         const double dt,
-        __global double *xarea,
-        __global double *yarea,
-        __global double *volume,
-        __global double *density0,
-        __global double *density1,
-        __global double *energy0,
-        __global double *energy1,
-        __global double *pressure,
-        __global double *viscosity,
-        __global double *xvel0,
-        __global double *xvel1,
-        __global double *yvel0,
-        __global double *yvel1,
-        __global double *volume_change)
+        __global const double * restrict xarea,
+        __global const double * restrict yarea,
+        __global const double * restrict volume,
+        __global const double * restrict density0,
+        __global double * restrict density1,
+        __global const double * restrict energy0,
+        __global double * restrict energy1,
+        __global const double * restrict pressure,
+        __global const double * restrict viscosity,
+        __global const double * restrict xvel0,
+        __global const double * restrict xvel1,
+        __global const double * restrict yvel0,
+        __global const double * restrict yvel1,
+        __global double * restrict volume_change)
 {
   double recip_volume,energy_change,min_cell_volume,right_flux,left_flux,top_flux,bottom_flux,total_flux;
 
