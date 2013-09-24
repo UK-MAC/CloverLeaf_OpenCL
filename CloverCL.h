@@ -267,6 +267,8 @@ class CloverCL {
                                          double* vol_flux_y, double* mass_flux_y,
                                          double* celldx, double* celldy, double* volume ); 
 
+        static void dumpBinary();
+
         static cl::Buffer density0_buffer;
         static cl::Buffer density1_buffer;
         static cl::Buffer energy0_buffer;

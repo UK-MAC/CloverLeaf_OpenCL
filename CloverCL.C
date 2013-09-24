@@ -300,6 +300,10 @@ void CloverCL::init(
     allocateLocalMemoryObjects();
     build_reduction_kernel_objects(); 
 
+#ifdef DUMP_BINARY
+    dumpBinary();
+#endif
+
     initialiseKernelArgs(x_min, x_max, y_min, y_max,
                          g_small, g_big, dtmin, dtc_safe,
                          dtu_safe, dtv_safe, dtdiv_safe);
@@ -2872,4 +2876,49 @@ std::string CloverCL::errToString(cl_int err)
         case CL_INVALID_MIP_LEVEL:                  return "Invalid mip-map level";
         default: return "Unknown";
     }
+}
+
+void CloverCL::dumpBinary() {
+
+    cl_int err;
+
+    const std::string binary_name = "cloverleaf_ocl_binary";
+
+    printf("Dumping binary to %s:\n", binary_name.c_str());
+    try {
+        unsigned int ndevices;
+        program.getInfo(CL_PROGRAM_NUM_DEVICES, &ndevices);
+        //printf(" ndevices in dumpBinary = %d\n", ndevices);
+        
+        std::vector<size_t> sizes = std::vector<size_t>(ndevices);
+        program.getInfo(CL_PROGRAM_BINARY_SIZES, &sizes);
+        //printf("DumpBinary sizes.size() = %d, sizes[0] = %d\n", sizes.size(), sizes[0]);
+        
+        std::vector<char*> binaries = std::vector<char*>(ndevices);
+        binaries[0] = new char[sizes[0]];
+        program.getInfo(CL_PROGRAM_BINARIES, &binaries);
+        
+        //printf("Binary:\n%s\n", binaries[0]);
+        FILE* file = fopen(binary_name.c_str(), "wb");
+        fwrite(binaries[0], sizes[0], sizeof(char), file);
+        fclose(file);
+        
+        delete binaries[0];
+        
+        return;
+        #if 0
+        std::vector<size_t> sizes
+        program.getInfo(CL_PROGRAM_BINARY_SIZES);
+        assert(sizes.size() == 1);
+        printf(" sizes.size() = %ld, sizes[0] = %ld\n", sizes.size(), sizes[0]);
+        std::vector<unsigned char*> binaries = program.getInfo<CL_PROGRAM_BINARIES>();
+        assert(binaries.size() == 1);
+        for (int i = 0; i < binaries.size(); i++) {
+            printf("%c", binaries[0][i]);
+        }
+        #endif
+    } catch (cl::Error err) {
+        reportError(err, "Dumping Binary");
+    }
+    
 }
