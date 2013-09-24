@@ -89,20 +89,18 @@ SUBROUTINE start
 
   DEALLOCATE(left,right,bottom,top)
 
-  CALL clover_barrier
-
   ! initialise OpenCL
-  IF(use_opencl_kernels)THEN
-    DO c=1,number_of_chunks
-      IF(chunks(c)%task.EQ.parallel%task)THEN
-        ! Append //char(0) to hack around C/Fortran interop
-        CALL setup_opencl(TRIM(OpenCL_vendor)//char(0), TRIM(OpenCL_type)//char(0),&
-            chunks(c)%field%x_min, chunks(c)%field%x_max, &
-            chunks(c)%field%y_min, chunks(c)%field%y_max, number_of_states, &
-            g_small, g_big, dtmin, dtc_safe, dtu_safe, dtv_safe, dtdiv_safe)
-      ENDIF
-    ENDDO
-  ENDIF
+  DO c=1,number_of_chunks
+    IF(chunks(c)%task.EQ.parallel%task)THEN
+      ! Append //char(0) to hack around C/Fortran interop
+      CALL setup_opencl(TRIM(OpenCL_vendor)//char(0), TRIM(OpenCL_type)//char(0),&
+                        chunks(c)%field%x_min, chunks(c)%field%x_max, &
+                        chunks(c)%field%y_min, chunks(c)%field%y_max, number_of_states, &
+                        g_small, g_big, dtmin, dtc_safe, dtu_safe, dtv_safe, dtdiv_safe)
+    ENDIF
+  ENDDO
+
+  CALL clover_barrier
 
   DO c=1,number_of_chunks
     IF(chunks(c)%task.EQ.parallel%task)THEN
