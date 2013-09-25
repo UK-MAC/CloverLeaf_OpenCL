@@ -34,30 +34,6 @@
 #include <sstream>
 #include <math.h>
 
-class PLogger : public std::ostream {
-    private:
-        class PLogBuf : public std::stringbuf {
-            private:
-                // or whatever you need for your application
-                std::string d_marker;
-            public:
-                PLogBuf(const std::string& marker) : d_marker(marker) { }
-                ~PLogBuf() {  pubsync(); }
-                /*int sync() { 
-                    if (d_marker == "[0]") {
-                        std::cout << d_marker << ": " << str(); str(""); 
-                    }
-                }*/
-                int sync() {}
-        };
-
-    public:
-        // Other constructors could specify filename, etc
-        // just remember to pass whatever you need to CLogBuf
-        PLogger(const std::string& marker) : std::ostream(new PLogBuf(marker)) {}
-        ~PLogger() { delete rdbuf(); }
-};
-
 bool CloverCL::initialised;
 
 cl::Platform CloverCL::platform;
@@ -2129,10 +2105,6 @@ void CloverCL::readCommunicationBuffer(
     std::stringstream ss_rank;
     ss_rank << rank;
 
-    std::string plog_marker = "[" + ss_rank.str() + "]";
-
-    PLogger pout(plog_marker);
-
     switch(*field_name) {
         case FIELD_DENSITY0: field_buffer = &density0_buffer; break;
         case FIELD_DENSITY1: field_buffer = &density1_buffer; break;
@@ -2209,16 +2181,6 @@ void CloverCL::readCommunicationBuffer(
 
     buff_length = buff_length * *depth;
 
-    pout << "depth: " << *depth << std::endl;
-
-
-    for(int i = 0; i < 3; i++)
-        pout << "b_origin[" << i << "]: " << b_origin[i] << std::endl;
-
-    for(int i = 0; i < 3; i++)
-        pout << "region[" << i << "]: " << region[i] << std::endl;
-
-
     try {
         queue.enqueueReadBufferRect( *field_buffer, CL_TRUE, b_origin, h_origin, region, b_row_pitch, 
                                      b_slice_pitch, h_row_pitch, h_slice_pitch, buffer, &global_events);
@@ -2252,10 +2214,6 @@ void CloverCL::writeCommunicationBuffer(
     std::stringstream ss_rank;
     ss_rank << rank;
 
-    std::string plog_marker = "[" + ss_rank.str() + "]";
-
-    PLogger pout(plog_marker);
-
     switch(*field_name) {
         case FIELD_DENSITY0: field_buffer = &density0_buffer; break;
         case FIELD_DENSITY1: field_buffer = &density1_buffer; break;
@@ -2286,8 +2244,6 @@ void CloverCL::writeCommunicationBuffer(
     h_origin[0] = 0;
     h_origin[1] = 0;
     h_origin[2] = 0;
-
-    pout << "inc x,y: " << *xinc << "," << *yinc << std::endl;
 
     switch(*which_edge) {
         case 1: comm_buffer = &(top_send_buffer);
