@@ -67,8 +67,8 @@ ifndef OCL_VENDOR
 	OCLMESSAGE=If you want to use OpenCL kernels, please specify the OCL_VENDOR variable
 endif
 
-OCL_LOCAL_WG_SIZE_XDIM=256 #this value must be a power of 2, less than the devices maximum size and a multiple of its preferred vector width 
-OCL_LOCAL_WG_SIZE_YDIM=1
+OCL_LOCAL_WG_SIZE_XDIM=64 #this value must be a power of 2, less than the devices maximum size and a multiple of its preferred vector width 
+OCL_LOCAL_WG_SIZE_YDIM=4
 
 OMP_INTEL     = 
 OMP_SUN       = -xopenmp=parallel -vpara
@@ -137,7 +137,7 @@ ifdef IEEE
 endif
 
 FLAGS=$(FLAGS_$(COMPILER)) $(I3E) $(OPTIONS) $(OCL_LIB) -DUSE_EXPLICIT_COMMS_BUFF_PACK 
-CFLAGS=$(CFLAGS_$(COMPILER)) $(I3E) $(COPTIONS) -c -DCL_USE_DEPRECATED_OPENCL_1_1_APIS -DWG_SIZE_X=$(OCL_LOCAL_WG_SIZE_XDIM) -DWG_SIZE_Y=$(OCL_LOCAL_WG_SIZE_YDIM) #-DOCL_VERBOSE=1 #-DPROFILE_OCL_KERNELS=1 #-DDUMP_BINARY  
+CFLAGS=$(CFLAGS_$(COMPILER)) $(I3E) $(COPTIONS) -c -DCL_USE_DEPRECATED_OPENCL_1_1_APIS -DWG_SIZE_X=$(OCL_LOCAL_WG_SIZE_XDIM) -DWG_SIZE_Y=$(OCL_LOCAL_WG_SIZE_YDIM) -DOCL_VERBOSE=1 #-DPROFILE_OCL_KERNELS=1 #-DDUMP_BINARY  
 MPI_COMPILER=mpif90
 C_MPI_COMPILER=mpicc
 CXX_MPI_COMPILER=mpiCC

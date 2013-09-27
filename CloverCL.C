@@ -2831,8 +2831,9 @@ inline void CloverCL::checkErr(cl_int err, std::string name)
 
 void CloverCL::reportError( cl::Error err, std::string message)
 {
-        std::cerr << "[CloverCL] ERROR: " << message << " " << err.what() << "(" 
-                  << CloverCL::errToString(err.err()) << ")" << std::endl;
+    std::cerr << "[CloverCL] ERROR: " << message << " " << err.what() << "(" 
+              << CloverCL::errToString(err.err()) << ")" << std::endl;
+    exit(EXIT_FAILURE);
 }
 
 std::string CloverCL::errToString(cl_int err)
