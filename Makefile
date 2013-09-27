@@ -68,6 +68,7 @@ ifndef OCL_VENDOR
 endif
 
 OCL_LOCAL_WG_SIZE_XDIM=256 #this value must be a power of 2, less than the devices maximum size and a multiple of its preferred vector width 
+OCL_REDUCTION_WG_SIZE=128 #this variable sets the local workgroup size for the reduction kernels, must be a power of two and less than device max 
 
 OMP_INTEL     = 
 OMP_SUN       = -xopenmp=parallel -vpara
@@ -136,7 +137,7 @@ ifdef IEEE
 endif
 
 FLAGS=$(FLAGS_$(COMPILER)) $(I3E) $(OPTIONS) $(OCL_LIB) -DUSE_EXPLICIT_COMMS_BUFF_PACK 
-CFLAGS=$(CFLAGS_$(COMPILER)) $(I3E) $(COPTIONS) -c -DCL_USE_DEPRECATED_OPENCL_1_1_APIS -DWG_SIZE_X=$(OCL_LOCAL_WG_SIZE_XDIM) #-DOCL_VERBOSE=1 #-DPROFILE_OCL_KERNELS=1 #-DDUMP_BINARY  
+CFLAGS=$(CFLAGS_$(COMPILER)) $(I3E) $(COPTIONS) -c -DCL_USE_DEPRECATED_OPENCL_1_1_APIS -DWG_SIZE_X=$(OCL_LOCAL_WG_SIZE_XDIM) -DREDUCTION_WG_SIZE=$(OCL_REDUCTION_WG_SIZE) #-DOCL_VERBOSE=1 #-DPROFILE_OCL_KERNELS=1 #-DDUMP_BINARY  
 MPI_COMPILER=mpif90
 C_MPI_COMPILER=mpicc
 CXX_MPI_COMPILER=mpiCC

@@ -740,15 +740,18 @@ void CloverCL::calculateReductionStructure(int xmax, int ymax) {
         int normal_wg_size;
         number_of_red_levels = 0;
 
+        normal_wg_size = REDUCTION_WG_SIZE;
+        wg_ingest_value = 2*normal_wg_size;
 
-        if ( fmod(log2(max_reduction_wg_size),1)==0  ) {
-            //max_reduction_wg_size is power of 2
-            normal_wg_size = max_reduction_wg_size;
-            wg_ingest_value = 2*normal_wg_size;
+        if ( fmod(log2(normal_wg_size),1)!=0  ) {
+            //reduction workgroup size selected is not a power of 2
+            std::cerr << "Error: reduction local workgroup size is NOT a power of 2" << std::endl; 
+            exit(EXIT_FAILURE);
         }
-        else {
-            //max reduction wg size is not a power of 2 corner case that should never happen
-            //need to find the largest power of 2 value which is still less than max_reduction_wg_size
+
+        if ( normal_wg_size > device_max_wg_size ) {
+            std::cerr << "Error: reduction local workgroup size is greater than device maximum" << std::endl; 
+            exit(EXIT_FAILURE);
         }
 
         //add initial starting buffer to buffers vector
@@ -762,38 +765,39 @@ void CloverCL::calculateReductionStructure(int xmax, int ymax) {
 
                 if (buffer_sizes.back() == wg_ingest_value) {
                     num_workitems_tolaunch.push_back(normal_wg_size);
-            	num_workitems_per_wg.push_back(normal_wg_size);
-            	local_mem_size.push_back(normal_wg_size);
-            	size_limits.push_back(-1);
-            	input_even.push_back(true);
+            	    num_workitems_per_wg.push_back(normal_wg_size);
+            	    local_mem_size.push_back(normal_wg_size);
+            	    size_limits.push_back(-1);
+            	    input_even.push_back(true);
                 }
                 else {
-            	temp_wg_ingest_size = wg_ingest_value / 2;
-            	while( (temp_wg_ingest_size > buffer_sizes.back()) && (temp_wg_ingest_size >= prefer_wg_multiple*2 )  ) {
-                       wg_ingest_value = temp_wg_ingest_size; 
-            	   temp_wg_ingest_size = temp_wg_ingest_size / 2; 
-            	}
-            	normal_wg_size = wg_ingest_value / 2;
+            	    temp_wg_ingest_size = wg_ingest_value / 2;
 
-            	num_workitems_tolaunch.push_back(normal_wg_size);
-            	num_workitems_per_wg.push_back(normal_wg_size);
-            	local_mem_size.push_back(normal_wg_size);
+            	    while( (temp_wg_ingest_size > buffer_sizes.back()) && (temp_wg_ingest_size >= prefer_wg_multiple*2 )  ) {
+                        wg_ingest_value = temp_wg_ingest_size; 
+            	        temp_wg_ingest_size = temp_wg_ingest_size / 2; 
+            	    }
+            	    normal_wg_size = wg_ingest_value / 2;
+
+            	    num_workitems_tolaunch.push_back(normal_wg_size);
+            	    num_workitems_per_wg.push_back(normal_wg_size);
+            	    local_mem_size.push_back(normal_wg_size);
 
                     if (buffer_sizes.back() == wg_ingest_value) {
             	    //last level is a multiple of 2 there don't need a limit 
             	    size_limits.push_back(-1);
             	    input_even.push_back(true);
-            	}
-            	else if (buffer_sizes.back() % 2 == 0) {
-            	    //last level input is even amount
-            	    size_limits.push_back(buffer_sizes.back() / 2);
-            	    input_even.push_back(true);
-            	}
-            	else {
-            	    //last level input is odd amount
-            	    size_limits.push_back(buffer_sizes.back() / 2);
-            	    input_even.push_back(false);
-            	}
+            	    }
+            	    else if (buffer_sizes.back() % 2 == 0) {
+            	        //last level input is even amount
+            	        size_limits.push_back(buffer_sizes.back() / 2);
+            	        input_even.push_back(true);
+            	    }
+            	    else {
+            	        //last level input is odd amount
+            	        size_limits.push_back(buffer_sizes.back() / 2);
+            	        input_even.push_back(false);
+            	    }
                 }
 
                 buffer_sizes.push_back(1);
