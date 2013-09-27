@@ -56,7 +56,7 @@ __kernel void calc_dt_ocl_kernel(
     int k = get_global_id(1);
     int j = get_global_id(0);
 
-    int localid = get_local_id(0);
+    int localid = get_local_id(1)*get_local_size(0)+get_local_id(0);
     dt_min_local[localid] = 100000;
 
     if ( (j>=2) && (j<=XMAXPLUSONE) && (k>=2) && (k<=YMAXPLUSONE) ) {
