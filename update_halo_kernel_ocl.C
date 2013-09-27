@@ -84,8 +84,7 @@ void update_halo_kernel_ocl_(
 
     int uh_knl_launch_small_dim; 
     if (*depth == 2) {
-        uh_knl_launch_small_dim = 1;
-        //CloverCL::fixed_wg_min_size_small_dim
+        uh_knl_launch_small_dim = UH_SMALL_DIM_DEPTHTWO;
     }
     else {
         uh_knl_launch_small_dim = 1;
