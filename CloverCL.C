@@ -2677,8 +2677,7 @@ void CloverCL::enqueueKernel( cl::Kernel kernel, int x_min, int x_max, int y_min
 
     try {
         queue.enqueueNDRangeKernel( kernel, cl::NDRange(x_min, y_min), cl::NDRange(x_max_opt, y_max), 
-                                    cl::NDRange(fixed_wg_min_size_large_dim, fixed_wg_min_size_small_dim), 
-                                    NULL, &last_event);
+                                    cl::NullRange, NULL, &last_event);
     } catch(cl::Error err) {
 
         std::string kernel_name;
