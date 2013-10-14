@@ -67,12 +67,21 @@ ifndef OCL_VENDOR
 	OCLMESSAGE=If you want to use OpenCL kernels, please specify the OCL_VENDOR variable
 endif
 
-OCL_LOCAL_WG_SIZE_XDIM=64 #this value must be a power of 2, less than the devices maximum size and a multiple of its preferred vector width 
-OCL_LOCAL_WG_SIZE_YDIM=4
+ifndef OCL_LOCAL_WG_SIZE_XDIM
+    OCL_LOCAL_WG_SIZE_XDIM=64 #this value must be a power of 2, less than the devices maximum size and a multiple of its preferred vector width 
+endif
+ifndef OCL_LOCAL_WG_SIZE_YDIM
+    OCL_LOCAL_WG_SIZE_YDIM=4
+endif
 OCL_UH_LOCALWG_SMALLDIM_DEPTHTWO=1 #this value controls the small dimension of the local workgroup size in the update halo kernel when the depth is 2
                                    #it should be set to 1 or 2. 
 OCL_COMMS_LOCALWG_SMALLDIM_DEPTHTWO=1 #this value controls the small dimemsion of the local wg size in the comms buffer pack / unpack kernel
                                       #when the depth is 2, it should be set to 1 or 2 
+ifndef TEST_ID
+    CLOVER_OUT_STRING = "'clover.out'"
+else
+    CLOVER_OUT_STRING = "'clover_test_$(TEST_ID).out'"
+endif
 
 OMP_INTEL     = 
 OMP_SUN       = -xopenmp=parallel -vpara
@@ -140,8 +149,8 @@ ifdef IEEE
   I3E=$(I3E_$(COMPILER))
 endif
 
-FLAGS=$(FLAGS_$(COMPILER)) $(I3E) $(OPTIONS) $(OCL_LIB) -DUSE_EXPLICIT_COMMS_BUFF_PACK 
-CFLAGS=$(CFLAGS_$(COMPILER)) $(I3E) $(COPTIONS) -c -DCL_USE_DEPRECATED_OPENCL_1_1_APIS -DWG_SIZE_X=$(OCL_LOCAL_WG_SIZE_XDIM) -DWG_SIZE_Y=$(OCL_LOCAL_WG_SIZE_YDIM) -DUH_SMALL_DIM_DEPTHTWO=$(OCL_UH_LOCALWG_SMALLDIM_DEPTHTWO) -DCOMMS_SMALL_DIM_DEPTHTWO=$(OCL_COMMS_LOCALWG_SMALLDIM_DEPTHTWO) -DOCL_VERBOSE=1 #-DPROFILE_OCL_KERNELS=1 #-DDUMP_BINARY  
+FLAGS=$(FLAGS_$(COMPILER)) $(I3E) $(OPTIONS) $(OCL_LIB) -DUSE_EXPLICIT_COMMS_BUFF_PACK -DCLOVER_OUTPUT_FILE=$(CLOVER_OUT_STRING)
+CFLAGS=$(CFLAGS_$(COMPILER)) $(I3E) $(COPTIONS) -c -DCL_USE_DEPRECATED_OPENCL_1_1_APIS -DWG_SIZE_X=$(OCL_LOCAL_WG_SIZE_XDIM) -DWG_SIZE_Y=$(OCL_LOCAL_WG_SIZE_YDIM) -DUH_SMALL_DIM_DEPTHTWO=$(OCL_UH_LOCALWG_SMALLDIM_DEPTHTWO) -DCOMMS_SMALL_DIM_DEPTHTWO=$(OCL_COMMS_LOCALWG_SMALLDIM_DEPTHTWO) #-DOCL_VERBOSE=1 #-DPROFILE_OCL_KERNELS=1 #-DDUMP_BINARY  
 MPI_COMPILER=mpif90
 C_MPI_COMPILER=mpicc
 CXX_MPI_COMPILER=mpiCC
@@ -225,4 +234,4 @@ clover_ocl: Makefile
 	CloverCL.C; echo $(OCLMESSAGE)
 
 clean:
-	rm -f *.o *.mod *genmod* *.lst *.cub *.ptx clover_leaf cloverleaf_ocl_binary
+	rm -f *.o *.mod *genmod* *.lst *.cub *.ptx clover_leaf cloverleaf_ocl_binary clover.in.tmp clover.out

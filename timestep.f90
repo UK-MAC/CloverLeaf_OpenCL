@@ -94,8 +94,8 @@ SUBROUTINE timestep()
 !$  IF(OMP_GET_THREAD_NUM().EQ.0) THEN
       WRITE(g_out,"(' Step ', i7,' time ', f11.7,' control ',a11,' timestep  ',1pe9.2,i8,',',i8,' x ',1pe9.2,' y ',1pe9.2)") &
                       step,time,dt_control,dt,jdt,kdt,x_pos,y_pos
-      WRITE(0,"(' Step ', i7,' time ', f11.7,' control ',a11,' timestep  ',1pe9.2,i8,',',i8,' x ',1pe9.2,' y ',1pe9.2)") &
-                      step,time,dt_control,dt,jdt,kdt,x_pos,y_pos
+      !WRITE(0,"(' Step ', i7,' time ', f11.7,' control ',a11,' timestep  ',1pe9.2,i8,',',i8,' x ',1pe9.2,' y ',1pe9.2)") &
+      !                step,time,dt_control,dt,jdt,kdt,x_pos,y_pos
 !$  ENDIF
   ENDIF
 

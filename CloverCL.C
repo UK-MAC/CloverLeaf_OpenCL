@@ -283,6 +283,9 @@ void CloverCL::init(
     std::cout << "y_max = " << y_max << std::endl;
 
     printDeviceInformation();
+
+    std::cout << "fixed_wg_min_size_large_dim: " << fixed_wg_min_size_large_dim << std::endl;
+    std::cout << "fixed_wg_min_size_small_dim: " << fixed_wg_min_size_small_dim << std::endl;
 #endif
     initPlatform(platform_name);
     initContext(platform_type);
