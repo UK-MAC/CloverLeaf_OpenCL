@@ -76,6 +76,30 @@ class CloverCL {
         //static int const local_wg_x_fieldsummary = WG_SIZE_X_FIELDSUMMARY;
         //static int const local_wg_y_fieldsummary = WG_SIZE_Y_FIELDSUMMARY;
 
+        static int const local_wg_x_adveccell_xdir_sec1s1 = WG_SIZE_X_ADVECCELL_XDIR_SEC1S1;
+        static int const local_wg_y_adveccell_xdir_sec1s1 = WG_SIZE_Y_ADVECCELL_XDIR_SEC1S1;
+
+        static int const local_wg_x_adveccell_xdir_sec1s2 = WG_SIZE_X_ADVECCELL_XDIR_SEC1S2;
+        static int const local_wg_y_adveccell_xdir_sec1s2 = WG_SIZE_Y_ADVECCELL_XDIR_SEC1S2;
+
+        static int const local_wg_x_adveccell_xdir_sec2 = WG_SIZE_X_ADVECCELL_XDIR_SEC2;
+        static int const local_wg_y_adveccell_xdir_sec2 = WG_SIZE_Y_ADVECCELL_XDIR_SEC2;
+
+        static int const local_wg_x_adveccell_xdir_sec3 = WG_SIZE_X_ADVECCELL_XDIR_SEC3;
+        static int const local_wg_y_adveccell_xdir_sec3 = WG_SIZE_Y_ADVECCELL_XDIR_SEC3;
+
+        static int const local_wg_x_adveccell_ydir_sec1s1 = WG_SIZE_X_ADVECCELL_YDIR_SEC1S1;
+        static int const local_wg_y_adveccell_ydir_sec1s1 = WG_SIZE_Y_ADVECCELL_YDIR_SEC1S1;
+
+        static int const local_wg_x_adveccell_ydir_sec1s2 = WG_SIZE_X_ADVECCELL_YDIR_SEC1S2;
+        static int const local_wg_y_adveccell_ydir_sec1s2 = WG_SIZE_Y_ADVECCELL_YDIR_SEC1S2;
+
+        static int const local_wg_x_adveccell_ydir_sec2 = WG_SIZE_X_ADVECCELL_YDIR_SEC2;
+        static int const local_wg_y_adveccell_ydir_sec2 = WG_SIZE_Y_ADVECCELL_YDIR_SEC2;
+
+        static int const local_wg_x_adveccell_ydir_sec3 = WG_SIZE_X_ADVECCELL_YDIR_SEC3;
+        static int const local_wg_y_adveccell_ydir_sec3 = WG_SIZE_Y_ADVECCELL_YDIR_SEC3;
+
         static int xmax_plusfour_rounded;
         static int xmax_plusfive_rounded;
         static int ymax_plusfour_rounded;

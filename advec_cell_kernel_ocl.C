@@ -69,25 +69,33 @@ void advec_cell_kernel_ocl_(
     if (*dir_dum == g_xdir) {
 
         if (*sweepnumber == 1) {
-            CloverCL::enqueueKernel_nooffsets( CloverCL::advec_cell_xdir_sec1_s1_knl, *xmax+4, *ymax+4);
+            CloverCL::enqueueKernel_nooffsets_localwg( CloverCL::advec_cell_xdir_sec1_s1_knl, *xmax+4, *ymax+4, 
+                                                       CloverCL::local_wg_x_adveccell_xdir_sec1s1, CloverCL::local_wg_y_adveccell_xdir_sec1s1);
         } else {
-            CloverCL::enqueueKernel_nooffsets( CloverCL::advec_cell_xdir_sec1_s2_knl, *xmax+4, *ymax+4);
+            CloverCL::enqueueKernel_nooffsets_localwg( CloverCL::advec_cell_xdir_sec1_s2_knl, *xmax+4, *ymax+4, 
+                                                       CloverCL::local_wg_x_adveccell_xdir_sec1s2, CloverCL::local_wg_y_adveccell_xdir_sec1s2);
         }
 
-        CloverCL::enqueueKernel_nooffsets( CloverCL::advec_cell_xdir_sec2_knl, *xmax+4, *ymax+2);
+        CloverCL::enqueueKernel_nooffsets_localwg( CloverCL::advec_cell_xdir_sec2_knl, *xmax+4, *ymax+2, 
+                                                   CloverCL::local_wg_x_adveccell_xdir_sec2, CloverCL::local_wg_y_adveccell_xdir_sec2);
 
-        CloverCL::enqueueKernel_nooffsets( CloverCL::advec_cell_xdir_sec3_knl, *xmax+2, *ymax+2);
+        CloverCL::enqueueKernel_nooffsets_localwg( CloverCL::advec_cell_xdir_sec3_knl, *xmax+2, *ymax+2, 
+                                                   CloverCL::local_wg_x_adveccell_xdir_sec3, CloverCL::local_wg_y_adveccell_xdir_sec3);
 
     } else {
         if (*sweepnumber == 1) {
-            CloverCL::enqueueKernel_nooffsets( CloverCL::advec_cell_ydir_sec1_s1_knl, *xmax+4, *ymax+4);
+            CloverCL::enqueueKernel_nooffsets_localwg( CloverCL::advec_cell_ydir_sec1_s1_knl, *xmax+4, *ymax+4, 
+                                                       CloverCL::local_wg_x_adveccell_ydir_sec1s1, CloverCL::local_wg_y_adveccell_ydir_sec1s1);
         } else {
-            CloverCL::enqueueKernel_nooffsets( CloverCL::advec_cell_ydir_sec1_s2_knl, *xmax+4, *ymax+4);
+            CloverCL::enqueueKernel_nooffsets_localwg( CloverCL::advec_cell_ydir_sec1_s2_knl, *xmax+4, *ymax+4, 
+                                                       CloverCL::local_wg_x_adveccell_ydir_sec1s2, CloverCL::local_wg_y_adveccell_ydir_sec1s2);
         }
 
-        CloverCL::enqueueKernel_nooffsets( CloverCL::advec_cell_ydir_sec2_knl, *xmax+2, *ymax+4);
+        CloverCL::enqueueKernel_nooffsets_localwg( CloverCL::advec_cell_ydir_sec2_knl, *xmax+2, *ymax+4, 
+                                                   CloverCL::local_wg_x_adveccell_ydir_sec2, CloverCL::local_wg_y_adveccell_ydir_sec2);
 
-        CloverCL::enqueueKernel_nooffsets( CloverCL::advec_cell_ydir_sec3_knl, *xmax+2, *ymax+2);
+        CloverCL::enqueueKernel_nooffsets_localwg( CloverCL::advec_cell_ydir_sec3_knl, *xmax+2, *ymax+2, 
+                                                   CloverCL::local_wg_x_adveccell_ydir_sec3, CloverCL::local_wg_y_adveccell_ydir_sec3);
     }
 
 #if PROFILE_OCL_KERNELS
