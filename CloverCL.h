@@ -100,6 +100,42 @@ class CloverCL {
         static int const local_wg_x_adveccell_ydir_sec3 = WG_SIZE_X_ADVECCELL_YDIR_SEC3;
         static int const local_wg_y_adveccell_ydir_sec3 = WG_SIZE_Y_ADVECCELL_YDIR_SEC3;
 
+
+        static int const local_wg_x_advecmom_vol = WG_SIZE_X_ADVECMOM_VOL;
+        static int const local_wg_y_advecmom_vol = WG_SIZE_Y_ADVECMOM_VOL;
+
+        static int const local_wg_x_advecmom_node_x = WG_SIZE_X_ADVECMOM_NODE_X;
+        static int const local_wg_y_advecmom_node_x = WG_SIZE_Y_ADVECMOM_NODE_X;
+
+        static int const local_wg_x_advecmom_node_mass_pre_x = WG_SIZE_X_ADVECMOM_NODE_MASS_PRE_X;
+        static int const local_wg_y_advecmom_node_mass_pre_x = WG_SIZE_Y_ADVECMOM_NODE_MASS_PRE_X;
+
+        static int const local_wg_x_advecmom_flux_vec1_x = WG_SIZE_X_ADVECMOM_FLUX_VEC1_X;
+        static int const local_wg_y_advecmom_flux_vec1_x = WG_SIZE_Y_ADVECMOM_FLUX_VEC1_X;
+
+        static int const local_wg_x_advecmom_flux_notvec1_x = WG_SIZE_X_ADVECMOM_FLUX_NOTVEC1_X;
+        static int const local_wg_y_advecmom_flux_notvec1_x = WG_SIZE_Y_ADVECMOM_FLUX_NOTVEC1_X;
+
+        static int const local_wg_x_advecmom_vel_x = WG_SIZE_X_ADVECMOM_VEL_X;
+        static int const local_wg_y_advecmom_vel_x = WG_SIZE_Y_ADVECMOM_VEL_X;
+
+
+        static int const local_wg_x_advecmom_node_y = WG_SIZE_X_ADVECMOM_NODE_Y;
+        static int const local_wg_y_advecmom_node_y = WG_SIZE_Y_ADVECMOM_NODE_Y;
+
+        static int const local_wg_x_advecmom_node_mass_pre_y = WG_SIZE_X_ADVECMOM_NODE_MASS_PRE_Y;
+        static int const local_wg_y_advecmom_node_mass_pre_y = WG_SIZE_Y_ADVECMOM_NODE_MASS_PRE_Y;
+
+        static int const local_wg_x_advecmom_flux_vec1_y = WG_SIZE_X_ADVECMOM_FLUX_VEC1_Y;
+        static int const local_wg_y_advecmom_flux_vec1_y = WG_SIZE_Y_ADVECMOM_FLUX_VEC1_Y;
+
+        static int const local_wg_x_advecmom_flux_notvec1_y = WG_SIZE_X_ADVECMOM_FLUX_NOTVEC1_Y;
+        static int const local_wg_y_advecmom_flux_notvec1_y = WG_SIZE_Y_ADVECMOM_FLUX_NOTVEC1_Y;
+
+        static int const local_wg_x_advecmom_vel_y = WG_SIZE_X_ADVECMOM_VEL_Y;
+        static int const local_wg_y_advecmom_vel_y = WG_SIZE_Y_ADVECMOM_VEL_Y;
+
+
         static int xmax_plusfour_rounded;
         static int xmax_plusfive_rounded;
         static int ymax_plusfour_rounded;
