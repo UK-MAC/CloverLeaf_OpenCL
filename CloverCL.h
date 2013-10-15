@@ -42,6 +42,40 @@ class CloverCL {
 
         static int const fixed_wg_min_size_large_dim   = WG_SIZE_X; // x value passed in by preprocessor 
         static int const fixed_wg_min_size_small_dim   = WG_SIZE_Y; // y value passed in by preprocessor 
+
+        static int const local_wg_x_idealgas = WG_SIZE_X_IDEALGAS;
+        static int const local_wg_y_idealgas = WG_SIZE_Y_IDEALGAS;
+
+        //static int const local_wg_x_accelerate = WG_SIZE_X_ACCELERATE;
+        //static int const local_wg_y_accelerate = WG_SIZE_Y_ACCELERATE;
+
+        //static int const local_wg_x_viscosity = WG_SIZE_X_VISCOSITY;
+        //static int const local_wg_y_viscosity = WG_SIZE_Y_VISCOSITY;
+
+        //static int const local_wg_x_calcdt = WG_SIZE_X_CALCDT;
+        //static int const local_wg_y_calcdt = WG_SIZE_Y_CALCDT;
+
+        //static int const local_wg_x_fluxcalc = WG_SIZE_X_FLUXCALC;
+        //static int const local_wg_y_fluxcalc = WG_SIZE_Y_FLUXCALC;
+
+        //static int const local_wg_x_reset = WG_SIZE_X_RESET;
+        //static int const local_wg_y_reset = WG_SIZE_Y_RESET;
+
+        //static int const local_wg_x_revert = WG_SIZE_X_REVERT;
+        //static int const local_wg_y_revert = WG_SIZE_Y_REVERT;
+
+        //static int const local_wg_x_updatehalo = WG_SIZE_X_UPDATEHALO;
+        //static int const local_wg_y_updatehalo = WG_SIZE_Y_UPDATEHALO;
+
+        //static int const local_wg_x_pdv = WG_SIZE_X_PDV;
+        //static int const local_wg_y_pdv = WG_SIZE_Y_PDV;
+
+        //static int const local_wg_x_packunpack = WG_SIZE_X_PACKUNPACK;
+        //static int const local_wg_y_packunpack = WG_SIZE_Y_PACKUNPACK;
+        //
+        //static int const local_wg_x_fieldsummary = WG_SIZE_X_FIELDSUMMARY;
+        //static int const local_wg_y_fieldsummary = WG_SIZE_Y_FIELDSUMMARY;
+
         static int xmax_plusfour_rounded;
         static int xmax_plusfive_rounded;
         static int ymax_plusfour_rounded;
@@ -231,6 +265,8 @@ class CloverCL {
                 double* vol_flux_y,
                 double* mass_flux_x,
                 double* mass_flux_y);
+
+        static void enqueueKernel_nooffsets_localwg( cl::Kernel kernel, int num_x, int num_y, int wg_x, int wg_y);
 
         static void enqueueKernel_nooffsets( cl::Kernel kernel, int num_x, int num_y);
 
