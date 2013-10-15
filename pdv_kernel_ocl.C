@@ -57,10 +57,10 @@ extern "C" void pdv_kernel_ocl_(
     try {
         if( *prdct == 0) {
             CloverCL::pdv_correct_knl.setArg(0, *dtbyt);
-            CloverCL::enqueueKernel_nooffsets( CloverCL::pdv_correct_knl, *xmax+2, *ymax+2);
+            CloverCL::enqueueKernel_nooffsets_localwg( CloverCL::pdv_correct_knl, *xmax+2, *ymax+2, CloverCL::local_wg_x_pdv, CloverCL::local_wg_y_pdv);
         } else {
             CloverCL::pdv_predict_knl.setArg(0, *dtbyt);
-            CloverCL::enqueueKernel_nooffsets( CloverCL::pdv_predict_knl, *xmax+2, *ymax+2);
+            CloverCL::enqueueKernel_nooffsets_localwg( CloverCL::pdv_predict_knl, *xmax+2, *ymax+2, CloverCL::local_wg_x_pdv, CloverCL::local_wg_y_pdv);
         }
     } catch(cl::Error err) {
         CloverCL::reportError(err, "pdv_knl setting arguments");

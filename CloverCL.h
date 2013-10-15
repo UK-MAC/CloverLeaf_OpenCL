@@ -67,8 +67,8 @@ class CloverCL {
         //static int const local_wg_x_updatehalo = WG_SIZE_X_UPDATEHALO;
         //static int const local_wg_y_updatehalo = WG_SIZE_Y_UPDATEHALO;
 
-        //static int const local_wg_x_pdv = WG_SIZE_X_PDV;
-        //static int const local_wg_y_pdv = WG_SIZE_Y_PDV;
+        static int const local_wg_x_pdv = WG_SIZE_X_PDV;
+        static int const local_wg_y_pdv = WG_SIZE_Y_PDV;
 
         //static int const local_wg_x_packunpack = WG_SIZE_X_PACKUNPACK;
         //static int const local_wg_y_packunpack = WG_SIZE_Y_PACKUNPACK;
