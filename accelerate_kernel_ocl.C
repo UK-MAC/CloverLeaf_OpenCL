@@ -59,7 +59,7 @@ extern "C" void accelerate_kernel_ocl_(
         CloverCL::reportError(err, "accelerate_knl setting arguments");
     }
 
-    CloverCL::enqueueKernel_nooffsets( CloverCL::accelerate_knl, *xmax+3, *ymax+3);
+    CloverCL::enqueueKernel_nooffsets_localwg( CloverCL::accelerate_knl, *xmax+3, *ymax+3, CloverCL::local_wg_x_accelerate, CloverCL::local_wg_y_accelerate);
 
 #if PROFILE_OCL_KERNELS
     timeval t_end;

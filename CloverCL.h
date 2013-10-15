@@ -46,11 +46,11 @@ class CloverCL {
         static int const local_wg_x_idealgas = WG_SIZE_X_IDEALGAS;
         static int const local_wg_y_idealgas = WG_SIZE_Y_IDEALGAS;
 
-        //static int const local_wg_x_accelerate = WG_SIZE_X_ACCELERATE;
-        //static int const local_wg_y_accelerate = WG_SIZE_Y_ACCELERATE;
+        static int const local_wg_x_accelerate = WG_SIZE_X_ACCELERATE;
+        static int const local_wg_y_accelerate = WG_SIZE_Y_ACCELERATE;
 
-        //static int const local_wg_x_viscosity = WG_SIZE_X_VISCOSITY;
-        //static int const local_wg_y_viscosity = WG_SIZE_Y_VISCOSITY;
+        static int const local_wg_x_viscosity = WG_SIZE_X_VISCOSITY;
+        static int const local_wg_y_viscosity = WG_SIZE_Y_VISCOSITY;
 
         //static int const local_wg_x_calcdt = WG_SIZE_X_CALCDT;
         //static int const local_wg_y_calcdt = WG_SIZE_Y_CALCDT;
