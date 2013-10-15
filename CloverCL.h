@@ -55,14 +55,14 @@ class CloverCL {
         //static int const local_wg_x_calcdt = WG_SIZE_X_CALCDT;
         //static int const local_wg_y_calcdt = WG_SIZE_Y_CALCDT;
 
-        //static int const local_wg_x_fluxcalc = WG_SIZE_X_FLUXCALC;
-        //static int const local_wg_y_fluxcalc = WG_SIZE_Y_FLUXCALC;
+        static int const local_wg_x_fluxcalc = WG_SIZE_X_FLUXCALC;
+        static int const local_wg_y_fluxcalc = WG_SIZE_Y_FLUXCALC;
 
-        //static int const local_wg_x_reset = WG_SIZE_X_RESET;
-        //static int const local_wg_y_reset = WG_SIZE_Y_RESET;
+        static int const local_wg_x_reset = WG_SIZE_X_RESET;
+        static int const local_wg_y_reset = WG_SIZE_Y_RESET;
 
-        //static int const local_wg_x_revert = WG_SIZE_X_REVERT;
-        //static int const local_wg_y_revert = WG_SIZE_Y_REVERT;
+        static int const local_wg_x_revert = WG_SIZE_X_REVERT;
+        static int const local_wg_y_revert = WG_SIZE_Y_REVERT;
 
         //static int const local_wg_x_updatehalo = WG_SIZE_X_UPDATEHALO;
         //static int const local_wg_y_updatehalo = WG_SIZE_Y_UPDATEHALO;

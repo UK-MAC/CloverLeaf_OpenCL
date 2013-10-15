@@ -63,7 +63,7 @@ void flux_calc_kernel_ocl_(
         CloverCL::reportError(err, "flux_calc setting args");
     }
 
-    CloverCL::enqueueKernel_nooffsets( CloverCL::flux_calc_knl, *xmax+3, *ymax+3);
+    CloverCL::enqueueKernel_nooffsets_localwg( CloverCL::flux_calc_knl, *xmax+3, *ymax+3, CloverCL::local_wg_x_fluxcalc, CloverCL::local_wg_y_fluxcalc);
 
 #if PROFILE_OCL_KERNELS
     timeval t_end;

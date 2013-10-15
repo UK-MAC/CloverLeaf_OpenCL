@@ -51,7 +51,7 @@ void reset_field_kernel_ocl_(
     gettimeofday(&t_start, NULL);
 #endif
 
-    CloverCL::enqueueKernel_nooffsets( CloverCL::reset_field_knl, *xmax+3, *ymax+3);
+    CloverCL::enqueueKernel_nooffsets_localwg( CloverCL::reset_field_knl, *xmax+3, *ymax+3, CloverCL::local_wg_x_reset, CloverCL::local_wg_y_reset);
 
 #if PROFILE_OCL_KERNELS
     timeval t_end;
