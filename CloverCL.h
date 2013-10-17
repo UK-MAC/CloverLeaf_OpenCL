@@ -135,6 +135,9 @@ class CloverCL {
         static int const local_wg_x_advecmom_vel_y = WG_SIZE_X_ADVECMOM_VEL_Y;
         static int const local_wg_y_advecmom_vel_y = WG_SIZE_Y_ADVECMOM_VEL_Y;
 
+        static int const local_wg_largedim_updatehalo = WG_SIZE_LARGEDIM_UPDATEHALO;
+        static int const local_wg_smalldim_updatehalo = WG_SIZE_SMALLDIM_UPDATEHALO;
+
 
         static int xmax_plusfour_rounded;
         static int xmax_plusfive_rounded;
