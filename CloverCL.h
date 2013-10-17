@@ -144,6 +144,8 @@ class CloverCL {
         static int const local_wg_x_calcdt_fieldsumm = WG_SIZE_X_CALCDT_FIELDSUMM;
         static int const local_wg_y_calcdt_fieldsumm = WG_SIZE_Y_CALCDT_FIELDSUMM;
 
+        static int const local_wg_x_reduction = WG_SIZE_X_REDUCTION;
+
 
         static int xmax_plusfour_rounded;
         static int xmax_plusfive_rounded;

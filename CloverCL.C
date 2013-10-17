@@ -769,17 +769,18 @@ void CloverCL::calculateReductionStructure(int xmax, int ymax) {
         int normal_wg_size;
         number_of_red_levels = 0;
 
+        normal_wg_size = CloverCL::local_wg_x_reduction;
+        wg_ingest_value = 2*normal_wg_size;
 
-        if ( fmod(log2(max_reduction_wg_size),1)==0  ) {
-            //max_reduction_wg_size is power of 2
-            normal_wg_size = max_reduction_wg_size;
-            wg_ingest_value = 2*normal_wg_size;
+        if ( fmod(log2(max_reduction_wg_size),1)!=0  ) {
+            //reduction workgroup size selected is not a power of 2
+            std::cerr << "Error: reduction local workgroup size is NOT a power of 2" << std::endl;
+            exit(EXIT_FAILURE);
         }
-        else {
-            //max reduction wg size is not a power of 2 corner case that should never happen
-            //need to find the largest power of 2 value which is still less than max_reduction_wg_size
-            std::cerr << "ERROR: max reduction size is not a power of 2" << std::endl;
-            exit(1); 
+
+        if ( normal_wg_size > device_max_wg_size ) {
+            std::cerr << "Error: reduction local workgroup size is greater than device maximum" << std::endl;
+            exit(EXIT_FAILURE);
         }
 
         //add initial starting buffer to buffers vector
