@@ -102,10 +102,10 @@ void pack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right_n
 #endif
 
     if ( *yinc == 1 ) {
-        launch_height = CloverCL::ymax_plusfive_rounded; 
+        launch_height = CloverCL::ymax_plusfive_rounded_comms; 
     } 
     else {
-        launch_height = CloverCL::ymax_plusfour_rounded; 
+        launch_height = CloverCL::ymax_plusfour_rounded_comms; 
     } 
 
     if ( *depth == 2 ) {
@@ -244,10 +244,10 @@ void unpack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right
     }
 
     if ( *yinc == 1 ) {
-        launch_height = CloverCL::ymax_plusfive_rounded; 
+        launch_height = CloverCL::ymax_plusfive_rounded_comms; 
     } 
     else {
-        launch_height = CloverCL::ymax_plusfour_rounded; 
+        launch_height = CloverCL::ymax_plusfour_rounded_comms; 
     } 
 
     if ( *depth == 2 ) {
@@ -374,10 +374,10 @@ void pack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom_n
     }
 
     if (*xinc == 1) {
-        launch_width = CloverCL::xmax_plusfive_rounded;
+        launch_width = CloverCL::xmax_plusfive_rounded_comms;
     }
     else {
-        launch_width = CloverCL::xmax_plusfour_rounded;
+        launch_width = CloverCL::xmax_plusfour_rounded_comms;
     }
 
     if ( *depth == 2 ) {
@@ -525,10 +525,10 @@ void unpack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom
     }
 
     if (*xinc == 1) {
-        launch_width = CloverCL::xmax_plusfive_rounded;
+        launch_width = CloverCL::xmax_plusfive_rounded_comms;
     }
     else {
-        launch_width = CloverCL::xmax_plusfour_rounded;
+        launch_width = CloverCL::xmax_plusfour_rounded_comms;
     }
 
     if ( *depth == 2 ) {
