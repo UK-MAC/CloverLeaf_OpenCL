@@ -293,43 +293,40 @@ void CloverCL::init(
 
 void CloverCL::calculateKernelLaunchParams(int xmax, int ymax) {
 
-    int divisor, x_rnd, y_rnd; 
+    int x_rnd, y_rnd; 
 
-#ifdef DONTFIXWGSIZE
-    divisor = prefer_wg_multiple;
-#else
-    divisor = fixed_wg_min_size_large_dim;
-#endif
+    int x_divisor = fixed_wg_min_size_large_dim;
+    int y_divisor = fixed_wg_min_size_large_dim;
 
-    x_rnd = ( (xmax+4) / divisor ) * divisor;
+    x_rnd = ( (xmax+4) / x_divisor ) * x_divisor;
 
     if (x_rnd != xmax+4) {
-        x_rnd = x_rnd + divisor; 
+        x_rnd = x_rnd + x_divisor; 
     }
     
     xmax_plusfour_rounded = x_rnd; 
 
-    x_rnd = ( (xmax+5) / divisor ) * divisor;
+    x_rnd = ( (xmax+5) / x_divisor ) * x_divisor;
 
     if (x_rnd != xmax+5) {
-        x_rnd = x_rnd + divisor; 
+        x_rnd = x_rnd + x_divisor; 
     }
 
     xmax_plusfive_rounded = x_rnd; 
 
 
-    y_rnd = ( (ymax+4) / divisor ) * divisor;
+    y_rnd = ( (ymax+4) / y_divisor ) * y_divisor;
 
     if (y_rnd != ymax+4) {
-        y_rnd = y_rnd + divisor; 
+        y_rnd = y_rnd + y_divisor; 
     }
 
     ymax_plusfour_rounded = y_rnd; 
 
-    y_rnd = ( (ymax+5) / divisor ) * divisor;
+    y_rnd = ( (ymax+5) / y_divisor ) * y_divisor;
 
     if (y_rnd != ymax+5) {
-        y_rnd = y_rnd + divisor; 
+        y_rnd = y_rnd + y_divisor; 
     }
 
     ymax_plusfive_rounded = y_rnd; 
@@ -635,7 +632,12 @@ void CloverCL::calculateReductionStructure(int xmax, int ymax) {
     if ((x_rnd != xmax+2))
         x_rnd = x_rnd + fixed_wg_min_size_large_dim;
 
-    int num_elements = x_rnd / fixed_wg_min_size_large_dim * (ymax+2);
+    int y_rnd = ((ymax+2) / fixed_wg_min_size_small_dim ) * fixed_wg_min_size_small_dim;
+
+    if ((y_rnd != ymax+2))
+        y_rnd = y_rnd + fixed_wg_min_size_small_dim;
+
+    int num_elements = (x_rnd / fixed_wg_min_size_large_dim) * (y_rnd / fixed_wg_min_size_small_dim);
 
     num_workitems_tolaunch.clear();
     num_workitems_per_wg.clear();
@@ -705,6 +707,8 @@ void CloverCL::calculateReductionStructure(int xmax, int ymax) {
         else {
             //max reduction wg size is not a power of 2 corner case that should never happen
             //need to find the largest power of 2 value which is still less than max_reduction_wg_size
+            std::cerr << "ERROR: max reduction size is not a power of 2" << std::endl;
+            exit(1); 
         }
 
         //add initial starting buffer to buffers vector
@@ -718,38 +722,38 @@ void CloverCL::calculateReductionStructure(int xmax, int ymax) {
 
                 if (buffer_sizes.back() == wg_ingest_value) {
                     num_workitems_tolaunch.push_back(normal_wg_size);
-            	num_workitems_per_wg.push_back(normal_wg_size);
-            	local_mem_size.push_back(normal_wg_size);
-            	size_limits.push_back(-1);
-            	input_even.push_back(true);
+            	    num_workitems_per_wg.push_back(normal_wg_size);
+            	    local_mem_size.push_back(normal_wg_size);
+            	    size_limits.push_back(-1);
+            	    input_even.push_back(true);
                 }
                 else {
-            	temp_wg_ingest_size = wg_ingest_value / 2;
-            	while( (temp_wg_ingest_size > buffer_sizes.back()) && (temp_wg_ingest_size >= prefer_wg_multiple*2 )  ) {
+            	    temp_wg_ingest_size = wg_ingest_value / 2;
+            	    while( (temp_wg_ingest_size > buffer_sizes.back()) && (temp_wg_ingest_size >= prefer_wg_multiple*2 )  ) {
                        wg_ingest_value = temp_wg_ingest_size; 
-            	   temp_wg_ingest_size = temp_wg_ingest_size / 2; 
-            	}
-            	normal_wg_size = wg_ingest_value / 2;
+            	       temp_wg_ingest_size = temp_wg_ingest_size / 2; 
+            	    }
+            	    normal_wg_size = wg_ingest_value / 2;
 
-            	num_workitems_tolaunch.push_back(normal_wg_size);
-            	num_workitems_per_wg.push_back(normal_wg_size);
-            	local_mem_size.push_back(normal_wg_size);
+            	    num_workitems_tolaunch.push_back(normal_wg_size);
+            	    num_workitems_per_wg.push_back(normal_wg_size);
+            	    local_mem_size.push_back(normal_wg_size);
 
                     if (buffer_sizes.back() == wg_ingest_value) {
             	    //last level is a multiple of 2 there don't need a limit 
             	    size_limits.push_back(-1);
             	    input_even.push_back(true);
-            	}
-            	else if (buffer_sizes.back() % 2 == 0) {
-            	    //last level input is even amount
-            	    size_limits.push_back(buffer_sizes.back() / 2);
-            	    input_even.push_back(true);
-            	}
-            	else {
-            	    //last level input is odd amount
-            	    size_limits.push_back(buffer_sizes.back() / 2);
-            	    input_even.push_back(false);
-            	}
+            	    }
+            	    else if (buffer_sizes.back() % 2 == 0) {
+            	        //last level input is even amount
+            	        size_limits.push_back(buffer_sizes.back() / 2);
+            	        input_even.push_back(true);
+            	    }
+            	    else {
+            	        //last level input is odd amount
+            	        size_limits.push_back(buffer_sizes.back() / 2);
+            	        input_even.push_back(false);
+            	    }
                 }
 
                 buffer_sizes.push_back(1);
@@ -1613,7 +1617,7 @@ void CloverCL::loadProgram(int xmin, int xmax, int ymin, int ymax)
             std::cout << "Executing GPU specific kernels " << std::endl;
 #endif
             sprintf(buildOptions, "-DXMIN=%u -DXMINPLUSONE=%u -DXMAX=%u -DYMIN=%u -DYMINPLUSONE=%u -DYMINPLUSTWO=%u -DYMAX=%u -DXMAXPLUSONE=%u -DXMAXPLUSTWO=%u -DXMAXPLUSTHREE=%u -DXMAXPLUSFOUR=%u -DXMAXPLUSFIVE=%u -DYMAXPLUSONE=%u -DYMAXPLUSTWO=%u -DYMAXPLUSTHREE=%u -DWORKGROUP_SIZE=%u -DWORKGROUP_SIZE_DIVTWO=%u -DGPU_REDUCTION -cl-strict-aliasing", 
-                xmin, xmin+1, xmax, ymin, ymin+1, ymin+2, ymax, xmax+1, xmax+2, xmax+3, xmax+4, xmax+5, ymax+1, ymax+2, ymax+3, CloverCL::fixed_wg_min_size_large_dim, CloverCL::fixed_wg_min_size_large_dim/2);
+                xmin, xmin+1, xmax, ymin, ymin+1, ymin+2, ymax, xmax+1, xmax+2, xmax+3, xmax+4, xmax+5, ymax+1, ymax+2, ymax+3, CloverCL::fixed_wg_min_size_large_dim*CloverCL::fixed_wg_min_size_small_dim, (CloverCL::fixed_wg_min_size_large_dim*CloverCL::fixed_wg_min_size_small_dim)/2);
 
         } else {
 
@@ -1621,7 +1625,7 @@ void CloverCL::loadProgram(int xmin, int xmax, int ymin, int ymax)
             std::cout << "Executing CPU specific kernels " << std::endl;
 #endif
             sprintf(buildOptions, "-DXMIN=%u -DXMINPLUSONE=%u -DXMAX=%u -DYMIN=%u -DYMINPLUSONE=%u -DYMINPLUSTWO=%u -DYMAX=%u -DXMAXPLUSONE=%u -DXMAXPLUSTWO=%u -DXMAXPLUSTHREE=%u -DXMAXPLUSFOUR=%u -DXMAXPLUSFIVE=%u -DYMAXPLUSONE=%u -DYMAXPLUSTWO=%u -DYMAXPLUSTHREE=%u -DWORKGROUP_SIZE=%u -DWORKGROUP_SIZE_DIVTWO=%u", 
-                xmin, xmin+1, xmax, ymin, ymin+1, ymin+2, ymax, xmax+1, xmax+2, xmax+3, xmax+4, xmax+5, ymax+1, ymax+2, ymax+3, CloverCL::fixed_wg_min_size_large_dim, CloverCL::fixed_wg_min_size_large_dim/2);
+                xmin, xmin+1, xmax, ymin, ymin+1, ymin+2, ymax, xmax+1, xmax+2, xmax+3, xmax+4, xmax+5, ymax+1, ymax+2, ymax+3, CloverCL::fixed_wg_min_size_large_dim*CloverCL::fixed_wg_min_size_small_dim, (CloverCL::fixed_wg_min_size_large_dim*CloverCL::fixed_wg_min_size_small_dim)/2);
 
         }
 
@@ -2478,16 +2482,23 @@ void CloverCL::enqueueKernel_nooffsets( cl::Kernel kernel, int num_x, int num_y)
     if ((x_rnd != num_x))
         x_rnd = x_rnd + fixed_wg_min_size_large_dim;
 
+
+    int y_rnd = ( num_y / fixed_wg_min_size_small_dim ) * fixed_wg_min_size_small_dim;
+
+    if (y_rnd != num_y) {
+        y_rnd = y_rnd + fixed_wg_min_size_small_dim; 
+    }
+
     try {
 
-        queue.enqueueNDRangeKernel( kernel, cl::NullRange, cl::NDRange(x_rnd, num_y), 
+        queue.enqueueNDRangeKernel( kernel, cl::NullRange, cl::NDRange(x_rnd, y_rnd), 
                                     cl::NDRange(fixed_wg_min_size_large_dim,fixed_wg_min_size_small_dim), 
                                     NULL, &last_event); 
     } catch(cl::Error err) {
 
         std::string kernel_name;
         kernel.getInfo(CL_KERNEL_FUNCTION_NAME, &kernel_name);
-        std::cout << "launching kernel: " << kernel_name << "xnum: " << x_rnd<< " ynum: " << num_y 
+        std::cout << "launching kernel: " << kernel_name << "xnum: " << x_rnd << " ynum: " << num_y 
                   << " wg_x: " << fixed_wg_min_size_large_dim << " wg_y: " << fixed_wg_min_size_small_dim << std::endl;
         reportError(err, kernel_name);
     }
@@ -2684,8 +2695,9 @@ inline void CloverCL::checkErr(cl_int err, std::string name)
 
 void CloverCL::reportError( cl::Error err, std::string message)
 {
-        std::cerr << "[CloverCL] ERROR: " << message << " " << err.what() << "(" 
-                  << CloverCL::errToString(err.err()) << ")" << std::endl;
+    std::cerr << "[CloverCL] ERROR: " << message << " " << err.what() << "(" 
+              << CloverCL::errToString(err.err()) << ")" << std::endl;
+    exit(EXIT_FAILURE);
 }
 
 std::string CloverCL::errToString(cl_int err)

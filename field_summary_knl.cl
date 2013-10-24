@@ -49,7 +49,7 @@ __kernel void field_summary_ocl_kernel(
     int k = get_global_id(1);
     int j = get_global_id(0);
 
-    int localid = get_local_id(0);
+    int localid = get_local_id(1)*get_local_size(0)+get_local_id(0);
 
     vol_sum_local[localid] = 0;
     mass_sum_local[localid]= 0;

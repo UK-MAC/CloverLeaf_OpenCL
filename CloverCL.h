@@ -40,8 +40,8 @@ class CloverCL {
         CloverCL(); 
         virtual ~CloverCL ();
 
-        static int const fixed_wg_min_size_large_dim   = WG_SIZE_X; // value passed in by preprocessor 
-        static int const fixed_wg_min_size_small_dim   = 1;
+        static int const fixed_wg_min_size_large_dim   = WG_SIZE_X; // x value passed in by preprocessor 
+        static int const fixed_wg_min_size_small_dim   = WG_SIZE_Y; // y value passed in by preprocessor 
         static int xmax_plusfour_rounded;
         static int xmax_plusfive_rounded;
         static int ymax_plusfour_rounded;
