@@ -53,8 +53,6 @@ __kernel void reduction_minimum_cpu_ocl_kernel(
     }
     
     min_val_output[group_id] = min_value; 
-
-    //printf("min group id: %d num_gropus %d inc: %d one_more: %d remain %d num_per_group %d start_index %d total_eles: %d i: %d\n", group_id, num_groups, inc, one_more, remainder, num_per_group, start_index, total_num_elements, i); 
 }
 
 __kernel void reduction_minimum_ocl_kernel(
@@ -71,14 +69,6 @@ __kernel void reduction_minimum_ocl_kernel(
     min_val_local[lj] = fmin( min_val_input[j], min_val_input[j+wg_size_x] ); 
 
     barrier(CLK_LOCAL_MEM_FENCE); 
-
-    //for (uint s=1; s<wg_size_x; s*=2) {
-    //    if ( (lj % (2*s) == 0) && (lj+s < wg_size_x) ) {
-    //        min_val_local[lj] = fmin( min_val_local[lj], min_val_local[lj+s] );
-    //    }
-    //    
-    //    barrier(CLK_LOCAL_MEM_FENCE);
-    //}
 
     for (uint s=wg_size_x >> 1; s > 32; s >>= 1) {
         if (lj < s) {
@@ -112,7 +102,6 @@ __kernel void reduction_minimum_last_ocl_kernel(
 
     uint j = wg_id_x * (wg_size_x * 2) + lj; 
 
-    //might need to add a third branch to the if to just read in 1 value
     if ( wg_id_x != get_num_groups(0)-1 ) {
         min_val_local[lj] = fmin( min_val_input[j], min_val_input[j+wg_size_x] ); 
     }
@@ -127,14 +116,6 @@ __kernel void reduction_minimum_last_ocl_kernel(
     }
 
     barrier(CLK_LOCAL_MEM_FENCE); 
-
-    //for (uint s=1; s<wg_size_x; s*=2) {
-    //    if ( (lj % (2*s) == 0) && (lj+s < wg_size_x) ) {
-    //        min_val_local[lj] = fmin( min_val_local[lj], min_val_local[lj+s] );
-    //    }
-    //    
-    //    barrier(CLK_LOCAL_MEM_FENCE);
-    //}
 
     for (uint s=wg_size_x >> 1; s > 16; s >>= 1) {
         if (lj < s) {
@@ -151,6 +132,4 @@ __kernel void reduction_minimum_last_ocl_kernel(
     if (lj < 1) min_val_local[lj] = fmin( min_val_local[lj], min_val_local[lj+1] );
 
     if (lj==0) min_val_output[wg_id_x] = min_val_local[0];
-
 }
-

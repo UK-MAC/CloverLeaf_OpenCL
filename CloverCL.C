@@ -453,14 +453,6 @@ void CloverCL::build_reduction_kernel_objects() {
             ke_sum_reduction_kernels[0].setArg(2, CloverCL::num_elements_per_wi[0]); 
             press_sum_reduction_kernels[0].setArg(2, CloverCL::num_elements_per_wi[0]); 
 
-            //min_reduction_kernels[0].setArg(      3, CloverCL::size_limits[0]);
-            //vol_sum_reduction_kernels[0].setArg(3, CloverCL::size_limits[0]); 
-            //mass_sum_reduction_kernels[0].setArg(3, CloverCL::size_limits[0]); 
-            //ie_sum_reduction_kernels[0].setArg(3, CloverCL::size_limits[0]); 
-            //ke_sum_reduction_kernels[0].setArg(3, CloverCL::size_limits[0]);
-            //press_sum_reduction_kernels[0].setArg(3, CloverCL::size_limits[0]); 
-
-
 
             //build level 2 of CPU reduction 
             min_reduction_kernels.push_back( cl::Kernel(program, "reduction_minimum_cpu_ocl_kernel", &err) );
@@ -491,12 +483,6 @@ void CloverCL::build_reduction_kernel_objects() {
             ke_sum_reduction_kernels[1].setArg(2, CloverCL::num_elements_per_wi[1]); 
             press_sum_reduction_kernels[1].setArg(2, CloverCL::num_elements_per_wi[1]); 
 
-            //min_reduction_kernels[1].setArg(      3, CloverCL::size_limits[1]);
-            //vol_sum_reduction_kernels[1].setArg(3, CloverCL::size_limits[1]); 
-            //mass_sum_reduction_kernels[1].setArg(3, CloverCL::size_limits[1]); 
-            //ie_sum_reduction_kernels[1].setArg(3, CloverCL::size_limits[1]); 
-            //ke_sum_reduction_kernels[1].setArg(3, CloverCL::size_limits[1]); 
-            //press_sum_reduction_kernels[1].setArg(3, CloverCL::size_limits[1]); 
         }
         
     }
@@ -682,36 +668,6 @@ void CloverCL::calculateReductionStructure(int xmax, int ymax) {
             num_workitems_per_wg.push_back(1);
             num_elements_per_wi.push_back(device_procs);
         }
-
-        //if (num_elements % device_procs == 0) {
-        //    //input to reduction is evenly divisible by number of "cores" on CPU
-        //    num_workitems_tolaunch.push_back(device_procs);
-        //    num_workitems_per_wg.push_back(1);
-        //    size_limits.push_back(num_elements/device_procs);
-        //    num_elements_per_wi.push_back(num_elements/device_procs);
-
-        //    num_workitems_tolaunch.push_back(1);
-        //    num_workitems_per_wg.push_back(1);
-        //    size_limits.push_back(device_procs);
-        //    num_elements_per_wi.push_back(device_procs);
-
-        //} else {
-        //    //input to reduction is NOT evenly divisible by number of "cores" on CPU
-        //    num_workitems_tolaunch.push_back(device_procs);
-        //    num_workitems_per_wg.push_back(1);
-
-        //    int epi = num_elements/device_procs+1;
-        //    int limit = num_elements - epi*(device_procs-1);
-        //    if (limit <= 0) { std::cout << "ERROR: calc reduction strucuture limit on CPU reduction 0 or less" << std::endl; }
-
-        //    num_elements_per_wi.push_back(epi);
-        //    size_limits.push_back(limit);
-
-        //    num_workitems_tolaunch.push_back(1);
-        //    num_workitems_per_wg.push_back(1);
-        //    size_limits.push_back(device_procs);
-        //    num_elements_per_wi.push_back(device_procs);
-        //}
 
 #ifdef OCL_VERBOSE
         std::cout << "number_of_red_levels after loop: " << number_of_red_levels << std::endl;
@@ -1955,54 +1911,6 @@ void CloverCL::loadProgram(int xmin, int xmax, int ymin, int ymax)
     } catch(cl::Error err) {
         reportError(err, "creating comms buffer unpack kernels");
     }
-
-    //try {
-    //    read_top_buffer_knl = cl::Kernel(program, "read_top_buffer_ocl_kernel");
-    //} catch (cl::Error err) {
-    //    reportError(err, "creating read_top_buffer_ocl_kernel");
-    //}
-
-    //try {
-    //    read_right_buffer_knl = cl::Kernel(program, "read_right_buffer_ocl_kernel");
-    //} catch (cl::Error err) {
-    //    reportError(err, "creating read_right_buffer_ocl_knl");
-    //}
-
-    //try {
-    //    read_bottom_buffer_knl = cl::Kernel(program, "read_bottom_buffer_ocl_kernel");
-    //} catch (cl::Error err) {
-    //    reportError(err, "creating read_bottom_buffer_ocl_knl");
-    //}
-
-    //try {
-    //    read_left_buffer_knl = cl::Kernel(program, "read_left_buffer_ocl_kernel");
-    //} catch (cl::Error err) {
-    //    reportError(err, "creating read_left_buffer_ocl_knl");
-    //}
-
-    //try {
-    //    write_top_buffer_knl = cl::Kernel(program, "write_top_buffer_ocl_kernel"); 
-    //} catch (cl::Error err) {
-    //    reportError(err, "creating write_top_buffer_ocl_knl");
-    //}
-
-    //try {
-    //    write_right_buffer_knl = cl::Kernel(program, "write_right_buffer_ocl_kernel"); 
-    //} catch (cl::Error err) {
-    //    reportError(err, "creating write_right_buffer_ocl_knl");
-    //}
-
-    //try {
-    //    write_bottom_buffer_knl = cl::Kernel(program, "write_bottom_buffer_ocl_kernel"); 
-    //} catch (cl::Error err) {
-    //    reportError(err, "creating write_bottom_buffer_ocl_knl");
-    //}
-
-    //try {
-    //    write_left_buffer_knl = cl::Kernel(program, "write_left_buffer_ocl_kernel"); 
-    //} catch (cl::Error err) {
-    //    reportError(err, "creating write_left_buffer_ocl_knl");
-    //}
 
 }
 
