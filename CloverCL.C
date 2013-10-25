@@ -1195,7 +1195,7 @@ void CloverCL::createBuffers(int x_max, int y_max, int num_states)
 
 
     //dt_min_val_array_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
-    vol_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
+    //vol_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
     //mass_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
     //ie_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
     //ke_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
@@ -1352,7 +1352,8 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         pdv_correct_knl.setArg(11, xvel1_buffer);
         pdv_correct_knl.setArg(12, yvel0_buffer);
         pdv_correct_knl.setArg(13, yvel1_buffer);
-        pdv_correct_knl.setArg(14, vol_tmp_buffer);
+        //pdv_correct_knl.setArg(14, vol_tmp_buffer);
+        pdv_correct_knl.setArg(14, work_array1_buffer);
 
         pdv_predict_knl.setArg(1, xarea_buffer);
         pdv_predict_knl.setArg(2, yarea_buffer);
@@ -1367,7 +1368,8 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         pdv_predict_knl.setArg(11, xvel1_buffer);
         pdv_predict_knl.setArg(12, yvel0_buffer);
         pdv_predict_knl.setArg(13, yvel1_buffer);
-        pdv_predict_knl.setArg(14, vol_tmp_buffer);
+        //pdv_predict_knl.setArg(14, vol_tmp_buffer);
+        pdv_predict_knl.setArg(14, work_array1_buffer);
 
         dt_calc_knl.setArg(0, g_small);
         dt_calc_knl.setArg(1, g_big);
