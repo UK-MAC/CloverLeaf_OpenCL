@@ -508,11 +508,11 @@ void CloverCL::build_reduction_kernel_objects() {
 
                 if (i==1) {
                     min_reduction_kernels[i-1].setArg(      0, CloverCL::work_array1_buffer);
-                    vol_sum_reduction_kernels[i-1].setArg(  0, CloverCL::vol_tmp_buffer);
-                    mass_sum_reduction_kernels[i-1].setArg( 0, CloverCL::mass_tmp_buffer);
-                    ie_sum_reduction_kernels[i-1].setArg(   0, CloverCL::ie_tmp_buffer);
-                    ke_sum_reduction_kernels[i-1].setArg(   0, CloverCL::ke_tmp_buffer);
-                    press_sum_reduction_kernels[i-1].setArg(0, CloverCL::press_tmp_buffer);
+                    vol_sum_reduction_kernels[i-1].setArg(  0, CloverCL::work_array1_buffer);
+                    mass_sum_reduction_kernels[i-1].setArg( 0, CloverCL::work_array2_buffer);
+                    ie_sum_reduction_kernels[i-1].setArg(   0, CloverCL::work_array3_buffer);
+                    ke_sum_reduction_kernels[i-1].setArg(   0, CloverCL::work_array4_buffer);
+                    press_sum_reduction_kernels[i-1].setArg(0, CloverCL::work_array5_buffer);
                 }
                 else {
                     min_reduction_kernels[i-1].setArg(0, CloverCL::min_interBuffers[i-2]);
@@ -560,11 +560,11 @@ void CloverCL::build_reduction_kernel_objects() {
                 if (i==1) {
                     //if on first level then set input to equal source buffer
                     min_reduction_kernels[i-1].setArg(0, CloverCL::work_array1_buffer);
-                    vol_sum_reduction_kernels[i-1].setArg(  0, CloverCL::vol_tmp_buffer);
-                    mass_sum_reduction_kernels[i-1].setArg( 0, CloverCL::mass_tmp_buffer);
-                    ie_sum_reduction_kernels[i-1].setArg(   0, CloverCL::ie_tmp_buffer);
-                    ke_sum_reduction_kernels[i-1].setArg(   0, CloverCL::ke_tmp_buffer);
-                    press_sum_reduction_kernels[i-1].setArg(0, CloverCL::press_tmp_buffer);
+                    vol_sum_reduction_kernels[i-1].setArg(  0, CloverCL::work_array1_buffer);
+                    mass_sum_reduction_kernels[i-1].setArg( 0, CloverCL::work_array2_buffer);
+                    ie_sum_reduction_kernels[i-1].setArg(   0, CloverCL::work_array3_buffer);
+                    ke_sum_reduction_kernels[i-1].setArg(   0, CloverCL::work_array4_buffer);
+                    press_sum_reduction_kernels[i-1].setArg(0, CloverCL::work_array5_buffer);
                 }
                 else {
                     min_reduction_kernels[i-1].setArg(0, CloverCL::min_interBuffers[i-2]);
@@ -1196,10 +1196,10 @@ void CloverCL::createBuffers(int x_max, int y_max, int num_states)
 
     //dt_min_val_array_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
     vol_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
-    mass_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
-    ie_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
-    ke_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
-    press_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
+    //mass_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
+    //ie_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
+    //ke_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
+    //press_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
 
     dt_min_val_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, sizeof(double), NULL, &err);
     vol_sum_val_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, sizeof(double), NULL, &err);
@@ -1266,11 +1266,16 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         field_summary_knl.setArg(3, pressure_buffer);
         field_summary_knl.setArg(4, xvel0_buffer);
         field_summary_knl.setArg(5, yvel0_buffer);
-        field_summary_knl.setArg(6, vol_tmp_buffer);
-        field_summary_knl.setArg(7, mass_tmp_buffer);
-        field_summary_knl.setArg(8, ie_tmp_buffer);
-        field_summary_knl.setArg(9, ke_tmp_buffer);
-        field_summary_knl.setArg(10, press_tmp_buffer);
+        //field_summary_knl.setArg(6, vol_tmp_buffer);
+        //field_summary_knl.setArg(7, mass_tmp_buffer);
+        //field_summary_knl.setArg(8, ie_tmp_buffer);
+        //field_summary_knl.setArg(9, ke_tmp_buffer);
+        //field_summary_knl.setArg(10, press_tmp_buffer);
+        field_summary_knl.setArg(6,  work_array1_buffer);
+        field_summary_knl.setArg(7,  work_array2_buffer);
+        field_summary_knl.setArg(8,  work_array3_buffer);
+        field_summary_knl.setArg(9,  work_array4_buffer);
+        field_summary_knl.setArg(10, work_array5_buffer);
 
         reset_field_knl.setArg(0, density0_buffer);
         reset_field_knl.setArg(1, density1_buffer);
