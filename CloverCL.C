@@ -507,7 +507,7 @@ void CloverCL::build_reduction_kernel_objects() {
                 press_sum_reduction_kernels.push_back( cl::Kernel(program, "reduction_sum_ocl_kernel", &err));
 
                 if (i==1) {
-                    min_reduction_kernels[i-1].setArg(      0, CloverCL::dt_min_val_array_buffer);
+                    min_reduction_kernels[i-1].setArg(      0, CloverCL::work_array1_buffer);
                     vol_sum_reduction_kernels[i-1].setArg(  0, CloverCL::vol_tmp_buffer);
                     mass_sum_reduction_kernels[i-1].setArg( 0, CloverCL::mass_tmp_buffer);
                     ie_sum_reduction_kernels[i-1].setArg(   0, CloverCL::ie_tmp_buffer);
@@ -559,7 +559,7 @@ void CloverCL::build_reduction_kernel_objects() {
 
                 if (i==1) {
                     //if on first level then set input to equal source buffer
-                    min_reduction_kernels[i-1].setArg(0, CloverCL::dt_min_val_array_buffer);
+                    min_reduction_kernels[i-1].setArg(0, CloverCL::work_array1_buffer);
                     vol_sum_reduction_kernels[i-1].setArg(  0, CloverCL::vol_tmp_buffer);
                     mass_sum_reduction_kernels[i-1].setArg( 0, CloverCL::mass_tmp_buffer);
                     ie_sum_reduction_kernels[i-1].setArg(   0, CloverCL::ie_tmp_buffer);
@@ -1194,7 +1194,7 @@ void CloverCL::createBuffers(int x_max, int y_max, int num_states)
 
 
 
-    dt_min_val_array_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
+    //dt_min_val_array_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
     vol_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
     mass_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
     ie_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
@@ -1385,7 +1385,8 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         dt_calc_knl.setArg(18, soundspeed_buffer);
         dt_calc_knl.setArg(19, xvel0_buffer);
         dt_calc_knl.setArg(20, yvel0_buffer);
-        dt_calc_knl.setArg(21, dt_min_val_array_buffer);
+        //dt_calc_knl.setArg(21, dt_min_val_array_buffer);
+        dt_calc_knl.setArg(21, work_array1_buffer);
 
         ideal_gas_predict_knl.setArg(0, density1_buffer);
         ideal_gas_predict_knl.setArg(1, energy1_buffer);

@@ -59,9 +59,9 @@ __kernel void calc_dt_ocl_kernel(
     int localid = get_local_id(1)*get_local_size(0)+get_local_id(0);
     dt_min_local[localid] = 100000;
 
-    if ( (j>=2) && (j<=XMAXPLUSONE) && (k>=2) && (k<=YMAXPLUSONE) ) {
+    dt_min_val_array[ARRAYXY(j,k,XMAXPLUSFIVE)] = g_big;
 
-        dt_min_val_array[ARRAYXY(j-2,k-2,XMAX)] = g_big;
+    if ( (j>=2) && (j<=XMAXPLUSONE) && (k>=2) && (k<=YMAXPLUSONE) ) {
 
         dsx = celldx[j];
         dsy = celldy[k];
