@@ -288,7 +288,7 @@ class CloverCL {
         static cl::Buffer vol_flux_y_buffer;
         static cl::Buffer mass_flux_x_buffer;
         static cl::Buffer mass_flux_y_buffer;
-        static cl::Buffer stepbymass_buffer;
+        //static cl::Buffer stepbymass_buffer;
         static cl::Buffer volume_buffer;
 
         static cl::Buffer vol_tmp_buffer;
@@ -297,13 +297,13 @@ class CloverCL {
         static cl::Buffer ke_tmp_buffer;
         static cl::Buffer press_tmp_buffer;
 
-        static cl::Buffer node_flux_buffer;
-        static cl::Buffer node_mass_post_buffer;
-        static cl::Buffer node_mass_pre_buffer;
-        static cl::Buffer advec_vel_buffer;
-        static cl::Buffer mom_flux_buffer;
-        static cl::Buffer pre_vol_buffer;
-        static cl::Buffer post_vol_buffer;
+        //static cl::Buffer node_flux_buffer;
+        //static cl::Buffer node_mass_post_buffer;
+        //static cl::Buffer node_mass_pre_buffer;
+        //static cl::Buffer advec_vel_buffer;
+        //static cl::Buffer mom_flux_buffer;
+        //static cl::Buffer pre_vol_buffer;
+        //static cl::Buffer post_vol_buffer;
 
         static cl::Buffer vertexdx_buffer;
         static cl::Buffer vertexx_buffer;
@@ -321,11 +321,11 @@ class CloverCL {
         static cl::Buffer ke_sum_val_buffer;
         static cl::Buffer press_sum_val_buffer;
 
-        static cl::Buffer pre_mass_buffer;
-        static cl::Buffer post_mass_buffer;
-        static cl::Buffer advec_vol_buffer;
-        static cl::Buffer post_ener_buffer;
-        static cl::Buffer ener_flux_buffer;
+        //static cl::Buffer pre_mass_buffer;
+        //static cl::Buffer post_mass_buffer;
+        //static cl::Buffer advec_vol_buffer;
+        //static cl::Buffer post_ener_buffer;
+        //static cl::Buffer ener_flux_buffer;
 
         static cl::Buffer state_density_buffer;
         static cl::Buffer state_energy_buffer;
