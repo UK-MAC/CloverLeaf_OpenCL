@@ -1182,15 +1182,12 @@ void CloverCL::createBuffers(int x_max, int y_max, int num_states)
     advec_vol_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
     post_ener_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
     ener_flux_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+
+
     node_flux_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-
     node_mass_post_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-
     node_mass_pre_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-
-
     advec_vel_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-
     mom_flux_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
 
 
@@ -1484,67 +1481,102 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         advec_cell_ydir_sec3_knl.setArg(8, work_array6_buffer);
         advec_cell_ydir_sec3_knl.setArg(9, work_array7_buffer);
 
+
+
+
         advec_mom_vol_knl.setArg(0, volume_buffer);
         advec_mom_vol_knl.setArg(1, vol_flux_x_buffer);
         advec_mom_vol_knl.setArg(2, vol_flux_y_buffer);
-        advec_mom_vol_knl.setArg(3, pre_vol_buffer);
-        advec_mom_vol_knl.setArg(4, post_vol_buffer);
+        //advec_mom_vol_knl.setArg(3, pre_vol_buffer);
+        //advec_mom_vol_knl.setArg(4, post_vol_buffer);
+        advec_mom_vol_knl.setArg(3, work_array6_buffer);
+        advec_mom_vol_knl.setArg(4, work_array7_buffer);
 
         advec_mom_node_x_knl.setArg(0, CloverCL::mass_flux_x_buffer);
-        advec_mom_node_x_knl.setArg(1, CloverCL::node_flux_buffer);
+        //advec_mom_node_x_knl.setArg(1, CloverCL::node_flux_buffer);
+        advec_mom_node_x_knl.setArg(1, work_array1_buffer);
         advec_mom_node_x_knl.setArg(2, density1_buffer);
-        advec_mom_node_x_knl.setArg(3, post_vol_buffer);
-        advec_mom_node_x_knl.setArg(4, node_mass_post_buffer);
+        //advec_mom_node_x_knl.setArg(3, post_vol_buffer);
+        //advec_mom_node_x_knl.setArg(4, node_mass_post_buffer);
+        advec_mom_node_x_knl.setArg(3, work_array7_buffer);
+        advec_mom_node_x_knl.setArg(4, work_array2_buffer);
 
-        advec_mom_node_mass_pre_x_knl.setArg(0, node_mass_pre_buffer);
-        advec_mom_node_mass_pre_x_knl.setArg(1, node_mass_post_buffer);
-        advec_mom_node_mass_pre_x_knl.setArg(2, CloverCL::node_flux_buffer);
+        //advec_mom_node_mass_pre_x_knl.setArg(0, node_mass_pre_buffer);
+        //advec_mom_node_mass_pre_x_knl.setArg(1, node_mass_post_buffer);
+        //advec_mom_node_mass_pre_x_knl.setArg(2, CloverCL::node_flux_buffer);
+        advec_mom_node_mass_pre_x_knl.setArg(0, work_array3_buffer);
+        advec_mom_node_mass_pre_x_knl.setArg(1, work_array2_buffer);
+        advec_mom_node_mass_pre_x_knl.setArg(2, work_array1_buffer);
 
         advec_mom_node_y_knl.setArg(0, mass_flux_y_buffer);
-        advec_mom_node_y_knl.setArg(1, node_flux_buffer);
-        advec_mom_node_y_knl.setArg(2, node_mass_post_buffer);
+        //advec_mom_node_y_knl.setArg(1, node_flux_buffer);
+        //advec_mom_node_y_knl.setArg(2, node_mass_post_buffer);
+        advec_mom_node_y_knl.setArg(1, work_array1_buffer);
+        advec_mom_node_y_knl.setArg(2, work_array2_buffer);
         advec_mom_node_y_knl.setArg(3, density1_buffer);
-        advec_mom_node_y_knl.setArg(4, post_vol_buffer);
+        //advec_mom_node_y_knl.setArg(4, post_vol_buffer);
+        advec_mom_node_y_knl.setArg(4, work_array7_buffer);
 
-        advec_mom_node_mass_pre_y_knl.setArg(0, node_mass_pre_buffer);
-        advec_mom_node_mass_pre_y_knl.setArg(1, node_mass_post_buffer);
-        advec_mom_node_mass_pre_y_knl.setArg(2, node_flux_buffer);
+        //advec_mom_node_mass_pre_y_knl.setArg(0, node_mass_pre_buffer);
+        //advec_mom_node_mass_pre_y_knl.setArg(1, node_mass_post_buffer);
+        //advec_mom_node_mass_pre_y_knl.setArg(2, node_flux_buffer);
+        advec_mom_node_mass_pre_y_knl.setArg(0, work_array3_buffer);
+        advec_mom_node_mass_pre_y_knl.setArg(1, work_array2_buffer);
+        advec_mom_node_mass_pre_y_knl.setArg(2, work_array1_buffer);
 
-        advec_mom_flux_x_vec1_knl.setArg(0, node_flux_buffer);
-        advec_mom_flux_x_vec1_knl.setArg(1, node_mass_pre_buffer);
-
-        advec_mom_flux_x_vec1_knl.setArg(3, advec_vel_buffer);
-        advec_mom_flux_x_vec1_knl.setArg(4, mom_flux_buffer);
+        //advec_mom_flux_x_vec1_knl.setArg(0, node_flux_buffer);
+        //advec_mom_flux_x_vec1_knl.setArg(1, node_mass_pre_buffer);
+        //advec_mom_flux_x_vec1_knl.setArg(3, advec_vel_buffer);
+        //advec_mom_flux_x_vec1_knl.setArg(4, mom_flux_buffer);
+        advec_mom_flux_x_vec1_knl.setArg(0, work_array1_buffer);
+        advec_mom_flux_x_vec1_knl.setArg(1, work_array3_buffer);
+        advec_mom_flux_x_vec1_knl.setArg(3, work_array4_buffer);
+        advec_mom_flux_x_vec1_knl.setArg(4, work_array5_buffer);
         advec_mom_flux_x_vec1_knl.setArg(5, celldx_buffer);
 
-        advec_mom_flux_x_vecnot1_knl.setArg(0, node_flux_buffer);
-        advec_mom_flux_x_vecnot1_knl.setArg(1, node_mass_pre_buffer);
-
-        advec_mom_flux_x_vecnot1_knl.setArg(3, advec_vel_buffer);
-        advec_mom_flux_x_vecnot1_knl.setArg(4, mom_flux_buffer);
+        //advec_mom_flux_x_vecnot1_knl.setArg(0, node_flux_buffer);
+        //advec_mom_flux_x_vecnot1_knl.setArg(1, node_mass_pre_buffer);
+        //advec_mom_flux_x_vecnot1_knl.setArg(3, advec_vel_buffer);
+        //advec_mom_flux_x_vecnot1_knl.setArg(4, mom_flux_buffer);
+        advec_mom_flux_x_vecnot1_knl.setArg(0, work_array1_buffer);
+        advec_mom_flux_x_vecnot1_knl.setArg(1, work_array3_buffer);
+        advec_mom_flux_x_vecnot1_knl.setArg(3, work_array4_buffer);
+        advec_mom_flux_x_vecnot1_knl.setArg(4, work_array5_buffer);
         advec_mom_flux_x_vecnot1_knl.setArg(5, celldx_buffer);
 
-        advec_mom_flux_y_vec1_knl.setArg(0, node_flux_buffer);
-        advec_mom_flux_y_vec1_knl.setArg(1, node_mass_pre_buffer);
-
-        advec_mom_flux_y_vec1_knl.setArg(3, advec_vel_buffer);
-        advec_mom_flux_y_vec1_knl.setArg(4, mom_flux_buffer);
+        //advec_mom_flux_y_vec1_knl.setArg(0, node_flux_buffer);
+        //advec_mom_flux_y_vec1_knl.setArg(1, node_mass_pre_buffer);
+        //advec_mom_flux_y_vec1_knl.setArg(3, advec_vel_buffer);
+        //advec_mom_flux_y_vec1_knl.setArg(4, mom_flux_buffer);
+        advec_mom_flux_y_vec1_knl.setArg(0, work_array1_buffer);
+        advec_mom_flux_y_vec1_knl.setArg(1, work_array3_buffer);
+        advec_mom_flux_y_vec1_knl.setArg(3, work_array4_buffer);
+        advec_mom_flux_y_vec1_knl.setArg(4, work_array5_buffer);
         advec_mom_flux_y_vec1_knl.setArg(5, celldy_buffer);
 
-        advec_mom_flux_y_vecnot1_knl.setArg(0, node_flux_buffer);
-        advec_mom_flux_y_vecnot1_knl.setArg(1, node_mass_pre_buffer);
-
-        advec_mom_flux_y_vecnot1_knl.setArg(3, advec_vel_buffer);
-        advec_mom_flux_y_vecnot1_knl.setArg(4, mom_flux_buffer);
+        //advec_mom_flux_y_vecnot1_knl.setArg(0, node_flux_buffer);
+        //advec_mom_flux_y_vecnot1_knl.setArg(1, node_mass_pre_buffer);
+        //advec_mom_flux_y_vecnot1_knl.setArg(3, advec_vel_buffer);
+        //advec_mom_flux_y_vecnot1_knl.setArg(4, mom_flux_buffer);
+        advec_mom_flux_y_vecnot1_knl.setArg(0, work_array1_buffer);
+        advec_mom_flux_y_vecnot1_knl.setArg(1, work_array3_buffer);
+        advec_mom_flux_y_vecnot1_knl.setArg(3, work_array4_buffer);
+        advec_mom_flux_y_vecnot1_knl.setArg(4, work_array5_buffer);
         advec_mom_flux_y_vecnot1_knl.setArg(5, celldy_buffer);
 
-        advec_mom_vel_x_knl.setArg(0, node_mass_post_buffer);
-        advec_mom_vel_x_knl.setArg(1, node_mass_pre_buffer);
-        advec_mom_vel_x_knl.setArg(2, mom_flux_buffer);
+        //advec_mom_vel_x_knl.setArg(0, node_mass_post_buffer);
+        //advec_mom_vel_x_knl.setArg(1, node_mass_pre_buffer);
+        //advec_mom_vel_x_knl.setArg(2, mom_flux_buffer);
+        advec_mom_vel_x_knl.setArg(0, work_array2_buffer);
+        advec_mom_vel_x_knl.setArg(1, work_array3_buffer);
+        advec_mom_vel_x_knl.setArg(2, work_array5_buffer);
 
-        advec_mom_vel_y_knl.setArg(0, node_mass_post_buffer);
-        advec_mom_vel_y_knl.setArg(1, node_mass_pre_buffer);
-        advec_mom_vel_y_knl.setArg(2, mom_flux_buffer);
+        //advec_mom_vel_y_knl.setArg(0, node_mass_post_buffer);
+        //advec_mom_vel_y_knl.setArg(1, node_mass_pre_buffer);
+        //advec_mom_vel_y_knl.setArg(2, mom_flux_buffer);
+        advec_mom_vel_y_knl.setArg(0, work_array2_buffer);
+        advec_mom_vel_y_knl.setArg(1, work_array3_buffer);
+        advec_mom_vel_y_knl.setArg(2, work_array5_buffer);
 
     } catch (cl::Error err) {
         CloverCL::reportError(err, "Setting Kernel Args in CloverCL.C");
