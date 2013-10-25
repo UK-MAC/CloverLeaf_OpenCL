@@ -354,6 +354,14 @@ class CloverCL {
         static cl::Buffer cpu_ke_red_buffer;
         static cl::Buffer cpu_press_red_buffer;
 
+        static cl::Buffer work_array1_buffer;
+        static cl::Buffer work_array2_buffer;
+        static cl::Buffer work_array3_buffer;
+        static cl::Buffer work_array4_buffer;
+        static cl::Buffer work_array5_buffer;
+        static cl::Buffer work_array6_buffer;
+        static cl::Buffer work_array7_buffer;
+
         static cl::Kernel ideal_gas_predict_knl;
         static cl::Kernel ideal_gas_NO_predict_knl;
         static cl::Kernel viscosity_knl;

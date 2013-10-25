@@ -128,6 +128,14 @@ cl::Buffer CloverCL::cpu_ie_red_buffer;
 cl::Buffer CloverCL::cpu_ke_red_buffer;
 cl::Buffer CloverCL::cpu_press_red_buffer;
 
+cl::Buffer CloverCL::work_array1_buffer;
+cl::Buffer CloverCL::work_array2_buffer;
+cl::Buffer CloverCL::work_array3_buffer;
+cl::Buffer CloverCL::work_array4_buffer;
+cl::Buffer CloverCL::work_array5_buffer;
+cl::Buffer CloverCL::work_array6_buffer;
+cl::Buffer CloverCL::work_array7_buffer;
+
 cl::Buffer CloverCL::top_send_buffer;
 cl::Buffer CloverCL::top_recv_buffer;
 cl::Buffer CloverCL::bottom_send_buffer;
@@ -1156,8 +1164,16 @@ void CloverCL::createBuffers(int x_max, int y_max, int num_states)
     //mass_flux_x_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+4)*sizeof(double), NULL, &err);
     //mass_flux_y_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+4)*(y_max+5)*sizeof(double), NULL, &err);
 
+    work_array1_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+    work_array2_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+    work_array3_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+    work_array4_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+    work_array5_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+    work_array6_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+    work_array7_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
 
-    stepbymass_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+
+    //stepbymass_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
 
     node_flux_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
 
@@ -1247,7 +1263,8 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         accelerate_knl.setArg(8, yvel0_buffer);
         accelerate_knl.setArg(9, xvel1_buffer);
         accelerate_knl.setArg(10, yvel1_buffer);
-        accelerate_knl.setArg(11, stepbymass_buffer);
+        //accelerate_knl.setArg(11, stepbymass_buffer);
+        accelerate_knl.setArg(11, work_array1_buffer);
 
         field_summary_knl.setArg(0, volume_buffer);
         field_summary_knl.setArg(1, density0_buffer);
