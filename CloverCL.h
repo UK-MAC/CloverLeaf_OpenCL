@@ -291,11 +291,11 @@ class CloverCL {
         //static cl::Buffer stepbymass_buffer;
         static cl::Buffer volume_buffer;
 
-        static cl::Buffer vol_tmp_buffer;
-        static cl::Buffer mass_tmp_buffer;
-        static cl::Buffer ie_tmp_buffer;
-        static cl::Buffer ke_tmp_buffer;
-        static cl::Buffer press_tmp_buffer;
+        //static cl::Buffer vol_tmp_buffer;
+        //static cl::Buffer mass_tmp_buffer;
+        //static cl::Buffer ie_tmp_buffer;
+        //static cl::Buffer ke_tmp_buffer;
+        //static cl::Buffer press_tmp_buffer;
 
         //static cl::Buffer node_flux_buffer;
         //static cl::Buffer node_mass_post_buffer;
@@ -312,7 +312,7 @@ class CloverCL {
         static cl::Buffer cellx_buffer;
         static cl::Buffer celly_buffer;
 
-        static cl::Buffer dt_min_val_array_buffer;
+        //static cl::Buffer dt_min_val_array_buffer;
         static cl::Buffer dt_min_val_buffer;
 
         static cl::Buffer vol_sum_val_buffer;

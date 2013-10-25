@@ -101,13 +101,13 @@ cl::Buffer CloverCL::vertexy_buffer;
 cl::Buffer CloverCL::cellx_buffer;
 cl::Buffer CloverCL::celly_buffer;
 
-cl::Buffer CloverCL::dt_min_val_array_buffer;
+//cl::Buffer CloverCL::dt_min_val_array_buffer;
 cl::Buffer CloverCL::dt_min_val_buffer;
-cl::Buffer CloverCL::vol_tmp_buffer;
-cl::Buffer CloverCL::mass_tmp_buffer;
-cl::Buffer CloverCL::ie_tmp_buffer;
-cl::Buffer CloverCL::ke_tmp_buffer;
-cl::Buffer CloverCL::press_tmp_buffer;
+//cl::Buffer CloverCL::vol_tmp_buffer;
+//cl::Buffer CloverCL::mass_tmp_buffer;
+//cl::Buffer CloverCL::ie_tmp_buffer;
+//cl::Buffer CloverCL::ke_tmp_buffer;
+//cl::Buffer CloverCL::press_tmp_buffer;
 cl::Buffer CloverCL::vol_sum_val_buffer;
 cl::Buffer CloverCL::mass_sum_val_buffer;
 cl::Buffer CloverCL::ie_sum_val_buffer;
@@ -409,12 +409,12 @@ void CloverCL::build_reduction_kernel_objects() {
             ke_sum_reduction_kernels.push_back( cl::Kernel(program, "reduction_sum_cpu_ocl_kernel", &err));
             press_sum_reduction_kernels.push_back( cl::Kernel(program, "reduction_sum_cpu_ocl_kernel", &err));
 
-            min_reduction_kernels[0].setArg(      0, CloverCL::dt_min_val_array_buffer);
-            vol_sum_reduction_kernels[0].setArg(  0, CloverCL::vol_tmp_buffer);
-            mass_sum_reduction_kernels[0].setArg( 0, CloverCL::mass_tmp_buffer);
-            ie_sum_reduction_kernels[0].setArg(   0, CloverCL::ie_tmp_buffer);
-            ke_sum_reduction_kernels[0].setArg(   0, CloverCL::ke_tmp_buffer);
-            press_sum_reduction_kernels[0].setArg(0, CloverCL::press_tmp_buffer);
+            min_reduction_kernels[0].setArg(      0, CloverCL::work_array1_buffer);
+            vol_sum_reduction_kernels[0].setArg(  0, CloverCL::work_array1_buffer);
+            mass_sum_reduction_kernels[0].setArg( 0, CloverCL::work_array2_buffer);
+            ie_sum_reduction_kernels[0].setArg(   0, CloverCL::work_array3_buffer);
+            ke_sum_reduction_kernels[0].setArg(   0, CloverCL::work_array4_buffer);
+            press_sum_reduction_kernels[0].setArg(0, CloverCL::work_array5_buffer);
 
             min_reduction_kernels[1].setArg(      1, CloverCL::dt_min_val_buffer);
             vol_sum_reduction_kernels[1].setArg(1, CloverCL::vol_sum_val_buffer); 
@@ -441,12 +441,12 @@ void CloverCL::build_reduction_kernel_objects() {
             ke_sum_reduction_kernels.push_back( cl::Kernel(program, "reduction_sum_cpu_ocl_kernel", &err));
             press_sum_reduction_kernels.push_back( cl::Kernel(program, "reduction_sum_cpu_ocl_kernel", &err));
 
-            min_reduction_kernels[0].setArg(      0, CloverCL::dt_min_val_array_buffer);
-            vol_sum_reduction_kernels[0].setArg(  0, CloverCL::vol_tmp_buffer);
-            mass_sum_reduction_kernels[0].setArg( 0, CloverCL::mass_tmp_buffer);
-            ie_sum_reduction_kernels[0].setArg(   0, CloverCL::ie_tmp_buffer);
-            ke_sum_reduction_kernels[0].setArg(   0, CloverCL::ke_tmp_buffer);
-            press_sum_reduction_kernels[0].setArg(0, CloverCL::press_tmp_buffer);
+            min_reduction_kernels[0].setArg(      0, CloverCL::work_array1_buffer);
+            vol_sum_reduction_kernels[0].setArg(  0, CloverCL::work_array1_buffer);
+            mass_sum_reduction_kernels[0].setArg( 0, CloverCL::work_array2_buffer);
+            ie_sum_reduction_kernels[0].setArg(   0, CloverCL::work_array3_buffer);
+            ke_sum_reduction_kernels[0].setArg(   0, CloverCL::work_array4_buffer);
+            press_sum_reduction_kernels[0].setArg(0, CloverCL::work_array5_buffer);
             
             min_reduction_kernels[0].setArg(      1, CloverCL::cpu_min_red_buffer);
             vol_sum_reduction_kernels[0].setArg(1, CloverCL::cpu_vol_red_buffer); 
