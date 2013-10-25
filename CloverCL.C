@@ -1175,20 +1175,20 @@ void CloverCL::createBuffers(int x_max, int y_max, int num_states)
 
     //stepbymass_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
 
-    pre_vol_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    post_vol_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    pre_mass_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    post_mass_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    advec_vol_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    post_ener_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    ener_flux_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+    //pre_vol_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+    //post_vol_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+    //pre_mass_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+    //post_mass_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+    //advec_vol_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+    //post_ener_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+    //ener_flux_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
 
 
-    node_flux_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    node_mass_post_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    node_mass_pre_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    advec_vel_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    mom_flux_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+    //node_flux_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+    //node_mass_post_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+    //node_mass_pre_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+    //advec_vel_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
+    //mom_flux_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
 
 
 
