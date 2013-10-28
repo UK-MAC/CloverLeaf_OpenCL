@@ -73,41 +73,22 @@ cl::Buffer CloverCL::xvel0_buffer;
 cl::Buffer CloverCL::yvel0_buffer;
 cl::Buffer CloverCL::xvel1_buffer;
 cl::Buffer CloverCL::yvel1_buffer;
-cl::Buffer CloverCL::xarea_buffer;
-cl::Buffer CloverCL::yarea_buffer;
 cl::Buffer CloverCL::vol_flux_x_buffer;
 cl::Buffer CloverCL::vol_flux_y_buffer;
 cl::Buffer CloverCL::mass_flux_x_buffer;
 cl::Buffer CloverCL::mass_flux_y_buffer;
 
-//cl::Buffer CloverCL::stepbymass_buffer;
 cl::Buffer CloverCL::volume_buffer;
-//cl::Buffer CloverCL::node_flux_buffer;
-//cl::Buffer CloverCL::node_mass_post_buffer;
-//cl::Buffer CloverCL::node_mass_pre_buffer;
-//cl::Buffer CloverCL::advec_vel_buffer;
-//cl::Buffer CloverCL::mom_flux_buffer;
-//cl::Buffer CloverCL::pre_vol_buffer;
-//cl::Buffer CloverCL::post_vol_buffer;
 cl::Buffer CloverCL::vertexdx_buffer;
 cl::Buffer CloverCL::vertexx_buffer;
 cl::Buffer CloverCL::vertexdy_buffer;
 cl::Buffer CloverCL::vertexy_buffer;
-//cl::Buffer CloverCL::pre_mass_buffer;
-//cl::Buffer CloverCL::post_mass_buffer;
-//cl::Buffer CloverCL::advec_vol_buffer;
-//cl::Buffer CloverCL::post_ener_buffer;
-//cl::Buffer CloverCL::ener_flux_buffer;
 cl::Buffer CloverCL::cellx_buffer;
 cl::Buffer CloverCL::celly_buffer;
+cl::Buffer CloverCL::xarea_buffer;
+cl::Buffer CloverCL::yarea_buffer;
 
-//cl::Buffer CloverCL::dt_min_val_array_buffer;
 cl::Buffer CloverCL::dt_min_val_buffer;
-//cl::Buffer CloverCL::vol_tmp_buffer;
-//cl::Buffer CloverCL::mass_tmp_buffer;
-//cl::Buffer CloverCL::ie_tmp_buffer;
-//cl::Buffer CloverCL::ke_tmp_buffer;
-//cl::Buffer CloverCL::press_tmp_buffer;
 cl::Buffer CloverCL::vol_sum_val_buffer;
 cl::Buffer CloverCL::mass_sum_val_buffer;
 cl::Buffer CloverCL::ie_sum_val_buffer;
@@ -1134,39 +1115,26 @@ void CloverCL::createBuffers(int x_max, int y_max, int num_states)
     pressure_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+4)*(y_max+4)*sizeof(double), NULL, &err);
     viscosity_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+4)*(y_max+4)*sizeof(double), NULL, &err);
     soundspeed_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+4)*(y_max+4)*sizeof(double), NULL, &err);
-
     xvel0_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
     yvel0_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
     xvel1_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
     yvel1_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-
     vol_flux_x_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+4)*sizeof(double), NULL, &err);
     vol_flux_y_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+4)*(y_max+5)*sizeof(double), NULL, &err);
     mass_flux_x_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+4)*sizeof(double), NULL, &err);
     mass_flux_y_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+4)*(y_max+5)*sizeof(double), NULL, &err);
 
-
     cellx_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+4)*sizeof(double), NULL, &err);
     celly_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (y_max+4)*sizeof(double), NULL, &err);
-
     vertexx_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*sizeof(double), NULL, &err);
     vertexy_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (y_max+5)*sizeof(double), NULL, &err);
-
     celldx_buffer = cl::Buffer( context, CL_MEM_READ_ONLY, (x_max+4)*(y_max+4)*sizeof(double), NULL, &err);
     celldy_buffer = cl::Buffer( context, CL_MEM_READ_ONLY, (x_max+4)*(y_max+4)*sizeof(double), NULL, &err);
-
     vertexdx_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*sizeof(double), NULL, &err);
     vertexdy_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (y_max+5)*sizeof(double), NULL, &err);
-
     volume_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+4)*(y_max+4)*sizeof(double), NULL, &err);
-
     xarea_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+4)*sizeof(double), NULL, &err);
     yarea_buffer = cl::Buffer( context, CL_MEM_READ_ONLY, (x_max+4)*(y_max+5)*sizeof(double), NULL, &err);
-
-
-
-    //mass_flux_x_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+4)*sizeof(double), NULL, &err);
-    //mass_flux_y_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+4)*(y_max+5)*sizeof(double), NULL, &err);
 
     work_array1_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
     work_array2_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
@@ -1176,42 +1144,12 @@ void CloverCL::createBuffers(int x_max, int y_max, int num_states)
     work_array6_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
     work_array7_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
 
-
-    //stepbymass_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-
-    //pre_vol_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    //post_vol_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    //pre_mass_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    //post_mass_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    //advec_vol_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    //post_ener_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    //ener_flux_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-
-
-    //node_flux_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    //node_mass_post_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    //node_mass_pre_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    //advec_vel_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-    //mom_flux_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*(y_max+5)*sizeof(double), NULL, &err);
-
-
-
-
-
-    //dt_min_val_array_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
-    //vol_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
-    //mass_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
-    //ie_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
-    //ke_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
-    //press_tmp_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max)*(y_max)*sizeof(double), NULL, &err);
-
     dt_min_val_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, sizeof(double), NULL, &err);
     vol_sum_val_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, sizeof(double), NULL, &err);
     mass_sum_val_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, sizeof(double), NULL, &err);
     ie_sum_val_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, sizeof(double), NULL, &err);
     ke_sum_val_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, sizeof(double), NULL, &err);
     press_sum_val_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, sizeof(double), NULL, &err);
-
 
     state_density_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, num_states*sizeof(double), NULL); 
     state_energy_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, num_states*sizeof(double), NULL); 
@@ -1223,8 +1161,6 @@ void CloverCL::createBuffers(int x_max, int y_max, int num_states)
     state_ymax_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, num_states*sizeof(double), NULL); 
     state_radius_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, num_states*sizeof(double), NULL); 
     state_geometry_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, num_states*sizeof(int), NULL); 
-
-
 
     top_send_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*2*sizeof(double), NULL, &err);
     top_recv_buffer = cl::Buffer( context, CL_MEM_READ_WRITE, (x_max+5)*2*sizeof(double), NULL, &err);
@@ -1261,7 +1197,6 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         accelerate_knl.setArg(8, yvel0_buffer);
         accelerate_knl.setArg(9, xvel1_buffer);
         accelerate_knl.setArg(10, yvel1_buffer);
-        //accelerate_knl.setArg(11, stepbymass_buffer);
         accelerate_knl.setArg(11, work_array1_buffer);
 
         field_summary_knl.setArg(0, volume_buffer);
@@ -1270,11 +1205,6 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         field_summary_knl.setArg(3, pressure_buffer);
         field_summary_knl.setArg(4, xvel0_buffer);
         field_summary_knl.setArg(5, yvel0_buffer);
-        //field_summary_knl.setArg(6, vol_tmp_buffer);
-        //field_summary_knl.setArg(7, mass_tmp_buffer);
-        //field_summary_knl.setArg(8, ie_tmp_buffer);
-        //field_summary_knl.setArg(9, ke_tmp_buffer);
-        //field_summary_knl.setArg(10, press_tmp_buffer);
         field_summary_knl.setArg(6,  work_array1_buffer);
         field_summary_knl.setArg(7,  work_array2_buffer);
         field_summary_knl.setArg(8,  work_array3_buffer);
@@ -1356,7 +1286,6 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         pdv_correct_knl.setArg(11, xvel1_buffer);
         pdv_correct_knl.setArg(12, yvel0_buffer);
         pdv_correct_knl.setArg(13, yvel1_buffer);
-        //pdv_correct_knl.setArg(14, vol_tmp_buffer);
         pdv_correct_knl.setArg(14, work_array1_buffer);
 
         pdv_predict_knl.setArg(1, xarea_buffer);
@@ -1372,7 +1301,6 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         pdv_predict_knl.setArg(11, xvel1_buffer);
         pdv_predict_knl.setArg(12, yvel0_buffer);
         pdv_predict_knl.setArg(13, yvel1_buffer);
-        //pdv_predict_knl.setArg(14, vol_tmp_buffer);
         pdv_predict_knl.setArg(14, work_array1_buffer);
 
         dt_calc_knl.setArg(0, g_small);
@@ -1396,7 +1324,6 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         dt_calc_knl.setArg(18, soundspeed_buffer);
         dt_calc_knl.setArg(19, xvel0_buffer);
         dt_calc_knl.setArg(20, yvel0_buffer);
-        //dt_calc_knl.setArg(21, dt_min_val_array_buffer);
         dt_calc_knl.setArg(21, work_array1_buffer);
 
         ideal_gas_predict_knl.setArg(0, density1_buffer);
@@ -1412,15 +1339,11 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         advec_cell_xdir_sec1_s1_knl.setArg(0, volume_buffer);
         advec_cell_xdir_sec1_s1_knl.setArg(1, vol_flux_x_buffer);
         advec_cell_xdir_sec1_s1_knl.setArg(2, vol_flux_y_buffer);
-        //advec_cell_xdir_sec1_s1_knl.setArg(3, pre_vol_buffer);
-        //advec_cell_xdir_sec1_s1_knl.setArg(4, post_vol_buffer);
         advec_cell_xdir_sec1_s1_knl.setArg(3, work_array1_buffer);
         advec_cell_xdir_sec1_s1_knl.setArg(4, work_array2_buffer);
 
         advec_cell_xdir_sec1_s2_knl.setArg(0, volume_buffer);
         advec_cell_xdir_sec1_s2_knl.setArg(1, vol_flux_x_buffer);
-        //advec_cell_xdir_sec1_s2_knl.setArg(2, pre_vol_buffer);
-        //advec_cell_xdir_sec1_s2_knl.setArg(3, post_vol_buffer);
         advec_cell_xdir_sec1_s2_knl.setArg(2, work_array1_buffer);
         advec_cell_xdir_sec1_s2_knl.setArg(3, work_array2_buffer);
 
@@ -1429,8 +1352,6 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         advec_cell_xdir_sec2_knl.setArg(2, energy1_buffer);
         advec_cell_xdir_sec2_knl.setArg(3, mass_flux_x_buffer);
         advec_cell_xdir_sec2_knl.setArg(4, vol_flux_x_buffer);
-        //advec_cell_xdir_sec2_knl.setArg(5, pre_vol_buffer);
-        //advec_cell_xdir_sec2_knl.setArg(6, ener_flux_buffer);
         advec_cell_xdir_sec2_knl.setArg(5, work_array1_buffer);
         advec_cell_xdir_sec2_knl.setArg(6, work_array7_buffer);
 
@@ -1438,12 +1359,6 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         advec_cell_xdir_sec3_knl.setArg(1, energy1_buffer);
         advec_cell_xdir_sec3_knl.setArg(2, mass_flux_x_buffer);
         advec_cell_xdir_sec3_knl.setArg(3, vol_flux_x_buffer);
-        //advec_cell_xdir_sec3_knl.setArg(4, pre_vol_buffer);
-        //advec_cell_xdir_sec3_knl.setArg(5, pre_mass_buffer);
-        //advec_cell_xdir_sec3_knl.setArg(6, post_mass_buffer);
-        //advec_cell_xdir_sec3_knl.setArg(7, advec_vol_buffer);
-        //advec_cell_xdir_sec3_knl.setArg(8, post_ener_buffer);
-        //advec_cell_xdir_sec3_knl.setArg(9, ener_flux_buffer);
         advec_cell_xdir_sec3_knl.setArg(4, work_array1_buffer);
         advec_cell_xdir_sec3_knl.setArg(5, work_array3_buffer);
         advec_cell_xdir_sec3_knl.setArg(6, work_array4_buffer);
@@ -1454,15 +1369,11 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         advec_cell_ydir_sec1_s1_knl.setArg(0, volume_buffer);
         advec_cell_ydir_sec1_s1_knl.setArg(1, vol_flux_x_buffer);
         advec_cell_ydir_sec1_s1_knl.setArg(2, vol_flux_y_buffer);
-        //advec_cell_ydir_sec1_s1_knl.setArg(3, pre_vol_buffer);
-        //advec_cell_ydir_sec1_s1_knl.setArg(4, post_vol_buffer);
         advec_cell_ydir_sec1_s1_knl.setArg(3, work_array1_buffer);
         advec_cell_ydir_sec1_s1_knl.setArg(4, work_array2_buffer);
 
         advec_cell_ydir_sec1_s2_knl.setArg(0, volume_buffer);
         advec_cell_ydir_sec1_s2_knl.setArg(1, vol_flux_y_buffer);
-        //advec_cell_ydir_sec1_s2_knl.setArg(2, pre_vol_buffer);
-        //advec_cell_ydir_sec1_s2_knl.setArg(3, post_vol_buffer);
         advec_cell_ydir_sec1_s2_knl.setArg(2, work_array1_buffer);
         advec_cell_ydir_sec1_s2_knl.setArg(3, work_array2_buffer);
 
@@ -1471,8 +1382,6 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         advec_cell_ydir_sec2_knl.setArg(2, energy1_buffer);
         advec_cell_ydir_sec2_knl.setArg(3, mass_flux_y_buffer);
         advec_cell_ydir_sec2_knl.setArg(4, vol_flux_y_buffer);
-        //advec_cell_ydir_sec2_knl.setArg(5, pre_vol_buffer);
-        //advec_cell_ydir_sec2_knl.setArg(6, ener_flux_buffer);
         advec_cell_ydir_sec2_knl.setArg(5, work_array1_buffer);
         advec_cell_ydir_sec2_knl.setArg(6, work_array7_buffer);
 
@@ -1480,12 +1389,6 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         advec_cell_ydir_sec3_knl.setArg(1, energy1_buffer);
         advec_cell_ydir_sec3_knl.setArg(2, mass_flux_y_buffer);
         advec_cell_ydir_sec3_knl.setArg(3, vol_flux_y_buffer);
-        //advec_cell_ydir_sec3_knl.setArg(4, pre_vol_buffer);
-        //advec_cell_ydir_sec3_knl.setArg(5, pre_mass_buffer);
-        //advec_cell_ydir_sec3_knl.setArg(6, post_mass_buffer);
-        //advec_cell_ydir_sec3_knl.setArg(7, advec_vol_buffer);
-        //advec_cell_ydir_sec3_knl.setArg(8, post_ener_buffer);
-        //advec_cell_ydir_sec3_knl.setArg(9, ener_flux_buffer);
         advec_cell_ydir_sec3_knl.setArg(4, work_array1_buffer);
         advec_cell_ydir_sec3_knl.setArg(5, work_array3_buffer);
         advec_cell_ydir_sec3_knl.setArg(6, work_array4_buffer);
@@ -1493,99 +1396,60 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         advec_cell_ydir_sec3_knl.setArg(8, work_array6_buffer);
         advec_cell_ydir_sec3_knl.setArg(9, work_array7_buffer);
 
-
-
-
         advec_mom_vol_knl.setArg(0, volume_buffer);
         advec_mom_vol_knl.setArg(1, vol_flux_x_buffer);
         advec_mom_vol_knl.setArg(2, vol_flux_y_buffer);
-        //advec_mom_vol_knl.setArg(3, pre_vol_buffer);
-        //advec_mom_vol_knl.setArg(4, post_vol_buffer);
         advec_mom_vol_knl.setArg(3, work_array6_buffer);
         advec_mom_vol_knl.setArg(4, work_array7_buffer);
 
         advec_mom_node_x_knl.setArg(0, CloverCL::mass_flux_x_buffer);
-        //advec_mom_node_x_knl.setArg(1, CloverCL::node_flux_buffer);
         advec_mom_node_x_knl.setArg(1, work_array1_buffer);
         advec_mom_node_x_knl.setArg(2, density1_buffer);
-        //advec_mom_node_x_knl.setArg(3, post_vol_buffer);
-        //advec_mom_node_x_knl.setArg(4, node_mass_post_buffer);
         advec_mom_node_x_knl.setArg(3, work_array7_buffer);
         advec_mom_node_x_knl.setArg(4, work_array2_buffer);
 
-        //advec_mom_node_mass_pre_x_knl.setArg(0, node_mass_pre_buffer);
-        //advec_mom_node_mass_pre_x_knl.setArg(1, node_mass_post_buffer);
-        //advec_mom_node_mass_pre_x_knl.setArg(2, CloverCL::node_flux_buffer);
         advec_mom_node_mass_pre_x_knl.setArg(0, work_array3_buffer);
         advec_mom_node_mass_pre_x_knl.setArg(1, work_array2_buffer);
         advec_mom_node_mass_pre_x_knl.setArg(2, work_array1_buffer);
 
         advec_mom_node_y_knl.setArg(0, mass_flux_y_buffer);
-        //advec_mom_node_y_knl.setArg(1, node_flux_buffer);
-        //advec_mom_node_y_knl.setArg(2, node_mass_post_buffer);
         advec_mom_node_y_knl.setArg(1, work_array1_buffer);
         advec_mom_node_y_knl.setArg(2, work_array2_buffer);
         advec_mom_node_y_knl.setArg(3, density1_buffer);
-        //advec_mom_node_y_knl.setArg(4, post_vol_buffer);
         advec_mom_node_y_knl.setArg(4, work_array7_buffer);
 
-        //advec_mom_node_mass_pre_y_knl.setArg(0, node_mass_pre_buffer);
-        //advec_mom_node_mass_pre_y_knl.setArg(1, node_mass_post_buffer);
-        //advec_mom_node_mass_pre_y_knl.setArg(2, node_flux_buffer);
         advec_mom_node_mass_pre_y_knl.setArg(0, work_array3_buffer);
         advec_mom_node_mass_pre_y_knl.setArg(1, work_array2_buffer);
         advec_mom_node_mass_pre_y_knl.setArg(2, work_array1_buffer);
 
-        //advec_mom_flux_x_vec1_knl.setArg(0, node_flux_buffer);
-        //advec_mom_flux_x_vec1_knl.setArg(1, node_mass_pre_buffer);
-        //advec_mom_flux_x_vec1_knl.setArg(3, advec_vel_buffer);
-        //advec_mom_flux_x_vec1_knl.setArg(4, mom_flux_buffer);
         advec_mom_flux_x_vec1_knl.setArg(0, work_array1_buffer);
         advec_mom_flux_x_vec1_knl.setArg(1, work_array3_buffer);
         advec_mom_flux_x_vec1_knl.setArg(3, work_array4_buffer);
         advec_mom_flux_x_vec1_knl.setArg(4, work_array5_buffer);
         advec_mom_flux_x_vec1_knl.setArg(5, celldx_buffer);
 
-        //advec_mom_flux_x_vecnot1_knl.setArg(0, node_flux_buffer);
-        //advec_mom_flux_x_vecnot1_knl.setArg(1, node_mass_pre_buffer);
-        //advec_mom_flux_x_vecnot1_knl.setArg(3, advec_vel_buffer);
-        //advec_mom_flux_x_vecnot1_knl.setArg(4, mom_flux_buffer);
         advec_mom_flux_x_vecnot1_knl.setArg(0, work_array1_buffer);
         advec_mom_flux_x_vecnot1_knl.setArg(1, work_array3_buffer);
         advec_mom_flux_x_vecnot1_knl.setArg(3, work_array4_buffer);
         advec_mom_flux_x_vecnot1_knl.setArg(4, work_array5_buffer);
         advec_mom_flux_x_vecnot1_knl.setArg(5, celldx_buffer);
 
-        //advec_mom_flux_y_vec1_knl.setArg(0, node_flux_buffer);
-        //advec_mom_flux_y_vec1_knl.setArg(1, node_mass_pre_buffer);
-        //advec_mom_flux_y_vec1_knl.setArg(3, advec_vel_buffer);
-        //advec_mom_flux_y_vec1_knl.setArg(4, mom_flux_buffer);
         advec_mom_flux_y_vec1_knl.setArg(0, work_array1_buffer);
         advec_mom_flux_y_vec1_knl.setArg(1, work_array3_buffer);
         advec_mom_flux_y_vec1_knl.setArg(3, work_array4_buffer);
         advec_mom_flux_y_vec1_knl.setArg(4, work_array5_buffer);
         advec_mom_flux_y_vec1_knl.setArg(5, celldy_buffer);
 
-        //advec_mom_flux_y_vecnot1_knl.setArg(0, node_flux_buffer);
-        //advec_mom_flux_y_vecnot1_knl.setArg(1, node_mass_pre_buffer);
-        //advec_mom_flux_y_vecnot1_knl.setArg(3, advec_vel_buffer);
-        //advec_mom_flux_y_vecnot1_knl.setArg(4, mom_flux_buffer);
         advec_mom_flux_y_vecnot1_knl.setArg(0, work_array1_buffer);
         advec_mom_flux_y_vecnot1_knl.setArg(1, work_array3_buffer);
         advec_mom_flux_y_vecnot1_knl.setArg(3, work_array4_buffer);
         advec_mom_flux_y_vecnot1_knl.setArg(4, work_array5_buffer);
         advec_mom_flux_y_vecnot1_knl.setArg(5, celldy_buffer);
 
-        //advec_mom_vel_x_knl.setArg(0, node_mass_post_buffer);
-        //advec_mom_vel_x_knl.setArg(1, node_mass_pre_buffer);
-        //advec_mom_vel_x_knl.setArg(2, mom_flux_buffer);
         advec_mom_vel_x_knl.setArg(0, work_array2_buffer);
         advec_mom_vel_x_knl.setArg(1, work_array3_buffer);
         advec_mom_vel_x_knl.setArg(2, work_array5_buffer);
 
-        //advec_mom_vel_y_knl.setArg(0, node_mass_post_buffer);
-        //advec_mom_vel_y_knl.setArg(1, node_mass_pre_buffer);
-        //advec_mom_vel_y_knl.setArg(2, mom_flux_buffer);
         advec_mom_vel_y_knl.setArg(0, work_array2_buffer);
         advec_mom_vel_y_knl.setArg(1, work_array3_buffer);
         advec_mom_vel_y_knl.setArg(2, work_array5_buffer);
