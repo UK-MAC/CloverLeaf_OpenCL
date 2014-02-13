@@ -282,50 +282,27 @@ class CloverCL {
         static cl::Buffer yvel0_buffer;
         static cl::Buffer xvel1_buffer;
         static cl::Buffer yvel1_buffer;
-        static cl::Buffer xarea_buffer;
-        static cl::Buffer yarea_buffer;
         static cl::Buffer vol_flux_x_buffer;
         static cl::Buffer vol_flux_y_buffer;
         static cl::Buffer mass_flux_x_buffer;
         static cl::Buffer mass_flux_y_buffer;
-        static cl::Buffer stepbymass_buffer;
+
         static cl::Buffer volume_buffer;
-
-        static cl::Buffer vol_tmp_buffer;
-        static cl::Buffer mass_tmp_buffer;
-        static cl::Buffer ie_tmp_buffer;
-        static cl::Buffer ke_tmp_buffer;
-        static cl::Buffer press_tmp_buffer;
-
-        static cl::Buffer node_flux_buffer;
-        static cl::Buffer node_mass_post_buffer;
-        static cl::Buffer node_mass_pre_buffer;
-        static cl::Buffer advec_vel_buffer;
-        static cl::Buffer mom_flux_buffer;
-        static cl::Buffer pre_vol_buffer;
-        static cl::Buffer post_vol_buffer;
-
         static cl::Buffer vertexdx_buffer;
         static cl::Buffer vertexx_buffer;
         static cl::Buffer vertexdy_buffer;
         static cl::Buffer vertexy_buffer;
         static cl::Buffer cellx_buffer;
         static cl::Buffer celly_buffer;
+        static cl::Buffer xarea_buffer;
+        static cl::Buffer yarea_buffer;
 
-        static cl::Buffer dt_min_val_array_buffer;
         static cl::Buffer dt_min_val_buffer;
-
         static cl::Buffer vol_sum_val_buffer;
         static cl::Buffer mass_sum_val_buffer;
         static cl::Buffer ie_sum_val_buffer;
         static cl::Buffer ke_sum_val_buffer;
         static cl::Buffer press_sum_val_buffer;
-
-        static cl::Buffer pre_mass_buffer;
-        static cl::Buffer post_mass_buffer;
-        static cl::Buffer advec_vol_buffer;
-        static cl::Buffer post_ener_buffer;
-        static cl::Buffer ener_flux_buffer;
 
         static cl::Buffer state_density_buffer;
         static cl::Buffer state_energy_buffer;
@@ -353,6 +330,14 @@ class CloverCL {
         static cl::Buffer cpu_ie_red_buffer;
         static cl::Buffer cpu_ke_red_buffer;
         static cl::Buffer cpu_press_red_buffer;
+
+        static cl::Buffer work_array1_buffer;
+        static cl::Buffer work_array2_buffer;
+        static cl::Buffer work_array3_buffer;
+        static cl::Buffer work_array4_buffer;
+        static cl::Buffer work_array5_buffer;
+        static cl::Buffer work_array6_buffer;
+        static cl::Buffer work_array7_buffer;
 
         static cl::Kernel ideal_gas_predict_knl;
         static cl::Kernel ideal_gas_NO_predict_knl;
