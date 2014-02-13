@@ -229,6 +229,10 @@ std::vector<cl::LocalSpaceArg> CloverCL::press_local_memory_objects;
 std::vector<cl::Event> CloverCL::global_events;
 cl::Event CloverCL::last_event;
 
+#if PROFILE_OCL_KERNELS
+    long idealgas_time;
+#endif
+
 
 void CloverCL::init(
         std::string platform_name,
@@ -2383,11 +2387,6 @@ void CloverCL::writeAllCommunicationBuffers(
 
 void CloverCL::enqueueKernel_nooffsets( cl::Kernel kernel, int num_x, int num_y)
 {
-#if PROFILE_OCL_KERNELS
-    long knl_start; 
-    long knl_end;
-#endif
-
     int x_rnd = (num_x / fixed_wg_min_size_large_dim ) * fixed_wg_min_size_large_dim;
 
     if ((x_rnd != num_x))
@@ -2416,6 +2415,7 @@ void CloverCL::enqueueKernel_nooffsets( cl::Kernel kernel, int num_x, int num_y)
 
 #if PROFILE_OCL_KERNELS
     cl_ulong knl_start, knl_end;
+    std::string kernel_name;
 
     kernel.getInfo(CL_KERNEL_FUNCTION_NAME, &kernel_name);
     last_event.wait();
@@ -2431,11 +2431,6 @@ void CloverCL::enqueueKernel_nooffsets( cl::Kernel kernel, int num_x, int num_y)
 
 void CloverCL::enqueueKernel( cl::Kernel kernel, int x_min, int x_max, int y_min, int y_max)
 {
-#if PROFILE_OCL_KERNELS
-    long knl_start; 
-    long knl_end;
-#endif
-
     int x_max_opt;
     int x_tot = (x_max - x_min) + 1;
 
@@ -2462,6 +2457,7 @@ void CloverCL::enqueueKernel( cl::Kernel kernel, int x_min, int x_max, int y_min
 
 #if PROFILE_OCL_KERNELS
     cl_ulong knl_start, knl_end;
+    std::string kernel_name;
 
     kernel.getInfo(CL_KERNEL_FUNCTION_NAME, &kernel_name);
     last_event.wait();
@@ -2477,11 +2473,6 @@ void CloverCL::enqueueKernel( cl::Kernel kernel, int x_min, int x_max, int y_min
 
 void CloverCL::enqueueKernel( cl::Kernel kernel, int min, int max)
 {
-#if PROFILE_OCL_KERNELS
-    long knl_start; 
-    long knl_end;
-#endif
-
     int tot = (max - min) + 1;
 
     int rnd = (tot / prefer_wg_multiple) * prefer_wg_multiple;
@@ -2507,6 +2498,7 @@ void CloverCL::enqueueKernel( cl::Kernel kernel, int min, int max)
 
 #if PROFILE_OCL_KERNELS
     cl_ulong knl_start, knl_end;
+    std::string kernel_name;
 
     kernel.getInfo(CL_KERNEL_FUNCTION_NAME, &kernel_name);
     last_event.wait();

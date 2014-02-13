@@ -200,13 +200,13 @@ void calc_dt_kernel_ocl_(
 
     cl_ulong reduction_time = 0;
 
-    for (int i=1; i<=CloverCL::number_of_red_levels; i++) {
-    
-       reduction_event_array[i-1].getProfilingInfo(CL_PROFILING_COMMAND_START, &knl_start);
-       reduction_event_array[i-1].getProfilingInfo(CL_PROFILING_COMMAND_END, &knl_end);
+    //for (int i=1; i<=CloverCL::number_of_red_levels; i++) {
+    //
+    //   reduction_event_array[i-1].getProfilingInfo(CL_PROFILING_COMMAND_START, &knl_start);
+    //   reduction_event_array[i-1].getProfilingInfo(CL_PROFILING_COMMAND_END, &knl_end);
 
-       reduction_time = reduction_time + (knl_end - knl_start);
-    }
+    //   reduction_time = reduction_time + (knl_end - knl_start);
+    //}
 
     std::cout << "[PROFILING]: dt_calc min reduction OpenCL kernel took " << reduction_time*CloverCL::NS_TO_SECONDS << " seconds" << std::endl;
 
