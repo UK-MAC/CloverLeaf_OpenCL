@@ -458,6 +458,39 @@ class CloverCL {
         static std::vector<cl::LocalSpaceArg> ke_local_memory_objects;
         static std::vector<cl::LocalSpaceArg> press_local_memory_objects;
 
+        static long accelerate_time;
+        static long advec_cell_time;
+        static long advec_mom_time;
+        static long calc_dt_time;
+        static long comms_buffers_time;
+        static long field_summ_time;
+        static long flux_calc_time;
+        static long generate_chunk_time;
+        static long ideal_gas_time;
+        static long initialise_chunk_time;
+        static long pdv_time;
+        static long reset_field_time;
+        static long revert_time;
+        static long udpate_halo_time;
+        static long viscosity_time;
+
+        static int accelerate_count;
+        static int advec_cell_count;
+        static int advec_mom_count;
+        static int calc_dt_count;
+        static int comms_buffers_count;
+        static int field_summ_count;
+        static int flux_calc_count;
+        static int generate_chunk_count;
+        static int ideal_gas_count;
+        static int initialise_chunk_count;
+        static int pdv_count;
+        static int reset_field_count;
+        static int revert_count;
+        static int udpate_halo_count;
+        static int viscosity_count;
+
+
     private:
         static std::vector<cl::Event> global_events;
 };

@@ -230,7 +230,37 @@ std::vector<cl::Event> CloverCL::global_events;
 cl::Event CloverCL::last_event;
 
 #if PROFILE_OCL_KERNELS
-    long idealgas_time;
+long CloverCL::accelerate_time;
+long CloverCL::advec_cell_time;
+long CloverCL::advec_mom_time;
+long CloverCL::calc_dt_time;
+long CloverCL::comms_buffers_time;
+long CloverCL::field_summ_time;
+long CloverCL::flux_calc_time;
+long CloverCL::generate_chunk_time;
+long CloverCL::ideal_gas_time;
+long CloverCL::initialise_chunk_time;
+long CloverCL::pdv_time;
+long CloverCL::reset_field_time;
+long CloverCL::revert_time;
+long CloverCL::udpate_halo_time;
+long CloverCL::viscosity_time;
+
+int CloverCL::accelerate_count;
+int CloverCL::advec_cell_count;
+int CloverCL::advec_mom_count;
+int CloverCL::calc_dt_count;
+int CloverCL::comms_buffers_count;
+int CloverCL::field_summ_count;
+int CloverCL::flux_calc_count;
+int CloverCL::generate_chunk_count;
+int CloverCL::ideal_gas_count;
+int CloverCL::initialise_chunk_count;
+int CloverCL::pdv_count;
+int CloverCL::reset_field_count;
+int CloverCL::revert_count;
+int CloverCL::udpate_halo_count;
+int CloverCL::viscosity_count;
 #endif
 
 
@@ -285,6 +315,40 @@ void CloverCL::init(
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     xmax_c = x_max;
     ymax_c = y_max; 
+
+#if PROFILE_OCL_KERNELS
+    accelerate_time = 0;
+    advec_cell_time = 0;
+    advec_mom_time = 0;
+    calc_dt_time = 0;
+    comms_buffers_time = 0;
+    field_summ_time = 0;
+    flux_calc_time = 0;
+    generate_chunk_time = 0;
+    ideal_gas_time = 0;
+    initialise_chunk_time = 0;
+    pdv_time = 0;
+    reset_field_time = 0;
+    revert_time = 0;
+    udpate_halo_time = 0;
+    viscosity_time = 0;
+    
+    accelerate_count = 0;
+    advec_cell_count = 0;
+    advec_mom_count = 0;
+    calc_dt_count = 0;
+    comms_buffers_count = 0;
+    field_summ_count = 0;
+    flux_calc_count = 0;
+    generate_chunk_count = 0;
+    ideal_gas_count = 0;
+    initialise_chunk_count = 0;
+    pdv_count = 0;
+    reset_field_count = 0;
+    revert_count = 0;
+    udpate_halo_count = 0;
+    viscosity_count = 0;
+#endif
 }
 
 
