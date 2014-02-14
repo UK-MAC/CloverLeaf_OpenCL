@@ -70,14 +70,11 @@ void update_halo_kernel_ocl_(
         int *fields,
         int *depth)
 {
-
     cl_int err;
 
     std::vector<cl::Event> events2;
 
 #if PROFILE_OCL_KERNELS
-    cl_ulong knl_start, knl_end;
-
     timeval t_start;
     gettimeofday(&t_start, NULL);
 #endif
