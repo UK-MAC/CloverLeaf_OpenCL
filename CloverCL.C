@@ -2762,6 +2762,7 @@ void CloverCL::dumpBinary() {
 
 void CloverCL::print_profile_stats() {
 
+#if PROFILE_OCL_KERNELS
     std::cout << "OpenCL [PROFILING] Information: " << std::endl;
     std::cout << "" << std::endl;
     
@@ -2814,4 +2815,5 @@ void CloverCL::print_profile_stats() {
               << " seconds (host time)" << std::endl;
     std::cout << "Viscosity kernel: "        << viscosity_time/viscosity_count*CloverCL::US_TO_SECONDS 
               << " seconds (host time)" << std::endl;
+#endif
 }
