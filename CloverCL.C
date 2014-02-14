@@ -1167,9 +1167,15 @@ void CloverCL::initCommandQueue()
 {
     cl_int err;
 
+#if PROFILE_OCL_KERNELS
     queue = cl::CommandQueue(context, device, CL_QUEUE_PROFILING_ENABLE, &err);
 
     outoforder_queue = cl::CommandQueue(context, device, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE|CL_QUEUE_PROFILING_ENABLE, &err);
+#else
+    queue = cl::CommandQueue(context, device, 0, &err);
+
+    outoforder_queue = cl::CommandQueue(context, device, CL_QUEUE_OUT_OF_ORDER_EXEC_MODE_ENABLE, &err);
+#endif
 }
 
 void CloverCL::createBuffers(int x_max, int y_max, int num_states)
