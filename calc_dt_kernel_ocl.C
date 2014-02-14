@@ -87,13 +87,13 @@ void calc_dt_kernel_ocl_(
 
     cl_int err;
 
-#if PROFILE_OCL_KERNELS
-    cl_ulong knl_start, knl_end;
+#ifdef OCL_VERBOSE
+    std::cout << "[CloverCL] -> in dt_calc_kernel_ocl.C..." << std::endl;
+#endif
 
+#if PROFILE_OCL_KERNELS
     timeval t_start;
     gettimeofday(&t_start, NULL);
-
-    std::cout << "[CloverCL] -> in dt_calc_kernel_ocl.C..." << std::endl;
 #endif
 
 

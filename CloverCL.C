@@ -2486,10 +2486,6 @@ void CloverCL::enqueueKernel_nooffsets( cl::Kernel kernel, int num_x, int num_y)
 
     last_event.getProfilingInfo(CL_PROFILING_COMMAND_START, &knl_start);
     last_event.getProfilingInfo(CL_PROFILING_COMMAND_END, &knl_end);
-
-    std::cout << "[PROFILING]: " << kernel_name << " OpenCL kernel took "
-        << (knl_end - knl_start)*CloverCL::NS_TO_SECONDS
-        << " seconds (device time)" << std::endl;
 #endif
 }
 
@@ -2528,10 +2524,6 @@ void CloverCL::enqueueKernel( cl::Kernel kernel, int x_min, int x_max, int y_min
 
     last_event.getProfilingInfo(CL_PROFILING_COMMAND_START, &knl_start);
     last_event.getProfilingInfo(CL_PROFILING_COMMAND_END, &knl_end);
-
-    std::cout << "[PROFILING]: " << kernel_name << " OpenCL kernel took "
-        << (knl_end - knl_start)*CloverCL::NS_TO_SECONDS
-        << " seconds (device time)" << std::endl;
 #endif
 }
 
@@ -2569,10 +2561,6 @@ void CloverCL::enqueueKernel( cl::Kernel kernel, int min, int max)
 
     last_event.getProfilingInfo(CL_PROFILING_COMMAND_START, &knl_start);
     last_event.getProfilingInfo(CL_PROFILING_COMMAND_END, &knl_end);
-
-    std::cout << "[PROFILING]: " << kernel_name << " OpenCL kernel took "
-        << (knl_end - knl_start)*CloverCL::NS_TO_SECONDS
-        << " seconds (device time)" << std::endl;
 #endif
 }
 
