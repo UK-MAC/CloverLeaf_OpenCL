@@ -94,6 +94,9 @@ SUBROUTINE hydro
         WRITE(g_out,*) 'First step overhead', first_step-second_step
         WRITE(    0,*) 'Wall clock ', wall_clock
         WRITE(    0,*) 'First step overhead', first_step-second_step
+
+        CALL print_ocl_profiling_stats()
+
       ENDIF
 
       CALL clover_finalize

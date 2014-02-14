@@ -269,6 +269,8 @@ class CloverCL {
 
         static void dumpBinary();
 
+        static void print_profile_stats();
+
         static cl::Buffer density0_buffer;
         static cl::Buffer density1_buffer;
         static cl::Buffer energy0_buffer;
@@ -474,21 +476,21 @@ class CloverCL {
         static long udpate_halo_time;
         static long viscosity_time;
 
-        static int accelerate_count;
-        static int advec_cell_count;
-        static int advec_mom_count;
-        static int calc_dt_count;
-        static int comms_buffers_count;
-        static int field_summ_count;
-        static int flux_calc_count;
-        static int generate_chunk_count;
-        static int ideal_gas_count;
-        static int initialise_chunk_count;
-        static int pdv_count;
-        static int reset_field_count;
-        static int revert_count;
-        static int udpate_halo_count;
-        static int viscosity_count;
+        static double accelerate_count;
+        static double advec_cell_count;
+        static double advec_mom_count;
+        static double calc_dt_count;
+        static double comms_buffers_count;
+        static double field_summ_count;
+        static double flux_calc_count;
+        static double generate_chunk_count;
+        static double ideal_gas_count;
+        static double initialise_chunk_count;
+        static double pdv_count;
+        static double reset_field_count;
+        static double revert_count;
+        static double udpate_halo_count;
+        static double viscosity_count;
 
 
     private:

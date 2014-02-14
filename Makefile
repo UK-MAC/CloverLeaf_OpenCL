@@ -198,6 +198,7 @@ clover_leaf: c_lover clover_ocl *.f90 Makefile
 	comms_buffers_kernel_ocl.o      \
 	ocl_read_buffers.o              \
 	timer_c.o                       \
+	ocl_profiling.o               \
 	CloverCL.o                      \
 	-o clover_leaf; echo $(MESSAGE)
 
@@ -225,6 +226,7 @@ clover_ocl: Makefile
 	setup_ocl.C                   \
 	comms_buffers_kernel_ocl.C    \
 	ocl_read_buffers.C            \
+	ocl_profiling.C               \
 	CloverCL.C; echo $(OCLMESSAGE)
 
 clean:
