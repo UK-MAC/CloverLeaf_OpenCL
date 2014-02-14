@@ -60,8 +60,6 @@ void field_summary_kernel_ocl_(
     std::vector<cl::Event> events2;
 
 #if PROFILE_OCL_KERNELS
-    cl_ulong knl_start, knl_end;
-
     timeval t_start;
     gettimeofday(&t_start, NULL);
 #endif
@@ -159,10 +157,6 @@ void field_summary_kernel_ocl_(
 
     CloverCL::field_summ_time += (t_end.tv_usec - t_start.tv_usec);
     CloverCL::field_summ_count++; 
-
-    std::cout << "[PROFILING]: field_summary OpenCL kernel took " 
-              << (t_end.tv_usec - t_start.tv_usec)*CloverCL::US_TO_SECONDS 
-              << " seconds (host time)" << std::endl;
 #endif
 
 }

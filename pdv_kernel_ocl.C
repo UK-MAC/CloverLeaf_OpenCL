@@ -68,7 +68,6 @@ extern "C" void pdv_kernel_ocl_(
 
 #if PROFILE_OCL_KERNELS
     timeval t_end;
-    cl_int err;
 
     CloverCL::queue.finish();
 
@@ -76,9 +75,5 @@ extern "C" void pdv_kernel_ocl_(
 
     CloverCL::pdv_time += (t_end.tv_usec - t_start.tv_usec);
     CloverCL::pdv_count++;
-
-    std::cout << "[PROFILING]: PdV OpenCL kernel took "
-        << (t_end.tv_usec - t_start.tv_usec)*CloverCL::US_TO_SECONDS
-        << " seconds (host time)" << std::endl;
 #endif
 }

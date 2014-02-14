@@ -203,22 +203,6 @@ void calc_dt_kernel_ocl_(
 
     CloverCL::calc_dt_time += (t_end.tv_usec - t_start.tv_usec);
     CloverCL::calc_dt_count++;
-
-
-    //cl_ulong reduction_time = 0;
-
-    //for (int i=1; i<=CloverCL::number_of_red_levels; i++) {
-    //
-    //   reduction_event_array[i-1].getProfilingInfo(CL_PROFILING_COMMAND_START, &knl_start);
-    //   reduction_event_array[i-1].getProfilingInfo(CL_PROFILING_COMMAND_END, &knl_end);
-
-    //   reduction_time = reduction_time + (knl_end - knl_start);
-    //}
-
-    //std::cout << "[PROFILING]: dt_calc min reduction OpenCL kernel took " << reduction_time*CloverCL::NS_TO_SECONDS << " seconds" << std::endl;
-
-    std::cout << "[PROFILING]: dt_calc OpenCL kernel took " << (t_end.tv_usec - t_start.tv_usec)*CloverCL::US_TO_SECONDS << " seconds (host time)" << std::endl;
-
 #endif
 
 #ifdef OCL_VERBOSE

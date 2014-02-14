@@ -198,10 +198,6 @@ void pack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right_n
 
     CloverCL::comms_buffers_time += (t_end.tv_usec - t_start.tv_usec);
     CloverCL::comms_buffers_count++; 
-
-    std::cout << "[PROFILING]: pack comms buffer left and right OpenCL kernel took "
-        << (t_end.tv_usec - t_start.tv_usec)*CloverCL::US_TO_SECONDS
-        << " seconds (host time)" << std::endl;
 #endif
 }
 
@@ -332,10 +328,6 @@ void unpack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right
 
     CloverCL::comms_buffers_time += (t_end.tv_usec - t_start.tv_usec);
     CloverCL::comms_buffers_count++; 
-
-    std::cout << "[PROFILING]: unpack comms buffer left and right OpenCL kernel took "
-        << (t_end.tv_usec - t_start.tv_usec)*CloverCL::US_TO_SECONDS
-        << " seconds (host time)" << std::endl;
 #endif
 }
 
@@ -467,10 +459,6 @@ void pack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom_n
 
     CloverCL::comms_buffers_time += (t_end.tv_usec - t_start.tv_usec);
     CloverCL::comms_buffers_count++; 
-
-    std::cout << "[PROFILING]: pack comms buffer left and right OpenCL kernel took "
-        << (t_end.tv_usec - t_start.tv_usec)*CloverCL::US_TO_SECONDS
-        << " seconds (host time)" << std::endl;
 #endif
 }
 
@@ -603,9 +591,5 @@ void unpack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom
 
     CloverCL::comms_buffers_time += (t_end.tv_usec - t_start.tv_usec);
     CloverCL::comms_buffers_count++; 
-
-    std::cout << "[PROFILING]: pack comms buffer left and right OpenCL kernel took "
-        << (t_end.tv_usec - t_start.tv_usec)*CloverCL::US_TO_SECONDS
-        << " seconds (host time)" << std::endl;
 #endif
 }

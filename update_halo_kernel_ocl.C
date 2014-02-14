@@ -1006,7 +1006,6 @@ void update_halo_kernel_ocl_(
 
 
     /* Generate profiling info */
-
 #if PROFILE_OCL_KERNELS
     timeval t_end;
 
@@ -1014,8 +1013,6 @@ void update_halo_kernel_ocl_(
 
     CloverCL::udpate_halo_time += (t_end.tv_usec - t_start.tv_usec);
     CloverCL::udpate_halo_count++;
-
-    std::cout << "[PROFILING]: update halo OpenCL kernel took " << (t_end.tv_usec - t_start.tv_usec)*CloverCL::US_TO_SECONDS << " seconds (host time)" << std::endl;
 #endif
 
 }
