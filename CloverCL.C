@@ -2786,7 +2786,7 @@ void CloverCL::print_profile_stats() {
               << " seconds (host time)" << std::endl;
     std::cout << "Calc dt kernel: "          << calc_dt_time/calc_dt_count*CloverCL::US_TO_SECONDS 
               << " seconds (host time)" << std::endl;
-    std::cout << "Comms kernel: "            << comms_buffers_time/comms_buffers_count*CloverCL::US_TO_SECONDS 
+    std::cout << "Comms kernel: "            << comms_buffers_time/std::max(1.0,comms_buffers_count)*CloverCL::US_TO_SECONDS 
               << " seconds (host time)" << std::endl;
     std::cout << "Field Summary kernel: "    << field_summ_time/field_summ_count*CloverCL::US_TO_SECONDS 
               << " seconds (host time)" << std::endl;
