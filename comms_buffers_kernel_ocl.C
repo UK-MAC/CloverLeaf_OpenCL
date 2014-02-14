@@ -196,7 +196,7 @@ void pack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right_n
 
     gettimeofday(&t_end, NULL);
 
-    CloverCL::comms_buffers_time += (t_end.tv_usec - t_start.tv_usec);
+    CloverCL::comms_buffers_time += (t_end.tv_sec * 1.0E6 + t_end.tv_usec) - (t_start.tv_sec * 1.0E6 + t_start.tv_usec);
     CloverCL::comms_buffers_count++; 
 #endif
 }
@@ -326,7 +326,7 @@ void unpack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right
 
     gettimeofday(&t_end, NULL);
 
-    CloverCL::comms_buffers_time += (t_end.tv_usec - t_start.tv_usec);
+    CloverCL::comms_buffers_time += (t_end.tv_sec * 1.0E6 + t_end.tv_usec) - (t_start.tv_sec * 1.0E6 + t_start.tv_usec);
     CloverCL::comms_buffers_count++; 
 #endif
 }
@@ -457,7 +457,7 @@ void pack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom_n
 
     gettimeofday(&t_end, NULL);
 
-    CloverCL::comms_buffers_time += (t_end.tv_usec - t_start.tv_usec);
+    CloverCL::comms_buffers_time += (t_end.tv_sec * 1.0E6 + t_end.tv_usec) - (t_start.tv_sec * 1.0E6 + t_start.tv_usec);
     CloverCL::comms_buffers_count++; 
 #endif
 }
@@ -589,7 +589,7 @@ void unpack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom
 
     gettimeofday(&t_end, NULL);
 
-    CloverCL::comms_buffers_time += (t_end.tv_usec - t_start.tv_usec);
+    CloverCL::comms_buffers_time += (t_end.tv_sec * 1.0E6 + t_end.tv_usec) - (t_start.tv_sec * 1.0E6 + t_start.tv_usec);
     CloverCL::comms_buffers_count++; 
 #endif
 }

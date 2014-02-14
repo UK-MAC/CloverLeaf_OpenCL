@@ -202,7 +202,7 @@ void generate_chunk_kernel_ocl_(
 
     gettimeofday(&t_end, NULL);
 
-    CloverCL::generate_chunk_time += (t_end.tv_usec - t_start.tv_usec);
+    CloverCL::generate_chunk_time += (t_end.tv_sec * 1.0E6 + t_end.tv_usec) - (t_start.tv_sec * 1.0E6 + t_start.tv_usec);
     CloverCL::generate_chunk_count++;
 #endif
 }
