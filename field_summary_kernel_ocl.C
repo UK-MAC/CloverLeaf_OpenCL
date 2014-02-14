@@ -154,12 +154,15 @@ void field_summary_kernel_ocl_(
 
 #if PROFILE_OCL_KERNELS
     timeval t_end;
+
     gettimeofday(&t_end, NULL);
+
+    CloverCL::field_summ_time += (t_end.tv_usec - t_start.tv_usec);
+    CloverCL::field_summ_count++; 
 
     std::cout << "[PROFILING]: field_summary OpenCL kernel took " 
               << (t_end.tv_usec - t_start.tv_usec)*CloverCL::US_TO_SECONDS 
               << " seconds (host time)" << std::endl;
-
 #endif
 
 }

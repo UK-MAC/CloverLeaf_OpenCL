@@ -1009,7 +1009,11 @@ void update_halo_kernel_ocl_(
 
 #if PROFILE_OCL_KERNELS
     timeval t_end;
+
     gettimeofday(&t_end, NULL);
+
+    CloverCL::udpate_halo_time += (t_end.tv_usec - t_start.tv_usec);
+    CloverCL::udpate_halo_count++;
 
     std::cout << "[PROFILING]: update halo OpenCL kernel took " << (t_end.tv_usec - t_start.tv_usec)*CloverCL::US_TO_SECONDS << " seconds (host time)" << std::endl;
 #endif
