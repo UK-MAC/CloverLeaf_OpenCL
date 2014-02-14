@@ -2482,17 +2482,6 @@ void CloverCL::enqueueKernel_nooffsets( cl::Kernel kernel, int num_x, int num_y)
                   << " wg_x: " << fixed_wg_min_size_large_dim << " wg_y: " << fixed_wg_min_size_small_dim << std::endl;
         reportError(err, kernel_name);
     }
-
-#if PROFILE_OCL_KERNELS
-    cl_ulong knl_start, knl_end;
-    std::string kernel_name;
-
-    kernel.getInfo(CL_KERNEL_FUNCTION_NAME, &kernel_name);
-    last_event.wait();
-
-    last_event.getProfilingInfo(CL_PROFILING_COMMAND_START, &knl_start);
-    last_event.getProfilingInfo(CL_PROFILING_COMMAND_END, &knl_end);
-#endif
 }
 
 void CloverCL::enqueueKernel( cl::Kernel kernel, int x_min, int x_max, int y_min, int y_max)
@@ -2520,17 +2509,6 @@ void CloverCL::enqueueKernel( cl::Kernel kernel, int x_min, int x_max, int y_min
                                           << " ymin: " << y_min << " ymax: " << y_max << std::endl;
         reportError(err, kernel_name);
     }
-
-#if PROFILE_OCL_KERNELS
-    cl_ulong knl_start, knl_end;
-    std::string kernel_name;
-
-    kernel.getInfo(CL_KERNEL_FUNCTION_NAME, &kernel_name);
-    last_event.wait();
-
-    last_event.getProfilingInfo(CL_PROFILING_COMMAND_START, &knl_start);
-    last_event.getProfilingInfo(CL_PROFILING_COMMAND_END, &knl_end);
-#endif
 }
 
 void CloverCL::enqueueKernel( cl::Kernel kernel, int min, int max)
@@ -2557,17 +2535,6 @@ void CloverCL::enqueueKernel( cl::Kernel kernel, int min, int max)
         kernel.getInfo(CL_KERNEL_FUNCTION_NAME, &kernel_name);
         reportError(err, kernel_name);
     }
-
-#if PROFILE_OCL_KERNELS
-    cl_ulong knl_start, knl_end;
-    std::string kernel_name;
-
-    kernel.getInfo(CL_KERNEL_FUNCTION_NAME, &kernel_name);
-    last_event.wait();
-
-    last_event.getProfilingInfo(CL_PROFILING_COMMAND_START, &knl_start);
-    last_event.getProfilingInfo(CL_PROFILING_COMMAND_END, &knl_end);
-#endif
 }
 
 
