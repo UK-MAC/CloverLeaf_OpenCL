@@ -2741,9 +2741,9 @@ void CloverCL::print_profile_stats() {
     std::cout << "Comms kernel           : " << comms_buffers_time*CloverCL::US_TO_SECONDS << " seconds (host time)" << std::endl;
     std::cout << "Field Summary kernel   : " << field_summ_time*CloverCL::US_TO_SECONDS << " seconds (host time)" << std::endl;
     std::cout << "Flux Calc kernel       : " << flux_calc_time*CloverCL::US_TO_SECONDS << " seconds (host time)" << std::endl;
-    std::cout << "Generate Chunk kernel  : " << generate_chunk_time*CloverCL::US_TO_SECONDS << " seconds (host time)" << std::endl;
+    //std::cout << "Generate Chunk kernel  : " << generate_chunk_time*CloverCL::US_TO_SECONDS << " seconds (host time)" << std::endl;
     std::cout << "Ideal Gas kernel       : " << ideal_gas_time*CloverCL::US_TO_SECONDS << " seconds (host time)" << std::endl;
-    std::cout << "Initialise Chunk kernel: " << initialise_chunk_time*CloverCL::US_TO_SECONDS << " seconds (host time)" << std::endl;
+    //std::cout << "Initialise Chunk kernel: " << initialise_chunk_time*CloverCL::US_TO_SECONDS << " seconds (host time)" << std::endl;
     std::cout << "PdV kernel             : " << pdv_time*CloverCL::US_TO_SECONDS << " seconds (host time)" << std::endl;
     std::cout << "Reset Field kernel     : " << reset_field_time*CloverCL::US_TO_SECONDS << " seconds (host time)" << std::endl;
     std::cout << "Revert kernel          : " << revert_time*CloverCL::US_TO_SECONDS << " seconds (host time)" << std::endl;
@@ -2752,35 +2752,70 @@ void CloverCL::print_profile_stats() {
 
     std::cout << "" << std::endl;
     std::cout << "[PROFILING] Average Kernel times: " << std::endl;
-    std::cout << "Accelerate kernel: "       << accelerate_time/accelerate_count*CloverCL::US_TO_SECONDS 
+    std::cout << "Accelerate kernel      : " << accelerate_time/accelerate_count*CloverCL::US_TO_SECONDS 
               << " seconds (host time)" << std::endl;
-    std::cout << "Advec Cell kernel: "       << advec_cell_time/advec_cell_count*CloverCL::US_TO_SECONDS 
+    std::cout << "Advec Cell kernel      : " << advec_cell_time/advec_cell_count*CloverCL::US_TO_SECONDS 
               << " seconds (host time)" << std::endl;
-    std::cout << "Advec Mom kernel: "        << advec_mom_time/advec_mom_count*CloverCL::US_TO_SECONDS 
+    std::cout << "Advec Mom kernel       : " << advec_mom_time/advec_mom_count*CloverCL::US_TO_SECONDS 
               << " seconds (host time)" << std::endl;
-    std::cout << "Calc dt kernel: "          << calc_dt_time/calc_dt_count*CloverCL::US_TO_SECONDS 
+    std::cout << "Calc dt kernel         : " << calc_dt_time/calc_dt_count*CloverCL::US_TO_SECONDS 
               << " seconds (host time)" << std::endl;
-    std::cout << "Comms kernel: "            << comms_buffers_time/std::max(1.0,comms_buffers_count)*CloverCL::US_TO_SECONDS 
+    std::cout << "Comms kernel           : " << comms_buffers_time/std::max(1.0,comms_buffers_count)*CloverCL::US_TO_SECONDS 
               << " seconds (host time)" << std::endl;
-    std::cout << "Field Summary kernel: "    << field_summ_time/field_summ_count*CloverCL::US_TO_SECONDS 
+    std::cout << "Field Summary kernel   : " << field_summ_time/field_summ_count*CloverCL::US_TO_SECONDS 
               << " seconds (host time)" << std::endl;
-    std::cout << "Flux Calc kernel: "        << flux_calc_time/flux_calc_count*CloverCL::US_TO_SECONDS 
+    std::cout << "Flux Calc kernel       : " << flux_calc_time/flux_calc_count*CloverCL::US_TO_SECONDS 
               << " seconds (host time)" << std::endl;
-    std::cout << "Generate Chunk kernel: "   << generate_chunk_time/generate_chunk_count*CloverCL::US_TO_SECONDS 
+    //std::cout << "Generate Chunk kernel  : " << generate_chunk_time/std::max(1.0,generate_chunk_count)*CloverCL::US_TO_SECONDS 
+    //          << " seconds (host time)" << std::endl;
+    std::cout << "Ideal Gas kernel       : " << ideal_gas_time/ideal_gas_count*CloverCL::US_TO_SECONDS 
               << " seconds (host time)" << std::endl;
-    std::cout << "Ideal Gas kernel: "        << ideal_gas_time/ideal_gas_count*CloverCL::US_TO_SECONDS 
+    //std::cout << "Initialise Chunk kernel: " << initialise_chunk_time/std::max(1.0,initialise_chunk_count)*CloverCL::US_TO_SECONDS 
+    //          << " seconds (host time)" << std::endl;
+    std::cout << "PdV kernel             : " << pdv_time/pdv_count*CloverCL::US_TO_SECONDS 
               << " seconds (host time)" << std::endl;
-    std::cout << "Initialise Chunk kernel: " << initialise_chunk_time/initialise_chunk_count*CloverCL::US_TO_SECONDS 
+    std::cout << "Reset Field kernel     : " << reset_field_time/reset_field_count*CloverCL::US_TO_SECONDS 
               << " seconds (host time)" << std::endl;
-    std::cout << "PdV kernel: "              << pdv_time/pdv_count*CloverCL::US_TO_SECONDS 
+    std::cout << "Revert kernel          : " << revert_time/revert_count*CloverCL::US_TO_SECONDS 
               << " seconds (host time)" << std::endl;
-    std::cout << "Reset Field kernel: "      << reset_field_time/reset_field_count*CloverCL::US_TO_SECONDS 
+    std::cout << "Update Halo kernel     : " << udpate_halo_time/udpate_halo_count*CloverCL::US_TO_SECONDS 
               << " seconds (host time)" << std::endl;
-    std::cout << "Revert kernel: "           << revert_time/revert_count*CloverCL::US_TO_SECONDS 
-              << " seconds (host time)" << std::endl;
-    std::cout << "Update Halo kernel: "      << udpate_halo_time/udpate_halo_count*CloverCL::US_TO_SECONDS 
-              << " seconds (host time)" << std::endl;
-    std::cout << "Viscosity kernel: "        << viscosity_time/viscosity_count*CloverCL::US_TO_SECONDS 
+    std::cout << "Viscosity kernel       : " << viscosity_time/viscosity_count*CloverCL::US_TO_SECONDS 
               << " seconds (host time)" << std::endl;
 #endif
+}
+
+void CloverCL::zero_profiling_timers()
+{
+    accelerate_time = 0;
+    advec_cell_time = 0;
+    advec_mom_time = 0;
+    calc_dt_time = 0;
+    comms_buffers_time = 0;
+    field_summ_time = 0;
+    flux_calc_time = 0;
+    generate_chunk_time = 0;
+    ideal_gas_time = 0;
+    initialise_chunk_time = 0;
+    pdv_time = 0;
+    reset_field_time = 0;
+    revert_time = 0;
+    udpate_halo_time = 0;
+    viscosity_time = 0;
+    
+    accelerate_count = 0;
+    advec_cell_count = 0;
+    advec_mom_count = 0;
+    calc_dt_count = 0;
+    comms_buffers_count = 0;
+    field_summ_count = 0;
+    flux_calc_count = 0;
+    generate_chunk_count = 0;
+    ideal_gas_count = 0;
+    initialise_chunk_count = 0;
+    pdv_count = 0;
+    reset_field_count = 0;
+    revert_count = 0;
+    udpate_halo_count = 0;
+    viscosity_count = 0;
 }

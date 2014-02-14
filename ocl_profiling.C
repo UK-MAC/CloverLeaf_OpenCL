@@ -25,10 +25,19 @@
 
 extern "C" void print_ocl_profiling_stats_();
 
+extern "C" void zero_ocl_profiling_timers_();
+
 void print_ocl_profiling_stats_()
 {
 #if PROFILE_OCL_KERNELS
     CloverCL::print_profile_stats();
+#endif
+}
+
+void zero_ocl_profiling_timers_()
+{
+#if PROFILE_OCL_KERNELS
+    CloverCL::zero_profiling_timers();
 #endif
 }
         

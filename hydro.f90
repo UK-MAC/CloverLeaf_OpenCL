@@ -39,6 +39,7 @@ SUBROUTINE hydro
   REAL(KIND=8)    :: step_time,step_grind
   REAL(KIND=8)    :: first_step,second_step
 
+  CALL zero_ocl_profiling_timers()
   timerstart = timer()
 
   DO

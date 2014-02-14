@@ -270,6 +270,7 @@ class CloverCL {
         static void dumpBinary();
 
         static void print_profile_stats();
+        static void zero_profiling_timers();
 
         static cl::Buffer density0_buffer;
         static cl::Buffer density1_buffer;
