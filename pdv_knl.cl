@@ -40,10 +40,9 @@ __kernel void pdv_correct_ocl_kernel(
         __global const double * restrict xvel0,
         __global const double * restrict xvel1,
         __global const double * restrict yvel0,
-        __global const double * restrict yvel1,
-        __global double * restrict volume_change)
+        __global const double * restrict yvel1)
 {
-  double recip_volume,energy_change,min_cell_volume,right_flux,left_flux,top_flux,bottom_flux,total_flux;
+  double recip_volume,energy_change,min_cell_volume,right_flux,left_flux,top_flux,bottom_flux,total_flux,volume_change;
 
   int j = get_global_id(0);
   int k = get_global_id(1);
@@ -76,23 +75,21 @@ __kernel void pdv_correct_ocl_kernel(
 
         total_flux=right_flux-left_flux+top_flux-bottom_flux;
 
-        volume_change[ARRAYXY(j  ,k  ,XMAXPLUSFIVE)]=volume[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]
-                                                         /(volume[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]+total_flux);
+        volume_change=volume[ARRAYXY(j,k,XMAXPLUSFOUR)]/(volume[ARRAYXY(j,k,XMAXPLUSFOUR)]+total_flux);
 
         min_cell_volume=fmin(volume[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]+right_flux-left_flux+top_flux-bottom_flux
-                           ,fmin(volume[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]+right_flux-left_flux
-                           ,volume[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]+top_flux-bottom_flux));
+                             ,fmin(volume[ARRAYXY(j,k,XMAXPLUSFOUR)]+right_flux-left_flux
+                                  ,volume[ARRAYXY(j,k,XMAXPLUSFOUR)]+top_flux-bottom_flux));
 
         recip_volume=1.0/volume[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)];
 
-        energy_change=(pressure[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]/density0[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]
-                     +viscosity[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]/density0[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)])
+        energy_change=(pressure[ARRAYXY(j,k,XMAXPLUSFOUR)]/density0[ARRAYXY(j,k,XMAXPLUSFOUR)]
+                     +viscosity[ARRAYXY(j,k,XMAXPLUSFOUR)]/density0[ARRAYXY(j,k,XMAXPLUSFOUR)])
                       *total_flux*recip_volume;
 
-        energy1[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]=energy0[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]-energy_change;
+        energy1[ARRAYXY(j,k,XMAXPLUSFOUR)]=energy0[ARRAYXY(j,k,XMAXPLUSFOUR)]-energy_change;
 
-        density1[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]=density0[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]
-                                                           *volume_change[ARRAYXY(j  ,k  ,XMAXPLUSFIVE)];
+        density1[ARRAYXY(j,k,XMAXPLUSFOUR)]=density0[ARRAYXY(j,k,XMAXPLUSFOUR)]*volume_change;
 
   }
 }
@@ -111,10 +108,9 @@ __kernel void pdv_predict_ocl_kernel(
         __global const double * restrict xvel0,
         __global const double * restrict xvel1,
         __global const double * restrict yvel0,
-        __global const double * restrict yvel1,
-        __global double * restrict volume_change)
+        __global const double * restrict yvel1)
 {
-  double recip_volume,energy_change,min_cell_volume,right_flux,left_flux,top_flux,bottom_flux,total_flux;
+  double recip_volume,energy_change,min_cell_volume,right_flux,left_flux,top_flux,bottom_flux,total_flux,volume_change;
 
   int j = get_global_id(0);
   int k = get_global_id(1);
@@ -147,24 +143,22 @@ __kernel void pdv_predict_ocl_kernel(
 
         total_flux=right_flux-left_flux+top_flux-bottom_flux;
 
-        volume_change[ARRAYXY(j  ,k  ,XMAXPLUSFIVE)]=volume[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]
-                                                         /(volume[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]+total_flux);
+        volume_change=volume[ARRAYXY(j,k,XMAXPLUSFOUR)]/(volume[ARRAYXY(j,k,XMAXPLUSFOUR)]+total_flux);
 
-        min_cell_volume=fmin(volume[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]+right_flux-left_flux+top_flux-bottom_flux
-                             ,fmin(volume[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]+right_flux-left_flux
-                                  ,volume[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]+top_flux-bottom_flux)
+        min_cell_volume=fmin(volume[ARRAYXY(j,k,XMAXPLUSFOUR)]+right_flux-left_flux+top_flux-bottom_flux
+                             ,fmin(volume[ARRAYXY(j,k,XMAXPLUSFOUR)]+right_flux-left_flux
+                                  ,volume[ARRAYXY(j,k,XMAXPLUSFOUR)]+top_flux-bottom_flux)
                             );
 
-        recip_volume=1.0/volume[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)];
+        recip_volume=1.0/volume[ARRAYXY(j,k,XMAXPLUSFOUR)];
 
-        energy_change=(pressure[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]/density0[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]
-                     +viscosity[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]/density0[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)])
+        energy_change=(pressure[ARRAYXY(j,k,XMAXPLUSFOUR)]/density0[ARRAYXY(j,k,XMAXPLUSFOUR)]
+                     +viscosity[ARRAYXY(j,k,XMAXPLUSFOUR)]/density0[ARRAYXY(j,k,XMAXPLUSFOUR)])
                       *total_flux*recip_volume;
 
-        energy1[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]=energy0[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]-energy_change;
+        energy1[ARRAYXY(j,k,XMAXPLUSFOUR)]=energy0[ARRAYXY(j,k,XMAXPLUSFOUR)]-energy_change;
 
-        density1[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]=density0[ARRAYXY(j  ,k  ,XMAXPLUSFOUR)]
-                                                           *volume_change[ARRAYXY(j  ,k  ,XMAXPLUSFIVE)];
+        density1[ARRAYXY(j,k,XMAXPLUSFOUR)]=density0[ARRAYXY(j,k,XMAXPLUSFOUR)]*volume_change;
 
   }
 }

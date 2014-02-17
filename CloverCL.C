@@ -1355,7 +1355,6 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         pdv_correct_knl.setArg(11, xvel1_buffer);
         pdv_correct_knl.setArg(12, yvel0_buffer);
         pdv_correct_knl.setArg(13, yvel1_buffer);
-        pdv_correct_knl.setArg(14, work_array1_buffer);
 
         pdv_predict_knl.setArg(1, xarea_buffer);
         pdv_predict_knl.setArg(2, yarea_buffer);
@@ -1370,7 +1369,6 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         pdv_predict_knl.setArg(11, xvel1_buffer);
         pdv_predict_knl.setArg(12, yvel0_buffer);
         pdv_predict_knl.setArg(13, yvel1_buffer);
-        pdv_predict_knl.setArg(14, work_array1_buffer);
 
         dt_calc_knl.setArg(0, g_small);
         dt_calc_knl.setArg(1, g_big);
