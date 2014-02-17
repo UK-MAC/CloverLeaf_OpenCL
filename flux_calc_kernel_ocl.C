@@ -23,29 +23,16 @@
 
 #include "CloverCL.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <fstream>
 #include <iostream>
-#include <string>
-#include <iterator>
-#include <cmath>
-
 #include <sys/time.h>
 
-extern "C" void flux_calc_kernel_ocl_(
-     int *xmin,
-     int *xmax,
-     int *ymin,
-     int *ymax,
-     double *dt_dum);
+extern "C" void flux_calc_kernel_ocl_(int *xmin, int *xmax,
+                                      int *ymin, int *ymax,
+                                      double *dt_dum);
 
-void flux_calc_kernel_ocl_(
-     int *xmin,
-     int *xmax,
-     int *ymin,
-     int *ymax,
-     double *dt_dum)
+void flux_calc_kernel_ocl_(int *xmin, int *xmax,
+                           int *ymin, int *ymax,
+                           double *dt_dum)
 {
 #if PROFILE_OCL_KERNELS
     timeval t_start;

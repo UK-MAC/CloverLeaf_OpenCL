@@ -23,37 +23,20 @@
 
 #include "CloverCL.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <fstream>
 #include <iostream>
-#include <string>
-#include <iterator>
-#include <cmath>
-
 #include <sys/time.h>
 
-extern "C" void field_summary_kernel_ocl_(
-        int *xmin,
-        int *xmax,
-        int *ymin,
-        int *ymax,
-        double *vol,
-        double *mass,
-        double *ie,
-        double *ke,
-        double *press);
+extern "C" void field_summary_kernel_ocl_(int *xmin, int *xmax,
+                                          int *ymin, int *ymax,
+                                          double *vol, double *mass,
+                                          double *ie, double *ke,
+                                          double *press);
 
-void field_summary_kernel_ocl_(
-        int *xmin,
-        int *xmax,
-        int *ymin,
-        int *ymax,
-        double *vol,
-        double *mass,
-        double *ie,
-        double *ke,
-        double *press)
+void field_summary_kernel_ocl_(int *xmin, int *xmax,
+                               int *ymin, int *ymax,
+                               double *vol, double *mass,
+                               double *ie, double *ke,
+                               double *press)
 {   
     cl_int err;
 

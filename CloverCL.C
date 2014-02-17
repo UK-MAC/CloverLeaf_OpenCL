@@ -22,12 +22,8 @@
 */
 
 #include "mpi.h"
-
 #include "CloverCL.h"
 
-#include <string>
-#include <utility>
-#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <algorithm>

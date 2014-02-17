@@ -23,31 +23,17 @@
 
 #include "CloverCL.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <iterator>
-#include <cmath>
-
 #include <sys/time.h>
 
-extern "C" void pdv_kernel_ocl_(
-        int *prdct,
-        int *xmin,
-        int *xmax,
-        int *ymin,
-        int *ymax,
-        double *dtbyt);
+extern "C" void pdv_kernel_ocl_(int *prdct, 
+                                int *xmin, int *xmax,
+                                int *ymin, int *ymax,
+                                double *dtbyt);
 
-extern "C" void pdv_kernel_ocl_(
-        int *prdct,
-        int *xmin,
-        int *xmax,
-        int *ymin,
-        int *ymax,
-        double *dtbyt)
+void pdv_kernel_ocl_(int *prdct,
+                     int *xmin, int *xmax,
+                     int *ymin, int *ymax,
+                     double *dtbyt)
 {
 #if PROFILE_OCL_KERNELS
     timeval t_start;

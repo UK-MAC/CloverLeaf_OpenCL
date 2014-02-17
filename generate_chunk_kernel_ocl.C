@@ -24,46 +24,27 @@
 #include "CloverCL.h"
 
 #include <iostream>
-
 #include <sys/time.h>
 
-extern "C" void generate_chunk_kernel_ocl_(
-        int *xmin,
-        int *xmax,
-        int *ymin,
-        int *ymax,
-        int *nm_stes,
-        double *state_density,
-        double *state_energy,
-        double *state_xvel,
-        double *state_yvel,
-        double *state_xmin,
-        double *state_xmax,
-        double *state_ymin,
-        double *state_ymax,
-        double *state_radius,
-        int *state_geometry,
-        int *g_rect,
-        int *g_circ);
+extern "C" void generate_chunk_kernel_ocl_(int *xmin, int *xmax,
+                                           int *ymin, int *ymax,
+                                           int *nm_stes,
+                                           double *state_density, double *state_energy,
+                                           double *state_xvel, double *state_yvel,
+                                           double *state_xmin, double *state_xmax,
+                                           double *state_ymin, double *state_ymax,
+                                           double *state_radius, int *state_geometry,
+                                           int *g_rect, int *g_circ);
 
-void generate_chunk_kernel_ocl_(
-        int *xmin,
-        int *xmax,
-        int *ymin,
-        int *ymax,
-        int *nm_stes,
-        double *state_density,
-        double *state_energy,
-        double *state_xvel,
-        double *state_yvel,
-        double *state_xmin,
-        double *state_xmax,
-        double *state_ymin,
-        double *state_ymax,
-        double *state_radius,
-        int *state_geometry,
-        int *g_rect,
-        int *g_circ)
+void generate_chunk_kernel_ocl_(int *xmin, int *xmax,
+                                int *ymin, int *ymax,
+                                int *nm_stes,
+                                double *state_density, double *state_energy,
+                                double *state_xvel, double *state_yvel,
+                                double *state_xmin, double *state_xmax,
+                                double *state_ymin, double *state_ymax,
+                                double *state_radius, int *state_geometry,
+                                int *g_rect, int *g_circ)
 {
 #if PROFILE_OCL_KERNELS
     timeval t_start;
@@ -86,95 +67,46 @@ void generate_chunk_kernel_ocl_(
     }
 
     try {
-        CloverCL::queue.enqueueWriteBuffer(
-                CloverCL::state_density_buffer,
-                CL_FALSE,
-                0,
-                *nm_stes*sizeof(double),
-                state_density,
-                NULL,
-                &event1);
+        CloverCL::queue.enqueueWriteBuffer(CloverCL::state_density_buffer,
+                                           CL_FALSE, 0, *nm_stes*sizeof(double),
+                                           state_density, NULL, &event1);
 
-        CloverCL::queue.enqueueWriteBuffer(
-                CloverCL::state_energy_buffer,
-                CL_FALSE,
-                0,
-                *nm_stes*sizeof(double),
-                state_energy,
-                NULL,
-                &event2);
+        CloverCL::queue.enqueueWriteBuffer(CloverCL::state_energy_buffer,
+                                           CL_FALSE, 0, *nm_stes*sizeof(double),
+                                           state_energy, NULL, &event2);
 
-        CloverCL::queue.enqueueWriteBuffer(
-                CloverCL::state_xvel_buffer,
-                CL_FALSE,
-                0,
-                *nm_stes*sizeof(double),
-                state_xvel,
-                NULL,
-                &event3);
+        CloverCL::queue.enqueueWriteBuffer(CloverCL::state_xvel_buffer,
+                                           CL_FALSE, 0, *nm_stes*sizeof(double),
+                                           state_xvel, NULL, &event3);
 
-        CloverCL::queue.enqueueWriteBuffer(
-                CloverCL::state_yvel_buffer,
-                CL_FALSE,
-                0,
-                *nm_stes*sizeof(double),
-                state_yvel,
-                NULL,
-                &event4);
+        CloverCL::queue.enqueueWriteBuffer(CloverCL::state_yvel_buffer,
+                                           CL_FALSE, 0, *nm_stes*sizeof(double),
+                                           state_yvel, NULL, &event4);
 
-        CloverCL::queue.enqueueWriteBuffer(
-                CloverCL::state_xmin_buffer,
-                CL_FALSE,
-                0,
-                *nm_stes*sizeof(double),
-                state_xmin,
-                NULL,
-                &event5);
+        CloverCL::queue.enqueueWriteBuffer(CloverCL::state_xmin_buffer,
+                                           CL_FALSE, 0, *nm_stes*sizeof(double),
+                                           state_xmin, NULL, &event5);
 
-        CloverCL::queue.enqueueWriteBuffer(
-                CloverCL::state_xmax_buffer,
-                CL_FALSE,
-                0,
-                *nm_stes*sizeof(double),
-                state_xmax,
-                NULL,
-                &event6);
+        CloverCL::queue.enqueueWriteBuffer(CloverCL::state_xmax_buffer,
+                                           CL_FALSE, 0, *nm_stes*sizeof(double),
+                                           state_xmax, NULL, &event6);
 
-        CloverCL::queue.enqueueWriteBuffer(
-                CloverCL::state_ymin_buffer,
-                CL_FALSE,
-                0,
-                *nm_stes*sizeof(double),
-                state_ymin,
-                NULL,
-                &event7);
+        CloverCL::queue.enqueueWriteBuffer(CloverCL::state_ymin_buffer,
+                                           CL_FALSE, 0, *nm_stes*sizeof(double),
+                                           state_ymin, NULL, &event7);
 
-        CloverCL::queue.enqueueWriteBuffer(
-                CloverCL::state_ymax_buffer,
-                CL_FALSE,
-                0,
-                *nm_stes*sizeof(double),
-                state_ymax,
-                NULL,
-                &event8);
+        CloverCL::queue.enqueueWriteBuffer(CloverCL::state_ymax_buffer,
+                                           CL_FALSE, 0, *nm_stes*sizeof(double),
+                                           state_ymax, NULL, &event8);
 
-        CloverCL::queue.enqueueWriteBuffer(
-                CloverCL::state_radius_buffer,
-                CL_FALSE,
-                0,
-                *nm_stes*sizeof(double),
-                state_radius,
-                NULL,
-                &event9);
+        CloverCL::queue.enqueueWriteBuffer(CloverCL::state_radius_buffer,
+                                           CL_FALSE, 0, *nm_stes*sizeof(double),
+                                           state_radius, NULL, &event9);
 
-        CloverCL::queue.enqueueWriteBuffer(
-                CloverCL::state_geometry_buffer,
-                CL_FALSE,
-                0,
-                *nm_stes*sizeof(int),
-                state_geometry,
-                NULL,
-                &event10);
+        CloverCL::queue.enqueueWriteBuffer(CloverCL::state_geometry_buffer,
+                                           CL_FALSE, 0, *nm_stes*sizeof(int),
+                                           state_geometry, NULL, &event10);
+
     } catch (cl::Error err) {
         CloverCL::reportError(err, "generate_chunk_knl filling buffers");
     }

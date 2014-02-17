@@ -23,27 +23,13 @@
 
 #include "CloverCL.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <iterator>
-#include <cmath>
-
 #include <sys/time.h>
 
-extern "C" void viscosity_kernel_ocl_(
-        int *xmin,
-        int *xmax,
-        int *ymin,
-        int *ymax);
+extern "C" void viscosity_kernel_ocl_(int *xmin, int *xmax,
+                                      int *ymin, int *ymax);
 
-void viscosity_kernel_ocl_(
-        int *xmin,
-        int *xmax,
-        int *ymin,
-        int *ymax)
+void viscosity_kernel_ocl_(int *xmin, int *xmax,
+                           int *ymin, int *ymax)
 {
 #if PROFILE_OCL_KERNELS
     timeval t_start;

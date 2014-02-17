@@ -25,37 +25,17 @@
 #include <iostream>
 #include <algorithm>
 
-extern "C" void setup_opencl_(
-        char* platform_name,
-        char* platform_type,
-        int* xmin,
-        int* xmax,
-        int* ymin,
-        int* ymax,
-        int* num_states,
-        double* g_small,
-        double* g_big,
-        double* dtmin,
-        double* dtc_safe,
-        double* dtu_safe,
-        double* dtv_safe,
-        double* dtdiv_safe);
+extern "C" void setup_opencl_(char* platform_name, char* platform_type,
+                              int* xmin, int* xmax, int* ymin, int* ymax,
+                              int* num_states, double* g_small, double* g_big,
+                              double* dtmin, double* dtc_safe, double* dtu_safe,
+                              double* dtv_safe, double* dtdiv_safe);
 
-void setup_opencl_(
-        char* platform_name,
-        char* platform_type,
-        int* xmin,
-        int* xmax,
-        int* ymin,
-        int* ymax,
-        int* num_states,
-        double* g_small,
-        double* g_big,
-        double* dtmin,
-        double* dtc_safe,
-        double* dtu_safe,
-        double* dtv_safe,
-        double* dtdiv_safe)
+void setup_opencl_(char* platform_name, char* platform_type,
+                   int* xmin, int* xmax, int* ymin, int* ymax,
+                   int* num_states, double* g_small, double* g_big,
+                   double* dtmin, double* dtc_safe, double* dtu_safe,
+                   double* dtv_safe, double* dtdiv_safe)
 {
 
     std::string platform = platform_name;

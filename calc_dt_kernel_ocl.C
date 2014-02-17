@@ -23,65 +23,37 @@
 
 #include "CloverCL.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <fstream>
 #include <iostream>
-#include <string>
-#include <iterator>
-#include <cmath>
-#include <limits>
-
 #include <sys/time.h>
 
 #define ARRAY1D(i_index,i_lb) ((i_index)-(i_lb))
 #define ARRAY2D(i_index,j_index,i_size,i_lb,j_lb) ((i_size)*(j_index-(j_lb))+(i_index)-(i_lb))
 
-extern "C" void calc_dt_kernel_ocl_(
-        int *xmin,
-        int *xmax,
-        int *ymin,
-        int *ymax,
-        double *dtmin,                 
-        //double *cellx,                               
-        //double *celly,                               
-        //double *density0,                            
-        //double *energy0,                             
-        //double *pressure,                            
-        //double *viscosity,                           
-        //double *soundspeed,                          
-        //double *xvel0,
-        //double *yvel0,                         
-        double *dt_min_val, 
-        int *dtl_control,
-        double *xl_pos,     
-        double *yl_pos,     
-        int *jldt,       
-        int *kldt,       
-        int *small);
+extern "C" void calc_dt_kernel_ocl_(int *xmin, int *xmax,
+                                    int *ymin, int *ymax,
+                                    double *dtmin,                 
+                                    //double *cellx, double *celly,                               
+                                    //double *density0, double *energy0,                             
+                                    //double *pressure, double *viscosity,                           
+                                    //double *soundspeed, double *xvel0,
+                                    //double *yvel0,                         
+                                    double *dt_min_val, int *dtl_control,
+                                    double *xl_pos, double *yl_pos,     
+                                    int *jldt, int *kldt,       
+                                    int *small);
 
-void calc_dt_kernel_ocl_(
-        int *xmin,
-        int *xmax,
-        int *ymin,
-        int *ymax,
-        double *dtmin,                 
-        //double *cellx,                               
-        //double *celly,                               
-        //double *density0,                            
-        //double *energy0,                             
-        //double *pressure,                            
-        //double *viscosity,                           
-        //double *soundspeed,                          
-        //double *xvel0,
-        //double *yvel0,                         
-        double *dt_min_val, 
-        int *dtl_control,
-        double *xl_pos,     
-        double *yl_pos,     
-        int *jldt,       
-        int *kldt,       
-        int *small)
+void calc_dt_kernel_ocl_(int *xmin, int *xmax,
+                                    int *ymin, int *ymax,
+                                    double *dtmin,                 
+                                    //double *cellx, double *celly,                               
+                                    //double *density0, double *energy0,                             
+                                    //double *pressure, double *viscosity,                           
+                                    //double *soundspeed, double *xvel0,
+                                    //double *yvel0,                         
+                                    double *dt_min_val, int *dtl_control,
+                                    double *xl_pos, double *yl_pos,     
+                                    int *jldt, int *kldt,       
+                                    int *small)
 {
     double jk_control=1.1;
 

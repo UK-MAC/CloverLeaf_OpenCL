@@ -23,36 +23,18 @@
 
 #include "CloverCL.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <iterator>
-#include <cmath>
-
 #include <sys/time.h>
 
-extern "C" void initialise_chunk_kernel_ocl_(
-        int *x_min,
-        int *x_max,
-        int *y_min,
-        int *y_max,
-        double *xmin,
-        double *ymin,
-        double *dx,
-        double *dy);
+extern "C" void initialise_chunk_kernel_ocl_(int *x_min, int *x_max,
+                                             int *y_min, int *y_max,
+                                             double *xmin, double *ymin,
+                                             double *dx, double *dy);
 
 
-void initialise_chunk_kernel_ocl_(
-        int *x_min,
-        int *x_max,
-        int *y_min,
-        int *y_max,
-        double *xmin,
-        double *ymin,
-        double *dx,
-        double *dy)
+void initialise_chunk_kernel_ocl_(int *x_min, int *x_max,
+                                  int *y_min, int *y_max,
+                                  double *xmin, double *ymin,
+                                  double *dx, double *dy)
 {
 #if PROFILE_OCL_KERNELS
     timeval t_start;

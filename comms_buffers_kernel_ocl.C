@@ -23,14 +23,7 @@
 
 #include "CloverCL.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <fstream>
 #include <iostream>
-#include <string>
-#include <iterator>
-#include <cmath>
-
 #include <sys/time.h>
 
 extern "C" void pack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right_neighbour,

@@ -23,35 +23,17 @@
 
 #include "CloverCL.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <iterator>
-#include <cmath>
-
 #include <sys/time.h>
 
-extern "C" void advec_mom_kernel_ocl_(
-        int *xmin,
-        int *xmax,
-        int *ymin,
-        int *ymax,
-        int *whch_vl,
-        int *swp_nmbr,
-        int *drctn,
-        int *vctr);
+extern "C" void advec_mom_kernel_ocl_(int *xmin, int *xmax,
+                                      int *ymin, int *ymax,
+                                      int *whch_vl, int *swp_nmbr,
+                                      int *drctn, int *vctr);
 
-void advec_mom_kernel_ocl_(
-        int *xmin,
-        int *xmax,
-        int *ymin,
-        int *ymax,
-        int *whch_vl,
-        int *swp_nmbr,
-        int *drctn,
-        int *vctr)
+void advec_mom_kernel_ocl_(int *xmin, int *xmax,
+                           int *ymin, int *ymax,
+                           int *whch_vl, int *swp_nmbr,
+                           int *drctn, int *vctr)
 {
 #if PROFILE_OCL_KERNELS
     timeval t_start;

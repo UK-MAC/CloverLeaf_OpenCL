@@ -24,51 +24,27 @@
 #include "CloverCL.h"
 #include "common_macs.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <iterator>
-#include <cmath>
-
 #include <sys/time.h>
 
 #define ARRAY1D(i_index,i_lb) ((i_index)-(i_lb))
 
-extern "C" void update_halo_kernel_ocl_(
-        int *xmin,
-        int *xmax,
-        int *ymin,
-        int *ymax,
-        int *left,
-        int *bottom,
-        int *right,
-        int *top,
-        int *leftboundary,
-        int *bottomboundary,
-        int *rightboundary,
-        int *topboundary,
-        int *chunk_neighbours,
-        int *fields,
-        int *depth);
+extern "C" void update_halo_kernel_ocl_(int *xmin, int *xmax,
+                                        int *ymin, int *ymax,
+                                        int *left, int *bottom,
+                                        int *right, int *top,
+                                        int *leftboundary, int *bottomboundary,
+                                        int *rightboundary, int *topboundary,
+                                        int *chunk_neighbours, int *fields,
+                                        int *depth);
 
-void update_halo_kernel_ocl_(
-        int *xmin,
-        int *xmax,
-        int *ymin,
-        int *ymax,
-        int *left,
-        int *bottom,
-        int *right,
-        int *top,
-        int *leftboundary,
-        int *bottomboundary,
-        int *rightboundary,
-        int *topboundary,
-        int *chunk_neighbours,
-        int *fields,
-        int *depth)
+void update_halo_kernel_ocl_(int *xmin, int *xmax,
+                             int *ymin, int *ymax,
+                             int *left, int *bottom,
+                             int *right, int *top,
+                             int *leftboundary, int *bottomboundary,
+                             int *rightboundary, int *topboundary,
+                             int *chunk_neighbours, int *fields,
+                             int *depth)
 {
     cl_int err;
 
