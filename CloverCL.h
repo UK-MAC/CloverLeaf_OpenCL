@@ -210,21 +210,11 @@ class CloverCL {
         static int xmax_c;
         static int ymax_c;
 
-        static void init(
-                std::string platform_name,
-                std::string platform_type,
-                int x_min,
-                int x_max,
-                int y_min,
-                int y_max,
-                int num_states,
-                double g_small,
-                double g_big,
-                double dtmin,
-                double dtc_safe,
-                double dtu_safe,
-                double dtv_safe,
-                double dtdiv_safe);
+        static void init(std::string platform_name, std::string platform_type,
+                         int x_min, int x_max, int y_min, int y_max,
+                         int num_states, double g_small, double g_big,
+                         double dtmin, double dtc_safe, double dtu_safe,
+                         double dtv_safe, double dtdiv_safe);
 
         static void determineWorkGroupSizeInfo();
         static void calculateKernelLaunchParams(int x_max, int y_max);
@@ -247,8 +237,7 @@ class CloverCL {
 
         static void initCommandQueue();
 
-        static void loadProgram(int xmin, int xmax,
-                                int ymin, int ymax);
+        static void loadProgram(int xmin, int xmax, int ymin, int ymax);
 
         static void createBuffers( int x_max, int y_max, int num_states);
 
@@ -256,79 +245,45 @@ class CloverCL {
 
         static void reportError( cl::Error err, std::string message);
 
-        static void readVisualisationBuffers(
-                int x_max,
-                int y_max,
-                double* vertexx,
-                double* vertexy,
-                double* density0,
-                double* energy0,
-                double* pressure,
-                double* viscosity,
-                double* xvel0,
-                double* yvel0);
+        static void readVisualisationBuffers(int x_max, int y_max,
+                                             double* vertexx, double* vertexy,
+                                             double* density0, double* energy0,
+                                             double* pressure, double* viscosity,
+                                             double* xvel0, double* yvel0);
 
-        static void readCommunicationBuffer(
-                int* xmin,
-                int* xmax,
-                int* ymin,
-                int* ymax,
-                int* depth,
-                int* xinc,
-                int* yinc,
-                int* field_name,
-                double* buffer,
-                int* which_edge);
+        static void readCommunicationBuffer(int* xmin, int* xmax,
+                                            int* ymin, int* ymax,
+                                            int* depth,
+                                            int* xinc, int* yinc,
+                                            int* field_name, double* buffer,
+                                            int* which_edge);
 
-        static void writeCommunicationBuffer(
-                int* xmin,
-                int* xmax,
-                int* ymin,
-                int* ymax,
-                int* depth,
-                int* xinc,
-                int* yinc,
-                int* field_name,
-                double* buffer,
-                int* which_edge);
+        static void writeCommunicationBuffer(int* xmin, int* xmax,
+                                             int* ymin, int* ymax,
+                                             int* depth,
+                                             int* xinc, int* yinc,
+                                             int* field_name, double* buffer,
+                                             int* which_edge);
 
-        static void readAllCommunicationBuffers(
-                int* x_max,
-                int* y_max,
-                double* denisty0,
-                double* density1,
-                double* energy0,
-                double* energy1,
-                double* pressure,
-                double* viscosity,
-                double* soundspeed,
-                double* xvel0,
-                double* xvel1,
-                double* yvel0,
-                double* yvel1,
-                double* vol_flux_x,
-                double* vol_flux_y,
-                double* mass_flux_x,
-                double* mass_flux_y);
+        static void readAllCommunicationBuffers(int* x_max, int* y_max,
+                                                double* denisty0, double* density1,
+                                                double* energy0, double* energy1,
+                                                double* pressure, double* viscosity,
+                                                double* soundspeed,
+                                                double* xvel0, double* xvel1,
+                                                double* yvel0, double* yvel1,
+                                                double* vol_flux_x, double* vol_flux_y,
+                                                double* mass_flux_x, double* mass_flux_y);
 
-        static void writeAllCommunicationBuffers(
-                int* x_max,
-                int* y_max,
-                double* denisty0,
-                double* density1,
-                double* energy0,
-                double* energy1,
-                double* pressure,
-                double* viscosity,
-                double* soundspeed,
-                double* xvel0,
-                double* xvel1,
-                double* yvel0,
-                double* yvel1,
-                double* vol_flux_x,
-                double* vol_flux_y,
-                double* mass_flux_x,
-                double* mass_flux_y);
+        static void writeAllCommunicationBuffers(int* x_max, int* y_max,
+                                                 double* denisty0, double* density1,
+                                                 double* energy0, double* energy1,
+                                                 double* pressure, double* viscosity,
+                                                 double* soundspeed,
+                                                 double* xvel0, double* xvel1,
+                                                 double* yvel0, double* yvel1,
+                                                 double* vol_flux_x, double* vol_flux_y,
+                                                 double* mass_flux_x, double* mass_flux_y);
 
         static void enqueueKernel_nooffsets_localwg(cl::Kernel kernel, int num_x, int num_y, int wg_x, int wg_y);
         static void enqueueKernel_nooffsets_recordevent_localwg(cl::Kernel kernel, int num_x, int num_y, int wg_x, int wg_y);
@@ -337,18 +292,9 @@ class CloverCL {
 
         static void enqueueKernel( cl::Kernel kernel, int min, int max);
 
-        static void initialiseKernelArgs(
-                int x_min,
-                int x_max,
-                int y_min,
-                int y_max,
-                double g_small,
-                double g_big,
-                double dtmin,
-                double dtc_safe,
-                double dtu_safe,
-                double dtv_safe,
-                double dtdiv_safe);
+        static void initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
+                                         double g_small, double g_big, double dtmin,
+                                         double dtc_safe, double dtu_safe, double dtv_safe, double dtdiv_safe);
 
         static std::string errToString(cl_int err);
 
