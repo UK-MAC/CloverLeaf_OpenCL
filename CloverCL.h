@@ -332,7 +332,6 @@ class CloverCL {
 
         static void enqueueKernel_nooffsets_localwg(cl::Kernel kernel, int num_x, int num_y, int wg_x, int wg_y);
         static void enqueueKernel_nooffsets_recordevent_localwg(cl::Kernel kernel, int num_x, int num_y, int wg_x, int wg_y);
-        //static void enqueueKernel_nooffsets( cl::Kernel kernel, int num_x, int num_y);
 
         static void enqueueKernel( cl::Kernel kernel, int x_min, int x_max, int y_min, int y_max);
 

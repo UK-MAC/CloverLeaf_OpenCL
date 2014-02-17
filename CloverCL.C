@@ -2501,34 +2501,6 @@ void CloverCL::writeAllCommunicationBuffers(
     }
 }
 
-//void CloverCL::enqueueKernel_nooffsets( cl::Kernel kernel, int num_x, int num_y)
-//{
-//    int x_rnd = (num_x / prefer_wg_multiple) * prefer_wg_multiple;
-//
-//    if ((x_rnd != num_x))
-//        x_rnd = x_rnd + prefer_wg_multiple;
-//
-//
-//    int y_rnd = num_y;
-//    //int y_rnd = ( num_y / fixed_wg_min_size_small_dim ) * fixed_wg_min_size_small_dim;
-//
-//    //if (y_rnd != num_y) {
-//    //    y_rnd = y_rnd + fixed_wg_min_size_small_dim; 
-//    //}
-//
-//    try {
-//
-//        queue.enqueueNDRangeKernel( kernel, cl::NullRange, cl::NDRange(x_rnd, y_rnd), 
-//                                    cl::NullRange, NULL, NULL); 
-//    } catch(cl::Error err) {
-//
-//        std::string kernel_name;
-//        kernel.getInfo(CL_KERNEL_FUNCTION_NAME, &kernel_name);
-//        std::cout << "launching kernel: " << kernel_name << "xnum: " << x_rnd << " ynum: " << num_y;
-//        reportError(err, kernel_name);
-//    }
-//}
-
 void CloverCL::enqueueKernel_nooffsets_localwg( cl::Kernel kernel, int num_x, int num_y, int wg_x, int wg_y)
 {
     int x_rnd = (num_x / wg_x) * wg_x;
