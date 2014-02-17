@@ -2787,6 +2787,7 @@ void CloverCL::print_profile_stats() {
 
 void CloverCL::zero_profiling_timers()
 {
+#if PROFILE_OCL_KERNELS
     accelerate_time = 0;
     advec_cell_time = 0;
     advec_mom_time = 0;
@@ -2818,4 +2819,5 @@ void CloverCL::zero_profiling_timers()
     revert_count = 0;
     udpate_halo_count = 0;
     viscosity_count = 0;
+#endif
 }
