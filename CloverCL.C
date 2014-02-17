@@ -1271,7 +1271,6 @@ void CloverCL::initialiseKernelArgs(int x_min, int x_max, int y_min, int y_max,
         accelerate_knl.setArg(8, yvel0_buffer);
         accelerate_knl.setArg(9, xvel1_buffer);
         accelerate_knl.setArg(10, yvel1_buffer);
-        accelerate_knl.setArg(11, work_array1_buffer);
 
         field_summary_knl.setArg(0, volume_buffer);
         field_summary_knl.setArg(1, density0_buffer);
