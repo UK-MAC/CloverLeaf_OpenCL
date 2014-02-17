@@ -83,7 +83,7 @@ void initialise_chunk_kernel_ocl_(int *x_min, int *x_max,
 
     CloverCL::enqueueKernel( CloverCL::initialise_chunk_cell_y_knl, *y_min, *y_max+4);
 
-    CloverCL::enqueueKernel_nooffsets( CloverCL::initialise_chunk_volume_area_knl, *x_max+4, *y_max+4);
+    CloverCL::enqueueKernel_nooffsets_localwg( CloverCL::initialise_chunk_volume_area_knl, *x_max+4, *y_max+4, 64, 2);
 
 #if PROFILE_OCL_KERNELS
     timeval t_end;

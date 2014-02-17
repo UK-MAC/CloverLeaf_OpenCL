@@ -51,7 +51,8 @@ void field_summary_kernel_ocl_(int *xmin, int *xmax,
     /*
      * Run the field summary kernel
      */
-    CloverCL::enqueueKernel_nooffsets_recordevent(CloverCL::field_summary_knl, *xmax+2, *ymax+2);
+    CloverCL::enqueueKernel_nooffsets_recordevent_localwg(CloverCL::field_summary_knl, *xmax+2, *ymax+2, 
+                                                          CloverCL::local_wg_x_calcdt_fieldsumm, CloverCL::local_wg_y_calcdt_fieldsumm);
 
 
     //Enqueue a wait for events to stop the reduction kernels execution before the 

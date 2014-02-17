@@ -40,12 +40,110 @@ class CloverCL {
         CloverCL(); 
         virtual ~CloverCL ();
 
-        static int const fixed_wg_min_size_large_dim   = WG_SIZE_X; // x value passed in by preprocessor 
-        static int const fixed_wg_min_size_small_dim   = WG_SIZE_Y; // y value passed in by preprocessor 
-        static int xmax_plusfour_rounded;
-        static int xmax_plusfive_rounded;
-        static int ymax_plusfour_rounded;
-        static int ymax_plusfive_rounded;
+        //static int const fixed_wg_min_size_large_dim   = WG_SIZE_X; // x value passed in by preprocessor 
+        //static int const fixed_wg_min_size_small_dim   = WG_SIZE_Y; // y value passed in by preprocessor 
+
+        static int const local_wg_x_idealgas = WG_SIZE_X_IDEALGAS;
+        static int const local_wg_y_idealgas = WG_SIZE_Y_IDEALGAS;
+
+        static int const local_wg_x_accelerate = WG_SIZE_X_ACCELERATE;
+        static int const local_wg_y_accelerate = WG_SIZE_Y_ACCELERATE;
+
+        static int const local_wg_x_viscosity = WG_SIZE_X_VISCOSITY;
+        static int const local_wg_y_viscosity = WG_SIZE_Y_VISCOSITY;
+
+        static int const local_wg_x_fluxcalc = WG_SIZE_X_FLUXCALC;
+        static int const local_wg_y_fluxcalc = WG_SIZE_Y_FLUXCALC;
+
+        static int const local_wg_x_reset = WG_SIZE_X_RESET;
+        static int const local_wg_y_reset = WG_SIZE_Y_RESET;
+
+        static int const local_wg_x_revert = WG_SIZE_X_REVERT;
+        static int const local_wg_y_revert = WG_SIZE_Y_REVERT;
+
+        static int const local_wg_x_pdv = WG_SIZE_X_PDV;
+        static int const local_wg_y_pdv = WG_SIZE_Y_PDV;
+
+        static int const local_wg_x_adveccell_xdir_sec1s1 = WG_SIZE_X_ADVECCELL_XDIR_SEC1S1;
+        static int const local_wg_y_adveccell_xdir_sec1s1 = WG_SIZE_Y_ADVECCELL_XDIR_SEC1S1;
+
+        static int const local_wg_x_adveccell_xdir_sec1s2 = WG_SIZE_X_ADVECCELL_XDIR_SEC1S2;
+        static int const local_wg_y_adveccell_xdir_sec1s2 = WG_SIZE_Y_ADVECCELL_XDIR_SEC1S2;
+
+        static int const local_wg_x_adveccell_xdir_sec2 = WG_SIZE_X_ADVECCELL_XDIR_SEC2;
+        static int const local_wg_y_adveccell_xdir_sec2 = WG_SIZE_Y_ADVECCELL_XDIR_SEC2;
+
+        static int const local_wg_x_adveccell_xdir_sec3 = WG_SIZE_X_ADVECCELL_XDIR_SEC3;
+        static int const local_wg_y_adveccell_xdir_sec3 = WG_SIZE_Y_ADVECCELL_XDIR_SEC3;
+
+        static int const local_wg_x_adveccell_ydir_sec1s1 = WG_SIZE_X_ADVECCELL_YDIR_SEC1S1;
+        static int const local_wg_y_adveccell_ydir_sec1s1 = WG_SIZE_Y_ADVECCELL_YDIR_SEC1S1;
+
+        static int const local_wg_x_adveccell_ydir_sec1s2 = WG_SIZE_X_ADVECCELL_YDIR_SEC1S2;
+        static int const local_wg_y_adveccell_ydir_sec1s2 = WG_SIZE_Y_ADVECCELL_YDIR_SEC1S2;
+
+        static int const local_wg_x_adveccell_ydir_sec2 = WG_SIZE_X_ADVECCELL_YDIR_SEC2;
+        static int const local_wg_y_adveccell_ydir_sec2 = WG_SIZE_Y_ADVECCELL_YDIR_SEC2;
+
+        static int const local_wg_x_adveccell_ydir_sec3 = WG_SIZE_X_ADVECCELL_YDIR_SEC3;
+        static int const local_wg_y_adveccell_ydir_sec3 = WG_SIZE_Y_ADVECCELL_YDIR_SEC3;
+
+
+        static int const local_wg_x_advecmom_vol = WG_SIZE_X_ADVECMOM_VOL;
+        static int const local_wg_y_advecmom_vol = WG_SIZE_Y_ADVECMOM_VOL;
+
+        static int const local_wg_x_advecmom_node_x = WG_SIZE_X_ADVECMOM_NODE_X;
+        static int const local_wg_y_advecmom_node_x = WG_SIZE_Y_ADVECMOM_NODE_X;
+
+        static int const local_wg_x_advecmom_node_mass_pre_x = WG_SIZE_X_ADVECMOM_NODE_MASS_PRE_X;
+        static int const local_wg_y_advecmom_node_mass_pre_x = WG_SIZE_Y_ADVECMOM_NODE_MASS_PRE_X;
+
+        static int const local_wg_x_advecmom_flux_vec1_x = WG_SIZE_X_ADVECMOM_FLUX_VEC1_X;
+        static int const local_wg_y_advecmom_flux_vec1_x = WG_SIZE_Y_ADVECMOM_FLUX_VEC1_X;
+
+        static int const local_wg_x_advecmom_flux_notvec1_x = WG_SIZE_X_ADVECMOM_FLUX_NOTVEC1_X;
+        static int const local_wg_y_advecmom_flux_notvec1_x = WG_SIZE_Y_ADVECMOM_FLUX_NOTVEC1_X;
+
+        static int const local_wg_x_advecmom_vel_x = WG_SIZE_X_ADVECMOM_VEL_X;
+        static int const local_wg_y_advecmom_vel_x = WG_SIZE_Y_ADVECMOM_VEL_X;
+
+
+        static int const local_wg_x_advecmom_node_y = WG_SIZE_X_ADVECMOM_NODE_Y;
+        static int const local_wg_y_advecmom_node_y = WG_SIZE_Y_ADVECMOM_NODE_Y;
+
+        static int const local_wg_x_advecmom_node_mass_pre_y = WG_SIZE_X_ADVECMOM_NODE_MASS_PRE_Y;
+        static int const local_wg_y_advecmom_node_mass_pre_y = WG_SIZE_Y_ADVECMOM_NODE_MASS_PRE_Y;
+
+        static int const local_wg_x_advecmom_flux_vec1_y = WG_SIZE_X_ADVECMOM_FLUX_VEC1_Y;
+        static int const local_wg_y_advecmom_flux_vec1_y = WG_SIZE_Y_ADVECMOM_FLUX_VEC1_Y;
+
+        static int const local_wg_x_advecmom_flux_notvec1_y = WG_SIZE_X_ADVECMOM_FLUX_NOTVEC1_Y;
+        static int const local_wg_y_advecmom_flux_notvec1_y = WG_SIZE_Y_ADVECMOM_FLUX_NOTVEC1_Y;
+
+        static int const local_wg_x_advecmom_vel_y = WG_SIZE_X_ADVECMOM_VEL_Y;
+        static int const local_wg_y_advecmom_vel_y = WG_SIZE_Y_ADVECMOM_VEL_Y;
+
+        static int const local_wg_largedim_updatehalo = WG_SIZE_LARGEDIM_UPDATEHALO;
+        static int const local_wg_smalldim_updatehalo = WG_SIZE_SMALLDIM_UPDATEHALO;
+
+        static int const local_wg_largedim_comms = WG_SIZE_LARGEDIM_COMMS;
+        static int const local_wg_smalldim_comms = WG_SIZE_SMALLDIM_COMMS;
+
+        static int const local_wg_x_calcdt_fieldsumm = WG_SIZE_X_CALCDT_FIELDSUMM;
+        static int const local_wg_y_calcdt_fieldsumm = WG_SIZE_Y_CALCDT_FIELDSUMM;
+
+        static int const local_wg_x_reduction = WG_SIZE_X_REDUCTION;
+
+
+        static int xmax_plusfour_rounded_updatehalo;
+        static int xmax_plusfive_rounded_updatehalo;
+        static int ymax_plusfour_rounded_updatehalo;
+        static int ymax_plusfive_rounded_updatehalo;
+
+        static int xmax_plusfour_rounded_comms;
+        static int xmax_plusfive_rounded_comms;
+        static int ymax_plusfour_rounded_comms;
+        static int ymax_plusfive_rounded_comms;
 
         static bool initialised;
 
@@ -232,8 +330,9 @@ class CloverCL {
                 double* mass_flux_x,
                 double* mass_flux_y);
 
-        static void enqueueKernel_nooffsets(cl::Kernel kernel, int num_x, int num_y);
-        static void enqueueKernel_nooffsets_recordevent(cl::Kernel kernel, int num_x, int num_y);
+        static void enqueueKernel_nooffsets_localwg(cl::Kernel kernel, int num_x, int num_y, int wg_x, int wg_y);
+        static void enqueueKernel_nooffsets_recordevent_localwg(cl::Kernel kernel, int num_x, int num_y, int wg_x, int wg_y);
+        //static void enqueueKernel_nooffsets( cl::Kernel kernel, int num_x, int num_y);
 
         static void enqueueKernel( cl::Kernel kernel, int x_min, int x_max, int y_min, int y_max);
 

@@ -57,7 +57,7 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
 
     int uh_knl_launch_small_dim; 
     if (*depth == 2) {
-        uh_knl_launch_small_dim = UH_SMALL_DIM_DEPTHTWO;
+        uh_knl_launch_small_dim = CloverCL::local_wg_smalldim_updatehalo;
     }
     else {
         uh_knl_launch_small_dim = 1;
@@ -76,8 +76,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_bottom_cell_knl.setArg(1, CloverCL::density0_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_bottom_cell_knl,
-                                         CloverCL::xmax_plusfour_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfour_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
 
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo density0 running bottom knl");
@@ -90,8 +90,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_top_cell_knl.setArg(1, CloverCL::density0_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_top_cell_knl,
-                                         CloverCL::xmax_plusfour_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfour_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo density0 running top knl");
             }
@@ -106,8 +106,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_bottom_cell_knl.setArg(1, CloverCL::density1_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_bottom_cell_knl,
-                                         CloverCL::xmax_plusfour_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfour_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo density1 running bottom knl");
             }
@@ -119,8 +119,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_top_cell_knl.setArg(1, CloverCL::density1_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_top_cell_knl,
-                                         CloverCL::xmax_plusfour_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfour_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo density1 running top knl");
             }
@@ -136,8 +136,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_bottom_cell_knl.setArg(1, CloverCL::energy0_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_bottom_cell_knl,
-                                         CloverCL::xmax_plusfour_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfour_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo energy0 running bottom knl");
             }
@@ -149,8 +149,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_top_cell_knl.setArg(1, CloverCL::energy0_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_top_cell_knl,
-                                         CloverCL::xmax_plusfour_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfour_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo energy0 running top knl");
             }
@@ -166,8 +166,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_bottom_cell_knl.setArg(1, CloverCL::energy1_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_bottom_cell_knl,
-                                         CloverCL::xmax_plusfour_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfour_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo energy1 running bottom knl");
             }
@@ -179,8 +179,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_top_cell_knl.setArg(1, CloverCL::energy1_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_top_cell_knl,
-                                         CloverCL::xmax_plusfour_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfour_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo energy1 running top knl");
             }
@@ -196,8 +196,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_bottom_cell_knl.setArg(1, CloverCL::pressure_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_bottom_cell_knl,
-                                         CloverCL::xmax_plusfour_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfour_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo pressure running bottom knl");
             }
@@ -209,8 +209,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_top_cell_knl.setArg(1, CloverCL::pressure_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_top_cell_knl,
-                                         CloverCL::xmax_plusfour_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfour_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo pressure running top knl");
             }
@@ -225,8 +225,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_bottom_cell_knl.setArg(1, CloverCL::viscosity_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_bottom_cell_knl,
-                                         CloverCL::xmax_plusfour_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfour_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo viscosity running bottom knl");
             }
@@ -238,8 +238,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_top_cell_knl.setArg(1, CloverCL::viscosity_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_top_cell_knl,
-                                         CloverCL::xmax_plusfour_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfour_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo viscosity running top knl");
             }
@@ -254,8 +254,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_bottom_cell_knl.setArg(1, CloverCL::soundspeed_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_bottom_cell_knl,
-                                         CloverCL::xmax_plusfour_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfour_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo soundspeed running bottom knl");
             }
@@ -267,8 +267,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_top_cell_knl.setArg(1, CloverCL::soundspeed_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_top_cell_knl,
-                                         CloverCL::xmax_plusfour_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfour_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo soundspeed running top knl");
             }
@@ -284,8 +284,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_bottom_vel_knl.setArg(2, 1);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_bottom_vel_knl,
-                                         CloverCL::xmax_plusfive_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfive_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo xvel0 running bottom knl");
             }
@@ -298,8 +298,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_top_vel_knl.setArg(2, 1);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_top_vel_knl,
-                                         CloverCL::xmax_plusfive_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfive_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo xvel0 running top knl");
             }
@@ -315,8 +315,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_bottom_vel_knl.setArg(2, 1);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_bottom_vel_knl,
-                                         CloverCL::xmax_plusfive_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfive_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo ? running bottom knl");
             }
@@ -329,8 +329,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_top_vel_knl.setArg(2, 1);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_top_vel_knl,
-                                         CloverCL::xmax_plusfive_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfive_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo ? running top knl");
             }
@@ -346,8 +346,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_bottom_vel_knl.setArg(2, -1);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_bottom_vel_knl,
-                                         CloverCL::xmax_plusfive_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfive_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo yvel0 running bottom knl");
             }
@@ -360,8 +360,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_top_vel_knl.setArg(2, -1);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_top_vel_knl,
-                                         CloverCL::xmax_plusfive_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfive_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo yvel0 running top knl");
             }
@@ -377,8 +377,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_bottom_vel_knl.setArg(2, -1);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_bottom_vel_knl,
-                                         CloverCL::xmax_plusfive_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfive_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo yvel1 running bottom knl");
             }
@@ -391,8 +391,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_top_vel_knl.setArg(2, -1);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_top_vel_knl,
-                                         CloverCL::xmax_plusfive_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfive_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo yvel1 running top knl");
             }
@@ -407,8 +407,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_bottom_flux_x_knl.setArg(1, CloverCL::vol_flux_x_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_bottom_flux_x_knl,
-                                         CloverCL::xmax_plusfive_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfive_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo vol_flux_x running bottom knl");
             }
@@ -420,8 +420,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_top_flux_x_knl.setArg(1, CloverCL::vol_flux_x_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_top_flux_x_knl,
-                                         CloverCL::xmax_plusfive_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfive_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo vol_flux_x running top knl");
             }
@@ -436,8 +436,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_bottom_flux_y_knl.setArg(1, CloverCL::vol_flux_y_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_bottom_flux_y_knl,
-                                         CloverCL::xmax_plusfour_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfour_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo vol_flux_y running bottom knl");
             }
@@ -449,8 +449,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_top_flux_y_knl.setArg(1, CloverCL::vol_flux_y_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_top_flux_y_knl,
-                                         CloverCL::xmax_plusfour_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfour_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo vol_flux_y running top knl");
             }
@@ -465,8 +465,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_bottom_flux_x_knl.setArg(1, CloverCL::mass_flux_x_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_bottom_flux_x_knl,
-                                         CloverCL::xmax_plusfive_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfive_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo mass_flux_x running bottom knl");
             }
@@ -478,8 +478,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_top_flux_x_knl.setArg(1, CloverCL::mass_flux_x_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_top_flux_x_knl,
-                                         CloverCL::xmax_plusfive_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfive_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo mass_flux_x running top knl");
             }
@@ -494,8 +494,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_bottom_flux_y_knl.setArg(1, CloverCL::mass_flux_y_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_bottom_flux_y_knl,
-                                         CloverCL::xmax_plusfour_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfour_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo mass_flux_y running bottom knl");
             }
@@ -507,8 +507,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_top_flux_y_knl.setArg(1, CloverCL::mass_flux_y_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_top_flux_y_knl,
-                                         CloverCL::xmax_plusfour_rounded,*depth,
-                                         CloverCL::fixed_wg_min_size_large_dim,uh_knl_launch_small_dim);
+                                         CloverCL::xmax_plusfour_rounded_updatehalo,*depth,
+                                         CloverCL::local_wg_largedim_updatehalo,uh_knl_launch_small_dim);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo mass_flux_y running top knl");
             }
@@ -530,8 +530,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_left_cell_knl.setArg(1, CloverCL::density0_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_left_cell_knl,
-                                         *depth,CloverCL::ymax_plusfour_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfour_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo density0 running left knl");
             }
@@ -543,8 +543,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_right_cell_knl.setArg(1, CloverCL::density0_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_right_cell_knl,
-                                         *depth,CloverCL::ymax_plusfour_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfour_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo density0 running right knl");
             }
@@ -560,8 +560,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_left_cell_knl.setArg(1, CloverCL::density1_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_left_cell_knl,
-                                         *depth,CloverCL::ymax_plusfour_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfour_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo density1 running left knl");
             }
@@ -573,8 +573,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_right_cell_knl.setArg(1, CloverCL::density1_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_right_cell_knl,
-                                         *depth,CloverCL::ymax_plusfour_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfour_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo density1 running right knl");
             }
@@ -590,8 +590,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_left_cell_knl.setArg(1, CloverCL::energy0_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_left_cell_knl,
-                                         *depth,CloverCL::ymax_plusfour_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfour_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo energy0 running left knl");
             }
@@ -603,8 +603,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_right_cell_knl.setArg(1, CloverCL::energy0_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_right_cell_knl,
-                                         *depth,CloverCL::ymax_plusfour_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfour_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo energy0 running right knl");
             }
@@ -620,8 +620,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_left_cell_knl.setArg(1, CloverCL::energy1_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_left_cell_knl,
-                                         *depth,CloverCL::ymax_plusfour_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfour_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo energy1 running left knl");
             }
@@ -633,8 +633,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_right_cell_knl.setArg(1, CloverCL::energy1_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_right_cell_knl,
-                                         *depth,CloverCL::ymax_plusfour_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfour_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo energy1 running right knl");
             }
@@ -650,8 +650,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_left_cell_knl.setArg(1, CloverCL::pressure_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_left_cell_knl,
-                                         *depth,CloverCL::ymax_plusfour_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfour_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo pressure running left knl");
             }
@@ -663,8 +663,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_right_cell_knl.setArg(1, CloverCL::pressure_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_right_cell_knl,
-                                         *depth,CloverCL::ymax_plusfour_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfour_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo pressure running right knl");
             }
@@ -679,8 +679,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_left_cell_knl.setArg(1, CloverCL::viscosity_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_left_cell_knl,
-                                         *depth,CloverCL::ymax_plusfour_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfour_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo viscosity running left knl");
             }
@@ -692,8 +692,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_right_cell_knl.setArg(1, CloverCL::viscosity_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_right_cell_knl,
-                                         *depth,CloverCL::ymax_plusfour_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfour_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo viscosity running right knl");
             }
@@ -708,8 +708,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_left_cell_knl.setArg(1, CloverCL::soundspeed_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_left_cell_knl,
-                                         *depth,CloverCL::ymax_plusfour_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfour_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo soundspeed running left knl");
             }
@@ -721,8 +721,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_right_cell_knl.setArg(1, CloverCL::soundspeed_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_right_cell_knl,
-                                         *depth,CloverCL::ymax_plusfour_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfour_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo soundspeed running right knl");
             }
@@ -738,8 +738,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_left_vel_knl.setArg(2, -1);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_left_vel_knl,
-                                         *depth,CloverCL::ymax_plusfive_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfive_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo xvel0 running left knl");
             }
@@ -752,8 +752,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_right_vel_knl.setArg(2, -1);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_right_vel_knl,
-                                         *depth,CloverCL::ymax_plusfive_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfive_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo xvel0 running right knl");
             }
@@ -769,8 +769,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_left_vel_knl.setArg(2, -1);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_left_vel_knl,
-                                         *depth,CloverCL::ymax_plusfive_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfive_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo ? running left knl");
             }
@@ -783,8 +783,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_right_vel_knl.setArg(2, -1);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_right_vel_knl,
-                                         *depth,CloverCL::ymax_plusfive_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfive_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo ? running right knl");
             }
@@ -800,8 +800,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_left_vel_knl.setArg(2, 1);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_left_vel_knl,
-                                         *depth,CloverCL::ymax_plusfive_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfive_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo yvel0 running left knl");
             }
@@ -814,8 +814,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_right_vel_knl.setArg(2, 1);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_right_vel_knl,
-                                         *depth,CloverCL::ymax_plusfive_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfive_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo yvel0 running right knl");
             }
@@ -831,8 +831,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_left_vel_knl.setArg(2, 1);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_left_vel_knl,
-                                         *depth,CloverCL::ymax_plusfive_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfive_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
 
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo yvel1 running left knl");
@@ -846,8 +846,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_right_vel_knl.setArg(2, 1);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_right_vel_knl,
-                                         *depth,CloverCL::ymax_plusfive_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfive_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo yvel1 running right knl");
             }
@@ -862,8 +862,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_left_flux_x_knl.setArg(1, CloverCL::vol_flux_x_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_left_flux_x_knl,
-                                         *depth,CloverCL::ymax_plusfour_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfour_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo vol_flux_x running left knl");
             }
@@ -875,8 +875,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_right_flux_x_knl.setArg(1, CloverCL::vol_flux_x_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_right_flux_x_knl,
-                                         *depth,CloverCL::ymax_plusfour_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfour_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo vol_flux_x running right knl");
             }
@@ -891,8 +891,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_left_flux_y_knl.setArg(1, CloverCL::vol_flux_y_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_left_flux_y_knl,
-                                         *depth,CloverCL::ymax_plusfive_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfive_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo vol_flux_y running left knl");
             }
@@ -904,8 +904,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_right_flux_y_knl.setArg(1, CloverCL::vol_flux_y_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_right_flux_y_knl,
-                                         *depth,CloverCL::ymax_plusfive_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfive_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo vol_flux_y running right knl");
             }
@@ -920,8 +920,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_left_flux_x_knl.setArg(1, CloverCL::mass_flux_x_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_left_flux_x_knl,
-                                         *depth,CloverCL::ymax_plusfour_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfour_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo mass_flux_x running left knl");
             }
@@ -933,8 +933,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_right_flux_x_knl.setArg(1, CloverCL::mass_flux_x_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_right_flux_x_knl,
-                                         *depth,CloverCL::ymax_plusfour_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfour_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo mass_flux_x running right knl");
             }
@@ -949,8 +949,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_left_flux_y_knl.setArg(1, CloverCL::mass_flux_y_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_left_flux_y_knl,
-                                         *depth,CloverCL::ymax_plusfive_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfive_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo mass_flux_y running left knl");
             }
@@ -962,8 +962,8 @@ void update_halo_kernel_ocl_(int *xmin, int *xmax,
                 CloverCL::update_halo_right_flux_y_knl.setArg(1, CloverCL::mass_flux_y_buffer);
 
                 ENQUEUE_KERNEL_OOO_MACRO(CloverCL::update_halo_right_flux_y_knl,
-                                         *depth,CloverCL::ymax_plusfive_rounded,
-                                         uh_knl_launch_small_dim,CloverCL::fixed_wg_min_size_large_dim);
+                                         *depth,CloverCL::ymax_plusfive_rounded_updatehalo,
+                                         uh_knl_launch_small_dim,CloverCL::local_wg_largedim_updatehalo);
             } catch(cl::Error err) {
                 CloverCL::reportError(err, "update halo mass_flux_y running right knl");
             }

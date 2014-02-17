@@ -47,10 +47,16 @@ size_t CloverCL::device_max_wg_size;
 cl_ulong CloverCL::device_local_mem_size;
 cl_device_type CloverCL::device_type; 
 int CloverCL::number_of_red_levels;
-int CloverCL::xmax_plusfour_rounded;
-int CloverCL::xmax_plusfive_rounded;
-int CloverCL::ymax_plusfour_rounded;
-int CloverCL::ymax_plusfive_rounded;
+
+int CloverCL::xmax_plusfour_rounded_comms;
+int CloverCL::xmax_plusfive_rounded_comms;
+int CloverCL::ymax_plusfour_rounded_comms;
+int CloverCL::ymax_plusfive_rounded_comms;
+
+int CloverCL::xmax_plusfour_rounded_updatehalo;
+int CloverCL::xmax_plusfive_rounded_updatehalo;
+int CloverCL::ymax_plusfour_rounded_updatehalo;
+int CloverCL::ymax_plusfive_rounded_updatehalo;
 
 int CloverCL::mpi_rank; 
 int CloverCL::xmax_c;
@@ -282,6 +288,8 @@ void CloverCL::init(
     std::cout << "y_max = " << y_max << std::endl;
 
     printDeviceInformation();
+
+    //insert printouts of all the autotuning parameters
 #endif
     initPlatform(platform_name);
     initContext(platform_type);
@@ -352,47 +360,89 @@ void CloverCL::calculateKernelLaunchParams(int xmax, int ymax) {
 
     int x_rnd, y_rnd; 
 
-    int x_divisor = fixed_wg_min_size_large_dim;
-    int y_divisor = fixed_wg_min_size_large_dim;
 
-    x_rnd = ( (xmax+4) / x_divisor ) * x_divisor;
+    x_rnd = ( (xmax+4) / local_wg_largedim_updatehalo ) * local_wg_largedim_updatehalo;
 
     if (x_rnd != xmax+4) {
-        x_rnd = x_rnd + x_divisor; 
+        x_rnd = x_rnd + local_wg_largedim_updatehalo; 
     }
     
-    xmax_plusfour_rounded = x_rnd; 
+    xmax_plusfour_rounded_updatehalo = x_rnd; 
 
-    x_rnd = ( (xmax+5) / x_divisor ) * x_divisor;
+    x_rnd = ( (xmax+4) / local_wg_largedim_comms) * local_wg_largedim_comms;
+
+    if (x_rnd != xmax+4) {
+        x_rnd = x_rnd + local_wg_largedim_comms; 
+    }
+    
+    xmax_plusfour_rounded_comms = x_rnd; 
+
+
+    x_rnd = ( (xmax+5) / local_wg_largedim_updatehalo) * local_wg_largedim_updatehalo;
 
     if (x_rnd != xmax+5) {
-        x_rnd = x_rnd + x_divisor; 
+        x_rnd = x_rnd + local_wg_largedim_updatehalo; 
     }
 
-    xmax_plusfive_rounded = x_rnd; 
+    xmax_plusfive_rounded_updatehalo = x_rnd; 
+
+    x_rnd = ( (xmax+5) / local_wg_largedim_comms) * local_wg_largedim_comms;
+
+    if (x_rnd != xmax+5) {
+        x_rnd = x_rnd + local_wg_largedim_comms; 
+    }
+
+    xmax_plusfive_rounded_comms = x_rnd; 
 
 
-    y_rnd = ( (ymax+4) / y_divisor ) * y_divisor;
+
+
+    y_rnd = ( (ymax+4) / local_wg_largedim_updatehalo) * local_wg_largedim_updatehalo;
 
     if (y_rnd != ymax+4) {
-        y_rnd = y_rnd + y_divisor; 
+        y_rnd = y_rnd + local_wg_largedim_updatehalo; 
     }
 
-    ymax_plusfour_rounded = y_rnd; 
+    ymax_plusfour_rounded_updatehalo = y_rnd; 
 
-    y_rnd = ( (ymax+5) / y_divisor ) * y_divisor;
+    y_rnd = ( (ymax+4) / local_wg_largedim_comms) * local_wg_largedim_comms;
+
+    if (y_rnd != ymax+4) {
+        y_rnd = y_rnd + local_wg_largedim_comms; 
+    }
+
+    ymax_plusfour_rounded_comms = y_rnd; 
+
+
+
+    y_rnd = ( (ymax+5) / local_wg_largedim_updatehalo) * local_wg_largedim_updatehalo;
 
     if (y_rnd != ymax+5) {
-        y_rnd = y_rnd + y_divisor; 
+        y_rnd = y_rnd + local_wg_largedim_updatehalo; 
     }
 
-    ymax_plusfive_rounded = y_rnd; 
+    ymax_plusfive_rounded_updatehalo = y_rnd; 
+
+    y_rnd = ( (ymax+5) / local_wg_largedim_comms) * local_wg_largedim_comms;
+
+    if (y_rnd != ymax+5) {
+        y_rnd = y_rnd + local_wg_largedim_comms; 
+    }
+
+    ymax_plusfive_rounded_comms = y_rnd; 
+
+
 
 #ifdef OCL_VERBOSE
-    std::cout << "Kernel launch xmaxplusfour rounded: " << xmax_plusfour_rounded << std::endl;
-    std::cout << "Kernel launch xmaxplusfive rounded: " << xmax_plusfive_rounded << std::endl;
-    std::cout << "Kernel launch ymaxplusfour rounded: " << ymax_plusfour_rounded << std::endl;
-    std::cout << "Kernel launch ymaxplusfive rounded: " << ymax_plusfive_rounded << std::endl;
+    std::cout << "Kernel launch xmaxplusfour_comms rounded: " << xmax_plusfour_rounded_comms << std::endl;
+    std::cout << "Kernel launch xmaxplusfive_comms rounded: " << xmax_plusfive_rounded_comms << std::endl;
+    std::cout << "Kernel launch ymaxplusfour_comms rounded: " << ymax_plusfour_rounded_comms << std::endl;
+    std::cout << "Kernel launch ymaxplusfive_comms rounded: " << ymax_plusfive_rounded_comms << std::endl;
+
+    std::cout << "Kernel launch xmaxplusfour_updatehalo rounded: " << xmax_plusfour_rounded_updatehalo << std::endl;
+    std::cout << "Kernel launch xmaxplusfive_updatehalo rounded: " << xmax_plusfive_rounded_updatehalo << std::endl;
+    std::cout << "Kernel launch ymaxplusfour_updatehalo rounded: " << ymax_plusfour_rounded_updatehalo << std::endl;
+    std::cout << "Kernel launch ymaxplusfive_updatehalo rounded: " << ymax_plusfive_rounded_updatehalo << std::endl;
 #endif
 }
 
@@ -684,17 +734,17 @@ void CloverCL::build_reduction_kernel_objects() {
 
 void CloverCL::calculateReductionStructure(int xmax, int ymax) {
 
-    int x_rnd = ((xmax+2) / fixed_wg_min_size_large_dim ) * fixed_wg_min_size_large_dim;
+    int x_rnd = ((xmax+2) / local_wg_x_calcdt_fieldsumm) * local_wg_x_calcdt_fieldsumm;
 
     if ((x_rnd != xmax+2))
-        x_rnd = x_rnd + fixed_wg_min_size_large_dim;
+        x_rnd = x_rnd + local_wg_x_calcdt_fieldsumm;
 
-    int y_rnd = ((ymax+2) / fixed_wg_min_size_small_dim ) * fixed_wg_min_size_small_dim;
+    int y_rnd = ((ymax+2) / local_wg_y_calcdt_fieldsumm ) * local_wg_y_calcdt_fieldsumm;
 
     if ((y_rnd != ymax+2))
-        y_rnd = y_rnd + fixed_wg_min_size_small_dim;
+        y_rnd = y_rnd + local_wg_y_calcdt_fieldsumm;
 
-    int num_elements = (x_rnd / fixed_wg_min_size_large_dim) * (y_rnd / fixed_wg_min_size_small_dim);
+    int num_elements = (x_rnd / local_wg_x_calcdt_fieldsumm) * (y_rnd / local_wg_y_calcdt_fieldsumm);
 
     num_workitems_tolaunch.clear();
     num_workitems_per_wg.clear();
@@ -755,16 +805,17 @@ void CloverCL::calculateReductionStructure(int xmax, int ymax) {
         int normal_wg_size;
         number_of_red_levels = 0;
 
-        normal_wg_size = REDUCTION_WG_SIZE;
+        normal_wg_size = CloverCL::local_wg_x_reduction;
         wg_ingest_value = 2*normal_wg_size;
 
-        if ( fmod(log2(normal_wg_size),1)!=0  ) {
+        if ( fmod(log2(max_reduction_wg_size),1)!=0  ) {
             //reduction workgroup size selected is not a power of 2
-            std::cerr << "Error: reduction local workgroup size is NOT a power of 2" << std::endl; 
+            std::cerr << "Error: reduction local workgroup size is NOT a power of 2" << std::endl;
             exit(EXIT_FAILURE);
         }
+
         if ( normal_wg_size > device_max_wg_size ) {
-            std::cerr << "Error: reduction local workgroup size is greater than device maximum" << std::endl; 
+            std::cerr << "Error: reduction local workgroup size is greater than device maximum" << std::endl;
             exit(EXIT_FAILURE);
         }
 
@@ -1589,13 +1640,15 @@ void CloverCL::loadProgram(int xmin, int xmax, int ymin, int ymax)
         program = cl::Program(context, sources, &prog_err);
 	    checkErr(prog_err, "Program object creation");
 
+        int workgroup_size = CloverCL::local_wg_x_calcdt_fieldsumm * CloverCL::local_wg_y_calcdt_fieldsumm;
+
         if (device_type == CL_DEVICE_TYPE_GPU) {
 
 #ifdef OCL_VERBOSE
             std::cout << "Executing GPU specific kernels " << std::endl;
 #endif
             sprintf(buildOptions, "-DXMIN=%u -DXMINPLUSONE=%u -DXMAX=%u -DYMIN=%u -DYMINPLUSONE=%u -DYMINPLUSTWO=%u -DYMAX=%u -DXMAXPLUSONE=%u -DXMAXPLUSTWO=%u -DXMAXPLUSTHREE=%u -DXMAXPLUSFOUR=%u -DXMAXPLUSFIVE=%u -DYMAXPLUSONE=%u -DYMAXPLUSTWO=%u -DYMAXPLUSTHREE=%u -DWORKGROUP_SIZE=%u -DWORKGROUP_SIZE_DIVTWO=%u -DGPU_REDUCTION -cl-strict-aliasing", 
-                xmin, xmin+1, xmax, ymin, ymin+1, ymin+2, ymax, xmax+1, xmax+2, xmax+3, xmax+4, xmax+5, ymax+1, ymax+2, ymax+3, CloverCL::fixed_wg_min_size_large_dim*CloverCL::fixed_wg_min_size_small_dim, (CloverCL::fixed_wg_min_size_large_dim*CloverCL::fixed_wg_min_size_small_dim)/2);
+                xmin, xmin+1, xmax, ymin, ymin+1, ymin+2, ymax, xmax+1, xmax+2, xmax+3, xmax+4, xmax+5, ymax+1, ymax+2, ymax+3, workgroup_size, workgroup_size/2);
 
         } else {
 
@@ -1603,7 +1656,7 @@ void CloverCL::loadProgram(int xmin, int xmax, int ymin, int ymax)
             std::cout << "Executing CPU specific kernels " << std::endl;
 #endif
             sprintf(buildOptions, "-DXMIN=%u -DXMINPLUSONE=%u -DXMAX=%u -DYMIN=%u -DYMINPLUSONE=%u -DYMINPLUSTWO=%u -DYMAX=%u -DXMAXPLUSONE=%u -DXMAXPLUSTWO=%u -DXMAXPLUSTHREE=%u -DXMAXPLUSFOUR=%u -DXMAXPLUSFIVE=%u -DYMAXPLUSONE=%u -DYMAXPLUSTWO=%u -DYMAXPLUSTHREE=%u -DWORKGROUP_SIZE=%u -DWORKGROUP_SIZE_DIVTWO=%u", 
-                xmin, xmin+1, xmax, ymin, ymin+1, ymin+2, ymax, xmax+1, xmax+2, xmax+3, xmax+4, xmax+5, ymax+1, ymax+2, ymax+3, CloverCL::fixed_wg_min_size_large_dim*CloverCL::fixed_wg_min_size_small_dim, (CloverCL::fixed_wg_min_size_large_dim*CloverCL::fixed_wg_min_size_small_dim)/2);
+                xmin, xmin+1, xmax, ymin, ymin+1, ymin+2, ymax, xmax+1, xmax+2, xmax+3, xmax+4, xmax+5, ymax+1, ymax+2, ymax+3, workgroup_size, workgroup_size/2);
 
         }
 
@@ -2448,60 +2501,90 @@ void CloverCL::writeAllCommunicationBuffers(
     }
 }
 
-void CloverCL::enqueueKernel_nooffsets( cl::Kernel kernel, int num_x, int num_y)
+//void CloverCL::enqueueKernel_nooffsets( cl::Kernel kernel, int num_x, int num_y)
+//{
+//    int x_rnd = (num_x / prefer_wg_multiple) * prefer_wg_multiple;
+//
+//    if ((x_rnd != num_x))
+//        x_rnd = x_rnd + prefer_wg_multiple;
+//
+//
+//    int y_rnd = num_y;
+//    //int y_rnd = ( num_y / fixed_wg_min_size_small_dim ) * fixed_wg_min_size_small_dim;
+//
+//    //if (y_rnd != num_y) {
+//    //    y_rnd = y_rnd + fixed_wg_min_size_small_dim; 
+//    //}
+//
+//    try {
+//
+//        queue.enqueueNDRangeKernel( kernel, cl::NullRange, cl::NDRange(x_rnd, y_rnd), 
+//                                    cl::NullRange, NULL, NULL); 
+//    } catch(cl::Error err) {
+//
+//        std::string kernel_name;
+//        kernel.getInfo(CL_KERNEL_FUNCTION_NAME, &kernel_name);
+//        std::cout << "launching kernel: " << kernel_name << "xnum: " << x_rnd << " ynum: " << num_y;
+//        reportError(err, kernel_name);
+//    }
+//}
+
+void CloverCL::enqueueKernel_nooffsets_localwg( cl::Kernel kernel, int num_x, int num_y, int wg_x, int wg_y)
 {
-    int x_rnd = (num_x / fixed_wg_min_size_large_dim ) * fixed_wg_min_size_large_dim;
+    int x_rnd = (num_x / wg_x) * wg_x;
 
     if ((x_rnd != num_x))
-        x_rnd = x_rnd + fixed_wg_min_size_large_dim;
+        x_rnd = x_rnd + wg_x;
 
 
-    int y_rnd = ( num_y / fixed_wg_min_size_small_dim ) * fixed_wg_min_size_small_dim;
+    int y_rnd = ( num_y / wg_y) * wg_y;
 
     if (y_rnd != num_y) {
-        y_rnd = y_rnd + fixed_wg_min_size_small_dim; 
+        y_rnd = y_rnd + wg_y; 
     }
 
     try {
 
         queue.enqueueNDRangeKernel( kernel, cl::NullRange, cl::NDRange(x_rnd, y_rnd), 
-                                    cl::NDRange(fixed_wg_min_size_large_dim,fixed_wg_min_size_small_dim), 
+                                    cl::NDRange(wg_x, wg_y), 
                                     NULL, NULL); 
     } catch(cl::Error err) {
 
         std::string kernel_name;
         kernel.getInfo(CL_KERNEL_FUNCTION_NAME, &kernel_name);
-        std::cout << "launching kernel: " << kernel_name << "xnum: " << x_rnd << " ynum: " << num_y 
-                  << " wg_x: " << fixed_wg_min_size_large_dim << " wg_y: " << fixed_wg_min_size_small_dim << std::endl;
+        std::cout << "launching kernel: " << kernel_name << "xnum: " << x_rnd << " ynum: " << y_rnd 
+                  << " wg_x: " << wg_x << " wg_y: " << wg_y << std::endl;
         reportError(err, kernel_name);
     }
 }
 
-void CloverCL::enqueueKernel_nooffsets_recordevent( cl::Kernel kernel, int num_x, int num_y)
+
+void CloverCL::enqueueKernel_nooffsets_recordevent_localwg( cl::Kernel kernel, int num_x, int num_y, int wg_x, int wg_y)
 {
-    int x_rnd = (num_x / fixed_wg_min_size_large_dim ) * fixed_wg_min_size_large_dim;
+    int x_rnd = (num_x / wg_x) * wg_x;
 
     if ((x_rnd != num_x))
-        x_rnd = x_rnd + fixed_wg_min_size_large_dim;
+        x_rnd = x_rnd + wg_x;
 
 
-    int y_rnd = ( num_y / fixed_wg_min_size_small_dim ) * fixed_wg_min_size_small_dim;
+    int y_rnd = ( num_y / wg_y) * wg_y;
 
     if (y_rnd != num_y) {
-        y_rnd = y_rnd + fixed_wg_min_size_small_dim; 
+        y_rnd = y_rnd + wg_y; 
     }
+
 
     try {
 
         queue.enqueueNDRangeKernel( kernel, cl::NullRange, cl::NDRange(x_rnd, y_rnd), 
-                                    cl::NDRange(fixed_wg_min_size_large_dim,fixed_wg_min_size_small_dim), 
+                                    cl::NDRange(wg_x, wg_y), 
                                     NULL, &last_event); 
     } catch(cl::Error err) {
 
         std::string kernel_name;
         kernel.getInfo(CL_KERNEL_FUNCTION_NAME, &kernel_name);
-        std::cout << "launching kernel: " << kernel_name << "xnum: " << x_rnd << " ynum: " << num_y 
-                  << " wg_x: " << fixed_wg_min_size_large_dim << " wg_y: " << fixed_wg_min_size_small_dim << std::endl;
+        std::cout << "launching kernel: " << kernel_name << "xnum: " << x_rnd << " ynum: " << y_rnd 
+                  << " wg_x: " << wg_x << " wg_y: " << wg_y << std::endl;
         reportError(err, kernel_name);
     }
 }
@@ -2511,18 +2594,16 @@ void CloverCL::enqueueKernel( cl::Kernel kernel, int x_min, int x_max, int y_min
     int x_max_opt;
     int x_tot = (x_max - x_min) + 1;
 
-    int x_rnd = (x_tot / fixed_wg_min_size_large_dim) * fixed_wg_min_size_large_dim;
+    int x_rnd = (x_tot / prefer_wg_multiple) * prefer_wg_multiple;
 
     if ((x_rnd != x_tot))
-        x_rnd = x_rnd + fixed_wg_min_size_large_dim;
-
+        x_rnd = x_rnd + prefer_wg_multiple;
 
     x_max_opt = x_rnd + x_min - 1;
 
     try {
         queue.enqueueNDRangeKernel( kernel, cl::NDRange(x_min, y_min), cl::NDRange(x_max_opt, y_max), 
-                                    cl::NDRange(fixed_wg_min_size_large_dim, fixed_wg_min_size_small_dim), 
-                                    NULL, &last_event);
+                                    cl::NullRange, NULL, &last_event);
     } catch(cl::Error err) {
 
         std::string kernel_name;

@@ -38,8 +38,8 @@ SUBROUTINE initialise
   IF(parallel%boss)THEN
     g_out=get_unit(dummy)
 
-    OPEN(FILE='clover.out',ACTION='WRITE',UNIT=g_out,IOSTAT=ios)
-    IF(ios.NE.0) CALL report_error('initialise','Error opening clover.out file.')
+    OPEN(FILE=CLOVER_OUTPUT_FILE,ACTION='WRITE',UNIT=g_out,IOSTAT=ios)
+    IF(ios.NE.0) CALL report_error('initialise','Error opening output file')
 
   ELSE
     g_out=6
