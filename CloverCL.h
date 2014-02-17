@@ -232,7 +232,8 @@ class CloverCL {
                 double* mass_flux_x,
                 double* mass_flux_y);
 
-        static void enqueueKernel_nooffsets( cl::Kernel kernel, int num_x, int num_y);
+        static void enqueueKernel_nooffsets(cl::Kernel kernel, int num_x, int num_y);
+        static void enqueueKernel_nooffsets_recordevent(cl::Kernel kernel, int num_x, int num_y);
 
         static void enqueueKernel( cl::Kernel kernel, int x_min, int x_max, int y_min, int y_max);
 

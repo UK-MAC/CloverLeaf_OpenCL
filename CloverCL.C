@@ -2466,6 +2466,35 @@ void CloverCL::enqueueKernel_nooffsets( cl::Kernel kernel, int num_x, int num_y)
 
         queue.enqueueNDRangeKernel( kernel, cl::NullRange, cl::NDRange(x_rnd, y_rnd), 
                                     cl::NDRange(fixed_wg_min_size_large_dim,fixed_wg_min_size_small_dim), 
+                                    NULL, NULL); 
+    } catch(cl::Error err) {
+
+        std::string kernel_name;
+        kernel.getInfo(CL_KERNEL_FUNCTION_NAME, &kernel_name);
+        std::cout << "launching kernel: " << kernel_name << "xnum: " << x_rnd << " ynum: " << num_y 
+                  << " wg_x: " << fixed_wg_min_size_large_dim << " wg_y: " << fixed_wg_min_size_small_dim << std::endl;
+        reportError(err, kernel_name);
+    }
+}
+
+void CloverCL::enqueueKernel_nooffsets_recordevent( cl::Kernel kernel, int num_x, int num_y)
+{
+    int x_rnd = (num_x / fixed_wg_min_size_large_dim ) * fixed_wg_min_size_large_dim;
+
+    if ((x_rnd != num_x))
+        x_rnd = x_rnd + fixed_wg_min_size_large_dim;
+
+
+    int y_rnd = ( num_y / fixed_wg_min_size_small_dim ) * fixed_wg_min_size_small_dim;
+
+    if (y_rnd != num_y) {
+        y_rnd = y_rnd + fixed_wg_min_size_small_dim; 
+    }
+
+    try {
+
+        queue.enqueueNDRangeKernel( kernel, cl::NullRange, cl::NDRange(x_rnd, y_rnd), 
+                                    cl::NDRange(fixed_wg_min_size_large_dim,fixed_wg_min_size_small_dim), 
                                     NULL, &last_event); 
     } catch(cl::Error err) {
 

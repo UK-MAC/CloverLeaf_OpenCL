@@ -36,7 +36,7 @@ void viscosity_kernel_ocl_(int *xmin, int *xmax,
     gettimeofday(&t_start, NULL);
 #endif
 
-    CloverCL::enqueueKernel_nooffsets( CloverCL::viscosity_knl, *xmax+2, *ymax+2);
+    CloverCL::enqueueKernel_nooffsets_recordevent( CloverCL::viscosity_knl, *xmax+2, *ymax+2);
 
 #if PROFILE_OCL_KERNELS
     timeval t_end;
