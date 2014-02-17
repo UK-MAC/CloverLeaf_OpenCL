@@ -108,8 +108,6 @@ __kernel void calc_dt_ocl_kernel(
 
     }
 
-    //if (k>=2) { 
-
 #ifdef GPU_REDUCTION 
 
         //GPU reduction 
@@ -137,8 +135,6 @@ __kernel void calc_dt_ocl_kernel(
         }
 
 #endif
-
-    //}
 
     if (localid==0) { dt_min_val_array[get_group_id(1)*get_num_groups(0) + get_group_id(0)] = dt_min_local[0]; }
 }
