@@ -360,12 +360,10 @@ CFLAGS_          = -O3
 
 OCL_INTEL_INC=-I/opt/opencl/intel-2013_xe_sdk_3.0.67279/include
 OCL_INTEL_LIB=-L/opt/opencl/intel-2013_xe_sdk_3.0.67279/lib64 -lOpenCL
-OCL_WILLOW_INC=-I/opt/amd-app-sdk/2/5-RC2/include
-OCL_WILLOW_LIB=-L/opt/amd-app-sdk/2/5-RC2/lib64 -lOpenCL -lstdc++
 OCL_AMD_INC=-I/opt/opencl/amd-app-2.7/include
 OCL_AMD_LIB=-L/opt/opencl/amd-app-2.7/lib/x86_64 -lOpenCL -lstdc++
-OCL_CRAY_INC=-I/opt/nvidia/cudatoolkit/default/include -I/home/users/p01379/lustre/OpenCL_headers
-OCL_CRAY_LIB=-L/opt/cray/nvidia/default/lib64 -lOpenCL
+OCL_NVIDIA_INC=-I/opt/nvidia/cudatoolkit/default/include -I/home/users/p01379/lustre/OpenCL_headers
+OCL_NVIDIA_LIB=-L/opt/cray/nvidia/default/lib64 -lOpenCL
 OCL_LIB=$(OCL_$(OCL_VENDOR)_LIB)
 OCL_INC=$(OCL_$(OCL_VENDOR)_INC)
 
