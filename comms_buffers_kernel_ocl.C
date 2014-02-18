@@ -124,8 +124,9 @@ void pack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right_n
                                                         cl::NDRange(comms_knl_launch_small_dim, CloverCL::local_wg_largedim_comms),
                                                         NULL, NULL); 
 #ifdef OCL_VERBOSE
-        std::cout << "Process: " << CloverCL::mpi_rank << " packing left buffer. Depth: " << *depth << " xinc: " << *xinc << " yinc: " << *yinc << " launch height: " << launch_height 
-                  << " wg_x: " << CloverCL::fixed_wg_min_size_small_dim << " wg_y: " << CloverCL::local_wg_largedim_comms << std::endl; 
+        std::cout << "Process: " << CloverCL::mpi_rank << " packing left buffer. Depth: " << *depth 
+                  << " xinc: " << *xinc << " yinc: " << *yinc << " launch height: " << launch_height 
+                  << " wg_x: " << comms_knl_launch_small_dim << " wg_y: " << CloverCL::local_wg_largedim_comms << std::endl; 
 #endif
     }
     
@@ -144,8 +145,9 @@ void pack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right_n
                                                         NULL, NULL); 
 
 #ifdef OCL_VERBOSE
-        std::cout << "Process: " << CloverCL::mpi_rank << " packing right buffer. Depth: " << *depth << " xinc: " << *xinc << " yinc: " << *yinc << " launch height: " << launch_height 
-                  << " wg_x: " << CloverCL::fixed_wg_min_size_small_dim << " wg_y: " << CloverCL::local_wg_largedim_comms << std::endl; 
+        std::cout << "Process: " << CloverCL::mpi_rank << " packing right buffer. Depth: " << *depth 
+                  << " xinc: " << *xinc << " yinc: " << *yinc << " launch height: " << launch_height 
+                  << " wg_x: " << comms_knl_launch_small_dim << " wg_y: " << CloverCL::local_wg_largedim_comms << std::endl; 
 #endif
 
     }
@@ -166,7 +168,8 @@ void pack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right_n
                                                      *num_elements*sizeof(double), host_left_snd_buffer, NULL, NULL);
 
 #ifdef OCL_VERBOSE
-        std::cout << "Process: " << CloverCL::mpi_rank << " reading back left send buffer" << " num of elements" << (*num_elements*sizeof(double)) / sizeof(double) << std::endl; 
+        std::cout << "Process: " << CloverCL::mpi_rank << " reading back left send buffer" 
+                  << " num of elements" << (*num_elements*sizeof(double)) / sizeof(double) << std::endl; 
 #endif
     }
 
@@ -176,7 +179,8 @@ void pack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right_n
         CloverCL::outoforder_queue.enqueueReadBuffer(CloverCL::right_send_buffer, CL_FALSE, 0, 
                                                      *num_elements*sizeof(double), host_right_snd_buffer, NULL, NULL);
 #ifdef OCL_VERBOSE
-        std::cout << "Process: " << CloverCL::mpi_rank << " reading back right send buffer" << " num of elements" << (*num_elements*sizeof(double)) / sizeof(double) << std::endl; 
+        std::cout << "Process: " << CloverCL::mpi_rank << " reading back right send buffer" 
+                  << " num of elements" << (*num_elements*sizeof(double)) / sizeof(double) << std::endl; 
 #endif
     }
 
@@ -287,8 +291,9 @@ void unpack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right
                                                         cl::NDRange(comms_knl_launch_small_dim, CloverCL::local_wg_largedim_comms),
                                                         NULL, NULL); 
 #ifdef OCL_VERBOSE
-        std::cout << "Process: " << CloverCL::mpi_rank << " unpacking left rcv buffer. Depth: " << *depth << " xinc: " << *xinc << " yinc: " << *yinc << " launch height: " << launch_height 
-                  << " wg_x: " << CloverCL::fixed_wg_min_size_small_dim << " wg_y: " << CloverCL::local_wg_largedim_comms << std::endl; 
+        std::cout << "Process: " << CloverCL::mpi_rank << " unpacking left rcv buffer. Depth: " << *depth 
+                  << " xinc: " << *xinc << " yinc: " << *yinc << " launch height: " << launch_height 
+                  << " wg_x: " << comms_knl_launch_small_dim << " wg_y: " << CloverCL::local_wg_largedim_comms << std::endl; 
 #endif
     }
 
@@ -305,8 +310,9 @@ void unpack_comms_buffers_left_right_kernel_ocl_(int *left_neighbour, int *right
                                                         cl::NDRange(comms_knl_launch_small_dim, CloverCL::local_wg_largedim_comms),
                                                         NULL, NULL); 
 #ifdef OCL_VERBOSE
-        std::cout << "Process: " << CloverCL::mpi_rank << " unpacking right rcv buffer. Depth: " << *depth << " xinc: " << *xinc << " yinc: " << *yinc << " launch height: " << launch_height 
-                  << " wg_x: " << CloverCL::fixed_wg_min_size_small_dim << " wg_y: " << CloverCL::local_wg_largedim_comms << std::endl; 
+        std::cout << "Process: " << CloverCL::mpi_rank << " unpacking right rcv buffer. Depth: " << *depth 
+                  << " xinc: " << *xinc << " yinc: " << *yinc << " launch height: " << launch_height 
+                  << " wg_x: " << comms_knl_launch_small_dim << " wg_y: " << CloverCL::local_wg_largedim_comms << std::endl; 
 #endif
     }
 
@@ -393,8 +399,9 @@ void pack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom_n
                                                         cl::NDRange(CloverCL::local_wg_largedim_comms, comms_knl_launch_small_dim),
                                                         NULL, NULL); 
 #ifdef OCL_VERBOSE
-        std::cout << "Process: " << CloverCL::mpi_rank << " packing bottom buffer. Depth: " << *depth << " xinc: " << *xinc << " yinc: " << *yinc << " launch width: " << launch_width
-                  << " wg_x: " << CloverCL::local_wg_largedim_comms << " wg_y: " << CloverCL::fixed_wg_min_size_small_dim << std::endl; 
+        std::cout << "Process: " << CloverCL::mpi_rank << " packing bottom buffer. Depth: " << *depth 
+                  << " xinc: " << *xinc << " yinc: " << *yinc << " launch width: " << launch_width
+                  << " wg_x: " << CloverCL::local_wg_largedim_comms << " wg_y: " << comms_knl_launch_small_dim << std::endl; 
 #endif
     }
 
@@ -412,7 +419,7 @@ void pack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom_n
                                                         NULL, NULL); 
 #ifdef OCL_VERBOSE
         std::cout << "Process: " << CloverCL::mpi_rank << " packing top buffer. Depth: " << *depth << " xinc: " << *xinc << " yinc: " << *yinc << " launch width: " << launch_width
-                  << " wg_x: " << CloverCL::local_wg_largedim_comms << " wg_y: " << CloverCL::fixed_wg_min_size_small_dim << std::endl; 
+                  << " wg_x: " << CloverCL::local_wg_largedim_comms << " wg_y: " << comms_knl_launch_small_dim << std::endl; 
 #endif
     }
 
@@ -549,7 +556,7 @@ void unpack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom
                                                         NULL, NULL);
 #ifdef OCL_VERBOSE
         std::cout << "Process: " << CloverCL::mpi_rank << " unpacking bottom rcv buffer. Depth: " << *depth << " xinc: " << *xinc << " yinc: " << *yinc << " launch width: " << launch_width 
-                  << " wg_x: " << CloverCL::local_wg_largedim_comms << " wg_y: " <<  CloverCL::fixed_wg_min_size_small_dim<< std::endl; 
+                  << " wg_x: " << CloverCL::local_wg_largedim_comms << " wg_y: " <<  comms_knl_launch_small_dim << std::endl; 
 #endif
     }
 
@@ -568,7 +575,7 @@ void unpack_comms_buffers_top_bottom_kernel_ocl_(int *top_neighbour, int *bottom
                                                         NULL, NULL);
 #ifdef OCL_VERBOSE
         std::cout << "Process: " << CloverCL::mpi_rank << " unpacking top rcv buffer. Depth: " << *depth << " xinc: " << *xinc << " yinc: " << *yinc << " launch width: " << launch_width 
-                  << " wg_x: " << CloverCL::local_wg_largedim_comms << " wg_y: " <<  CloverCL::fixed_wg_min_size_small_dim<< std::endl; 
+                  << " wg_x: " << CloverCL::local_wg_largedim_comms << " wg_y: " << comms_knl_launch_small_dim << std::endl; 
 #endif
     }
 
