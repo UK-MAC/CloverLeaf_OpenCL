@@ -265,6 +265,8 @@ double CloverCL::udpate_halo_count;
 double CloverCL::viscosity_count;
 #endif
 
+int CloverCL::num_first_level_cpu_reduction_wgs;
+
 
 void CloverCL::init(
         std::string platform_name,
@@ -291,6 +293,11 @@ void CloverCL::init(
 
     //insert printouts of all the autotuning parameters
 #endif
+    CloverCL::num_first_level_cpu_reduction_wgs = 2048;
+
+
+
+
     initPlatform(platform_name);
     initContext(platform_type);
     initDevice(0);
@@ -319,6 +326,7 @@ void CloverCL::init(
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
     xmax_c = x_max;
     ymax_c = y_max; 
+
 
 #if PROFILE_OCL_KERNELS
     accelerate_time = 0;
@@ -769,13 +777,14 @@ void CloverCL::calculateReductionStructure(int xmax, int ymax) {
 
             number_of_red_levels = 2;
             
-            num_workitems_tolaunch.push_back(device_procs);
+            //num_workitems_tolaunch.push_back(device_procs);
+            num_workitems_tolaunch.push_back(CloverCL::num_first_level_cpu_reduction_wgs);
             num_workitems_per_wg.push_back(1);
             num_elements_per_wi.push_back(num_elements);
 
             num_workitems_tolaunch.push_back(1);
             num_workitems_per_wg.push_back(1);
-            num_elements_per_wi.push_back(device_procs);
+            num_elements_per_wi.push_back(CloverCL::num_first_level_cpu_reduction_wgs);
         }
 
 #ifdef OCL_VERBOSE
@@ -993,15 +1002,15 @@ void CloverCL::allocateReductionInterBuffers() {
 #endif
         }
         else {
-            cpu_min_red_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, device_procs*sizeof(double), NULL, &err);
-            cpu_vol_red_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, device_procs*sizeof(double), NULL, &err);
-            cpu_mass_red_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, device_procs*sizeof(double), NULL, &err);
-            cpu_ie_red_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, device_procs*sizeof(double), NULL, &err);
-            cpu_ke_red_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, device_procs*sizeof(double), NULL, &err);
-            cpu_press_red_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, device_procs*sizeof(double), NULL, &err);
+            cpu_min_red_buffer   = cl::Buffer(context, CL_MEM_READ_WRITE, num_first_level_cpu_reduction_wgs*sizeof(double), NULL, &err);
+            cpu_vol_red_buffer   = cl::Buffer(context, CL_MEM_READ_WRITE, num_first_level_cpu_reduction_wgs*sizeof(double), NULL, &err);
+            cpu_mass_red_buffer  = cl::Buffer(context, CL_MEM_READ_WRITE, num_first_level_cpu_reduction_wgs*sizeof(double), NULL, &err);
+            cpu_ie_red_buffer    = cl::Buffer(context, CL_MEM_READ_WRITE, num_first_level_cpu_reduction_wgs*sizeof(double), NULL, &err);
+            cpu_ke_red_buffer    = cl::Buffer(context, CL_MEM_READ_WRITE, num_first_level_cpu_reduction_wgs*sizeof(double), NULL, &err);
+            cpu_press_red_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, num_first_level_cpu_reduction_wgs*sizeof(double), NULL, &err);
 
 #ifdef OCL_VERBOSE
-            std::cout << "Intermediate reduction buffers on CPU created with size: " << device_procs << std::endl;
+            std::cout << "Intermediate reduction buffers on CPU created with size: " << num_first_level_cpu_reduction_wgs << std::endl;
 #endif
         }
 
