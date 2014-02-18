@@ -134,7 +134,7 @@ class CloverCL {
 
         static int const local_wg_x_reduction = WG_SIZE_X_REDUCTION;
 
-        static int num_first_level_cpu_reduction_wgs;
+        static int const cpu_reduction_first_level_wgs= CPU_REDUCTION_NUM_FIRST_LEVEL_WGS;
 
         static int xmax_plusfour_rounded_updatehalo;
         static int xmax_plusfive_rounded_updatehalo;

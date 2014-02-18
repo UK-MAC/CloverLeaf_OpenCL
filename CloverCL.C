@@ -62,6 +62,8 @@ int CloverCL::mpi_rank;
 int CloverCL::xmax_c;
 int CloverCL::ymax_c;
 
+int const CloverCL::cpu_reduction_first_level_wgs;
+
 cl::Buffer CloverCL::density0_buffer;
 cl::Buffer CloverCL::density1_buffer;
 cl::Buffer CloverCL::energy0_buffer;
@@ -265,24 +267,11 @@ double CloverCL::udpate_halo_count;
 double CloverCL::viscosity_count;
 #endif
 
-int CloverCL::num_first_level_cpu_reduction_wgs;
-
-
-void CloverCL::init(
-        std::string platform_name,
-        std::string platform_type,
-        int x_min,
-        int x_max,
-        int y_min,
-        int y_max,
-        int num_states,
-        double g_small,
-        double g_big,
-        double dtmin,
-        double dtc_safe,
-        double dtu_safe,
-        double dtv_safe,
-        double dtdiv_safe) 
+void CloverCL::init(std::string platform_name, std::string platform_type,
+                    int x_min, int x_max, int y_min, int y_max,
+                    int num_states, double g_small, double g_big,
+                    double dtmin, double dtc_safe, double dtu_safe,
+                    double dtv_safe, double dtdiv_safe) 
 {
 #ifdef OCL_VERBOSE
     std::cout << "num states = " << num_states << std::endl;
@@ -293,10 +282,6 @@ void CloverCL::init(
 
     //insert printouts of all the autotuning parameters
 #endif
-    CloverCL::num_first_level_cpu_reduction_wgs = 2048;
-
-
-
 
     initPlatform(platform_name);
     initContext(platform_type);
@@ -778,13 +763,13 @@ void CloverCL::calculateReductionStructure(int xmax, int ymax) {
             number_of_red_levels = 2;
             
             //num_workitems_tolaunch.push_back(device_procs);
-            num_workitems_tolaunch.push_back(CloverCL::num_first_level_cpu_reduction_wgs);
+            num_workitems_tolaunch.push_back(cpu_reduction_first_level_wgs);
             num_workitems_per_wg.push_back(1);
             num_elements_per_wi.push_back(num_elements);
 
             num_workitems_tolaunch.push_back(1);
             num_workitems_per_wg.push_back(1);
-            num_elements_per_wi.push_back(CloverCL::num_first_level_cpu_reduction_wgs);
+            num_elements_per_wi.push_back(cpu_reduction_first_level_wgs);
         }
 
 #ifdef OCL_VERBOSE
@@ -1002,15 +987,15 @@ void CloverCL::allocateReductionInterBuffers() {
 #endif
         }
         else {
-            cpu_min_red_buffer   = cl::Buffer(context, CL_MEM_READ_WRITE, num_first_level_cpu_reduction_wgs*sizeof(double), NULL, &err);
-            cpu_vol_red_buffer   = cl::Buffer(context, CL_MEM_READ_WRITE, num_first_level_cpu_reduction_wgs*sizeof(double), NULL, &err);
-            cpu_mass_red_buffer  = cl::Buffer(context, CL_MEM_READ_WRITE, num_first_level_cpu_reduction_wgs*sizeof(double), NULL, &err);
-            cpu_ie_red_buffer    = cl::Buffer(context, CL_MEM_READ_WRITE, num_first_level_cpu_reduction_wgs*sizeof(double), NULL, &err);
-            cpu_ke_red_buffer    = cl::Buffer(context, CL_MEM_READ_WRITE, num_first_level_cpu_reduction_wgs*sizeof(double), NULL, &err);
-            cpu_press_red_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, num_first_level_cpu_reduction_wgs*sizeof(double), NULL, &err);
+            cpu_min_red_buffer   = cl::Buffer(context, CL_MEM_READ_WRITE, cpu_reduction_first_level_wgs*sizeof(double), NULL, &err);
+            cpu_vol_red_buffer   = cl::Buffer(context, CL_MEM_READ_WRITE, cpu_reduction_first_level_wgs*sizeof(double), NULL, &err);
+            cpu_mass_red_buffer  = cl::Buffer(context, CL_MEM_READ_WRITE, cpu_reduction_first_level_wgs*sizeof(double), NULL, &err);
+            cpu_ie_red_buffer    = cl::Buffer(context, CL_MEM_READ_WRITE, cpu_reduction_first_level_wgs*sizeof(double), NULL, &err);
+            cpu_ke_red_buffer    = cl::Buffer(context, CL_MEM_READ_WRITE, cpu_reduction_first_level_wgs*sizeof(double), NULL, &err);
+            cpu_press_red_buffer = cl::Buffer(context, CL_MEM_READ_WRITE, cpu_reduction_first_level_wgs*sizeof(double), NULL, &err);
 
 #ifdef OCL_VERBOSE
-            std::cout << "Intermediate reduction buffers on CPU created with size: " << num_first_level_cpu_reduction_wgs << std::endl;
+            std::cout << "Intermediate reduction buffers on CPU created with size: " << cpu_reduction_first_level_wgs << std::endl;
 #endif
         }
 
