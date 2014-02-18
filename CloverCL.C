@@ -943,12 +943,18 @@ void CloverCL::allocateLocalMemoryObjects() {
     else if (device_type == CL_DEVICE_TYPE_GPU) {
         for (int i=0; i<number_of_red_levels; i++) {
             
-            min_local_memory_objects.push_back(   cl::Local(local_mem_size[i]*sizeof(cl_double))  );
-            vol_local_memory_objects.push_back(   cl::Local(local_mem_size[i]*sizeof(cl_double))  );
-            mass_local_memory_objects.push_back(  cl::Local(local_mem_size[i]*sizeof(cl_double))  );
-            ie_local_memory_objects.push_back(    cl::Local(local_mem_size[i]*sizeof(cl_double))  );
-            ke_local_memory_objects.push_back(    cl::Local(local_mem_size[i]*sizeof(cl_double))  );
-            press_local_memory_objects.push_back( cl::Local(local_mem_size[i]*sizeof(cl_double))  );
+            min_local_memory_objects.push_back(   cl::__local(local_mem_size[i]*sizeof(cl_double))  );
+            vol_local_memory_objects.push_back(   cl::__local(local_mem_size[i]*sizeof(cl_double))  );
+            mass_local_memory_objects.push_back(  cl::__local(local_mem_size[i]*sizeof(cl_double))  );
+            ie_local_memory_objects.push_back(    cl::__local(local_mem_size[i]*sizeof(cl_double))  );
+            ke_local_memory_objects.push_back(    cl::__local(local_mem_size[i]*sizeof(cl_double))  );
+            press_local_memory_objects.push_back( cl::__local(local_mem_size[i]*sizeof(cl_double))  );
+            //min_local_memory_objects.push_back(   cl::Local(local_mem_size[i]*sizeof(cl_double))  );
+            //vol_local_memory_objects.push_back(   cl::Local(local_mem_size[i]*sizeof(cl_double))  );
+            //mass_local_memory_objects.push_back(  cl::Local(local_mem_size[i]*sizeof(cl_double))  );
+            //ie_local_memory_objects.push_back(    cl::Local(local_mem_size[i]*sizeof(cl_double))  );
+            //ke_local_memory_objects.push_back(    cl::Local(local_mem_size[i]*sizeof(cl_double))  );
+            //press_local_memory_objects.push_back( cl::Local(local_mem_size[i]*sizeof(cl_double))  );
         }
 
 #ifdef OCL_VERBOSE
