@@ -1,2 +1,0 @@
-CloverLeaf_OpenCL
-=================
