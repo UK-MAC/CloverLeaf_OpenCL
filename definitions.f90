@@ -1,22 +1,22 @@
-!Crown Copyright 2012 AWE.
+!Crown Copyright 2014 AWE.
 !
-! This file is part of CloverLeaf.
+! This file is part of TeaLeaf.
 !
-! CloverLeaf is free software: you can redistribute it and/or modify it under 
+! TeaLeaf is free software: you can redistribute it and/or modify it under 
 ! the terms of the GNU General Public License as published by the 
 ! Free Software Foundation, either version 3 of the License, or (at your option) 
 ! any later version.
 !
-! CloverLeaf is distributed in the hope that it will be useful, but 
+! TeaLeaf is distributed in the hope that it will be useful, but 
 ! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
 ! FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 ! details.
 !
 ! You should have received a copy of the GNU General Public License along with 
-! CloverLeaf. If not, see http://www.gnu.org/licenses/.
+! TeaLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Holds the high level Fortran data types
-!>  @author Wayne Gaudin
+!>  @author David Beckingsale, Wayne Gaudin
 !>  @details The high level data types used to store the mesh and field data
 !>  are defined here.
 !>
@@ -71,13 +71,33 @@ MODULE definitions_module
    LOGICAL      :: use_fortran_kernels
    LOGICAL      :: use_C_kernels
    LOGICAL      :: use_OA_kernels
-   LOGICAL      :: use_OpenCL_kernels
+   LOGICAL      :: use_opencl_kernels
+   INTEGER      :: max_iters
+   REAL(KIND=8) :: eps
+   INTEGER      :: coefficient
 
    LOGICAL      :: use_vector_loops ! Some loops work better in serial depending on the hardware
 
-   CHARACTER(LEN=12) :: OpenCL_vendor
-   CHARACTER(LEN=12) :: OpenCL_type
+   LOGICAL      :: profiler_on ! Internal code profiler to make comparisons across systems easier
 
+   TYPE profiler_type
+     REAL(KIND=8)       :: timestep        &
+                          ,acceleration    &
+                          ,PdV             &
+                          ,cell_advection  &
+                          ,mom_advection   &
+                          ,viscosity       &
+                          ,ideal_gas       &
+                          ,visit           &
+                          ,summary         &
+                          ,reset           &
+                          ,revert          &
+                          ,flux            &
+                          ,set_field       &
+                          ,halo_exchange
+                     
+   END TYPE profiler_type
+   TYPE(profiler_type)  :: profiler
 
    REAL(KIND=8) :: end_time
 

@@ -1,22 +1,22 @@
-!Crown Copyright 2012 AWE.
+!Crown Copyright 2014 AWE.
 !
-! This file is part of CloverLeaf.
+! This file is part of TeaLeaf.
 !
-! CloverLeaf is free software: you can redistribute it and/or modify it under 
+! TeaLeaf is free software: you can redistribute it and/or modify it under 
 ! the terms of the GNU General Public License as published by the 
 ! Free Software Foundation, either version 3 of the License, or (at your option) 
 ! any later version.
 !
-! CloverLeaf is distributed in the hope that it will be useful, but 
+! TeaLeaf is distributed in the hope that it will be useful, but 
 ! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
 ! FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 ! details.
 !
 ! You should have received a copy of the GNU General Public License along with 
-! CloverLeaf. If not, see http://www.gnu.org/licenses/.
+! TeaLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Calculate the minimum timestep for all mesh chunks.
-!>  @author Wayne Gaudin
+!>  @author David Beckingsale, Wayne Gaudin
 !>  @details Invokes the kernels needed to calculate the timestep and finds
 !>  the minimum across all chunks. Checks if the timestep falls below the
 !>  user specified limitand outputs the timestep information.
@@ -33,6 +33,7 @@ SUBROUTINE timestep()
   USE viscosity_module
   USE calc_dt_module
   USE ideal_gas_module
+  USE definitions_module
 
   IMPLICIT NONE
 
@@ -41,6 +42,8 @@ SUBROUTINE timestep()
 
   REAL(KIND=8)    :: dtlp
   REAL(KIND=8)    :: x_pos,y_pos,xl_pos,yl_pos
+
+  REAL(KIND=8)    :: kernel_time,timer
 
   CHARACTER(LEN=8) :: dt_control,dtl_control
 
@@ -53,9 +56,11 @@ SUBROUTINE timestep()
   dt    = g_big
   small=0
 
+  IF(profiler_on) kernel_time=timer()
   DO c = 1, number_of_chunks
     CALL ideal_gas(c,.FALSE.)
   END DO
+  IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
 
   fields=0
   fields(FIELD_PRESSURE)=1
@@ -63,14 +68,21 @@ SUBROUTINE timestep()
   fields(FIELD_DENSITY0)=1
   fields(FIELD_XVEL0)=1
   fields(FIELD_YVEL0)=1
+  IF(profiler_on) kernel_time=timer()
   CALL update_halo(fields,1)
+  IF(profiler_on) profiler%halo_exchange=profiler%halo_exchange+(timer()-kernel_time)
 
+  IF(profiler_on) kernel_time=timer()
   CALL viscosity()
+  IF(profiler_on) profiler%viscosity=profiler%viscosity+(timer()-kernel_time)
 
   fields=0
   fields(FIELD_VISCOSITY)=1
+  IF(profiler_on) kernel_time=timer()
   CALL update_halo(fields,1)
+  IF(profiler_on) profiler%halo_exchange=profiler%halo_exchange+(timer()-kernel_time)
 
+  IF(profiler_on) kernel_time=timer()
   DO c = 1, number_of_chunks
     CALL calc_dt(c,dtlp,dtl_control,xl_pos,yl_pos,jldt,kldt)
 
@@ -87,6 +99,7 @@ SUBROUTINE timestep()
   dt = MIN(dt, (dtold * dtrise), dtmax)
 
   CALL clover_min(dt)
+  IF(profiler_on) profiler%timestep=profiler%timestep+(timer()-kernel_time)
 
   IF(dt.LT.dtmin) small=1
 
@@ -94,8 +107,8 @@ SUBROUTINE timestep()
 !$  IF(OMP_GET_THREAD_NUM().EQ.0) THEN
       WRITE(g_out,"(' Step ', i7,' time ', f11.7,' control ',a11,' timestep  ',1pe9.2,i8,',',i8,' x ',1pe9.2,' y ',1pe9.2)") &
                       step,time,dt_control,dt,jdt,kdt,x_pos,y_pos
-      !WRITE(0,"(' Step ', i7,' time ', f11.7,' control ',a11,' timestep  ',1pe9.2,i8,',',i8,' x ',1pe9.2,' y ',1pe9.2)") &
-      !                step,time,dt_control,dt,jdt,kdt,x_pos,y_pos
+      WRITE(0,"(' Step ', i7,' time ', f11.7,' control ',a11,' timestep  ',1pe9.2,i8,',',i8,' x ',1pe9.2,' y ',1pe9.2)") &
+                      step,time,dt_control,dt,jdt,kdt,x_pos,y_pos
 !$  ENDIF
   ENDIF
 

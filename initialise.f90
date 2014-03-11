@@ -1,22 +1,22 @@
-!Crown Copyright 2012 AWE.
+!Crown Copyright 2014 AWE.
 !
-! This file is part of CloverLeaf.
+! This file is part of TeaLeaf.
 !
-! CloverLeaf is free software: you can redistribute it and/or modify it under 
+! TeaLeaf is free software: you can redistribute it and/or modify it under 
 ! the terms of the GNU General Public License as published by the 
 ! Free Software Foundation, either version 3 of the License, or (at your option) 
 ! any later version.
 !
-! CloverLeaf is distributed in the hope that it will be useful, but 
+! TeaLeaf is distributed in the hope that it will be useful, but 
 ! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
 ! FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 ! details.
 !
 ! You should have received a copy of the GNU General Public License along with 
-! CloverLeaf. If not, see http://www.gnu.org/licenses/.
+! TeaLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Top level initialisation routine
-!>  @author Wayne Gaudin
+!>  @author David Beckingsale, Wayne Gaudin
 !>  @details Checks for the user input and either invokes the input reader or
 !>  switches to the internal test problem. It processes the input and strips
 !>  comments before writing a final input file.
@@ -31,15 +31,15 @@ SUBROUTINE initialise
   IMPLICIT NONE
 
   INTEGER :: ios
-  INTEGER :: get_unit,stat,n,uin,out_unit
+  INTEGER :: get_unit,stat,uin,out_unit
 !$ INTEGER :: OMP_GET_THREAD_NUM,OMP_GET_NUM_THREADS
   CHARACTER(LEN=g_len_max) :: ltmp
 
   IF(parallel%boss)THEN
     g_out=get_unit(dummy)
 
-    OPEN(FILE=CLOVER_OUTPUT_FILE,ACTION='WRITE',UNIT=g_out,IOSTAT=ios)
-    IF(ios.NE.0) CALL report_error('initialise','Error opening output file')
+    OPEN(FILE='clover.out',ACTION='WRITE',UNIT=g_out,IOSTAT=ios)
+    IF(ios.NE.0) CALL report_error('initialise','Error opening clover.out file.')
 
   ELSE
     g_out=6
@@ -49,8 +49,8 @@ SUBROUTINE initialise
   IF(parallel%boss)THEN
 !$  IF(OMP_GET_THREAD_NUM().EQ.0) THEN
       WRITE(g_out,*)
-      WRITE(g_out,'(a15,f8.3)') 'Clover Version ',g_version
-      WRITE(g_out,'(a18)') 'OpenCL+MPI Version'
+      WRITE(g_out,'(a15,f8.3)') 'Tea Version ',g_version
+      WRITE(g_out,'(a18)') 'MPI Version'
 !$    WRITE(g_out,'(a18)') 'OpenMP Version'
       WRITE(g_out,'(a14,i6)') 'Task Count ',parallel%max_task !MPI
 !$    WRITE(g_out,'(a15,i5)') 'Thread Count: ',OMP_GET_NUM_THREADS()
@@ -63,7 +63,7 @@ SUBROUTINE initialise
   CALL clover_barrier
 
   IF(parallel%boss)THEN
-    WRITE(g_out,*) 'Clover will run from the following input:-'
+    WRITE(g_out,*) 'Tea will run from the following input:-'
     WRITE(g_out,*)
   ENDIF
 
@@ -75,24 +75,30 @@ SUBROUTINE initialise
       out_unit=get_unit(dummy)
       OPEN(FILE='clover.in',UNIT=out_unit,STATUS='REPLACE',ACTION='WRITE',IOSTAT=ios)
       WRITE(out_unit,'(A)')'*clover'
-      WRITE(out_unit,'(A)')' state 1 density=0.2 energy=1.0'
-      WRITE(out_unit,'(A)')' state 2 density=1.0 energy=2.5 geometry=rectangle xmin=0.0 xmax=5.0 ymin=0.0 ymax=2.0'
-      WRITE(out_unit,'(A)')' x_cells=10'
-      WRITE(out_unit,'(A)')' y_cells=2'
-      WRITE(out_unit,'(A)')' xmin=0.0'
-      WRITE(out_unit,'(A)')' ymin=0.0'
-      WRITE(out_unit,'(A)')' xmax=10.0'
-      WRITE(out_unit,'(A)')' ymax=2.0'
-      WRITE(out_unit,'(A)')' initial_timestep=0.04'
-      WRITE(out_unit,'(A)')' timestep_rise=1.5'
-      WRITE(out_unit,'(A)')' max_timestep=0.04'
-      WRITE(out_unit,'(A)')' end_time=3.0'
+      WRITE(out_unit,'(A)')'state 1 density=100.0 energy=0.0001'
+      WRITE(out_unit,'(A)')'state 2 density=0.1 energy=25.0 geometry=rectangle xmin=0.0 xmax=1.0 ymin=1.0 ymax=2.0'
+      WRITE(out_unit,'(A)')'state 3 density=0.1 energy=0.1 geometry=rectangle xmin=1.0 xmax=6.0 ymin=1.0 ymax=2.0'
+      WRITE(out_unit,'(A)')'state 4 density=0.1 energy=0.1 geometry=rectangle xmin=5.0 xmax=6.0 ymin=1.0 ymax=8.0'
+      WRITE(out_unit,'(A)')'state 5 density=0.1 energy=0.1 geometry=rectangle xmin=5.0 xmax=10.0 ymin=7.0 ymax=8.0'
+      WRITE(out_unit,'(A)')'x_cells=10'
+      WRITE(out_unit,'(A)')'y_cells=10'
+      WRITE(out_unit,'(A)')'xmin=0.0'
+      WRITE(out_unit,'(A)')'ymin=0.0'
+      WRITE(out_unit,'(A)')'xmax=10.0'
+      WRITE(out_unit,'(A)')'ymax=10.0'
+      WRITE(out_unit,'(A)')'initial_timestep=0.004'
+      WRITE(out_unit,'(A)')'timestep_rise=1.5'
+      WRITE(out_unit,'(A)')'max_timestep=0.004'
+      WRITE(out_unit,'(A)')'end_time=1.0'
+      WRITE(out_unit,'(A)')'end_step=87'
+      WRITE(out_unit,'(A)')'tl_max_iters=10000'
       WRITE(out_unit,'(A)')' test_problem 1'
       WRITE(out_unit,'(A)')'*endclover'
       CLOSE(out_unit)
       uin=get_unit(dummy)
       OPEN(FILE='clover.in',ACTION='READ',STATUS='OLD',UNIT=uin,IOSTAT=ios)
     ENDIF
+    IF(ios.NE.0) CALL report_error('initialise','Error opening clover.in')
 
     out_unit=get_unit(dummy)
     OPEN(FILE='clover.in.tmp',UNIT=out_unit,STATUS='REPLACE',ACTION='WRITE',IOSTAT=ios)

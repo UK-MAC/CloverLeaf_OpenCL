@@ -1,0 +1,6 @@
+*.o
+*.mod
+*.swp
+clover_leaf
+clover.out
+*.tmp

@@ -1,22 +1,22 @@
-!Crown Copyright 2012 AWE.
+!Crown Copyright 2014 AWE.
 !
-! This file is part of CloverLeaf.
+! This file is part of TeaLeaf.
 !
-! CloverLeaf is free software: you can redistribute it and/or modify it under 
+! TeaLeaf is free software: you can redistribute it and/or modify it under 
 ! the terms of the GNU General Public License as published by the 
 ! Free Software Foundation, either version 3 of the License, or (at your option) 
 ! any later version.
 !
-! CloverLeaf is distributed in the hope that it will be useful, but 
+! TeaLeaf is distributed in the hope that it will be useful, but 
 ! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
 ! FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 ! details.
 !
 ! You should have received a copy of the GNU General Public License along with 
-! CloverLeaf. If not, see http://www.gnu.org/licenses/.
+! TeaLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Main set up routine
-!>  @author Wayne Gaudin
+!>  @author David Beckingsale, Wayne Gaudin
 !>  @details Invokes the mesh decomposer and sets up chunk connectivity. It then
 !>  allocates the communication buffers and call the chunk initialisation and
 !>  generation routines. It calls the equation of state to calculate initial
@@ -28,16 +28,17 @@ SUBROUTINE start
   USE parse_module
   USE update_halo_module
   USE ideal_gas_module
-  USE definitions_module
 
   IMPLICIT NONE
 
-  INTEGER :: c,j,k
+  INTEGER :: c
 
   INTEGER :: x_cells,y_cells
   INTEGER, ALLOCATABLE :: right(:),left(:),top(:),bottom(:)
 
   INTEGER :: fields(NUM_FIELDS)
+
+  LOGICAL :: profiler_off
 
   IF(parallel%boss)THEN
      WRITE(g_out,*) 'Setting up initial geometry'
@@ -87,18 +88,10 @@ SUBROUTINE start
 
   ENDDO
 
-  DEALLOCATE(left,right,bottom,top)
+  ! Makes it work in old versions of gfortran (???)
+  write(*,*)
 
-  ! initialise OpenCL
-  DO c=1,number_of_chunks
-    IF(chunks(c)%task.EQ.parallel%task)THEN
-      ! Append //char(0) to hack around C/Fortran interop
-      CALL setup_opencl(TRIM(OpenCL_vendor)//char(0), TRIM(OpenCL_type)//char(0),&
-                        chunks(c)%field%x_min, chunks(c)%field%x_max, &
-                        chunks(c)%field%y_min, chunks(c)%field%y_max, number_of_states, &
-                        g_small, g_big, dtmin, dtc_safe, dtu_safe, dtv_safe, dtdiv_safe)
-    ENDIF
-  ENDDO
+  DEALLOCATE(left,right,bottom,top)
 
   CALL clover_barrier
 
@@ -127,6 +120,11 @@ SUBROUTINE start
   advect_x=.TRUE.
 
   CALL clover_barrier
+
+  ! Do no profile the start up costs otherwise the total times will not add up
+  ! at the end
+  profiler_off=profiler_on
+  profiler_on=.FALSE.
 
   DO c = 1, number_of_chunks
     CALL ideal_gas(c,.FALSE.)
@@ -157,5 +155,7 @@ SUBROUTINE start
   IF(visit_frequency.NE.0) CALL visit()
 
   CALL clover_barrier
+
+  profiler_on=profiler_off
 
 END SUBROUTINE start

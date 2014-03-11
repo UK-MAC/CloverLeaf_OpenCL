@@ -1,23 +1,23 @@
-!Crown Copyright 2012 AWE.
+!Crown Copyright 2014 AWE.
 !
-! This file is part of CloverLeaf.
+! This file is part of TeaLeaf.
 !
-! CloverLeaf is free software: you can redistribute it and/or modify it under 
+! TeaLeaf is free software: you can redistribute it and/or modify it under 
 ! the terms of the GNU General Public License as published by the 
 ! Free Software Foundation, either version 3 of the License, or (at your option) 
 ! any later version.
 !
-! CloverLeaf is distributed in the hope that it will be useful, but 
+! TeaLeaf is distributed in the hope that it will be useful, but 
 ! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
 ! FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 ! details.
 !
 ! You should have received a copy of the GNU General Public License along with 
-! CloverLeaf. If not, see http://www.gnu.org/licenses/.
+! TeaLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Communication Utilities
-!>  @author Wayne Gaudin
-!>  @details Contains all utilities required to run CloverLeaf in a distributed
+!>  @author David Beckingsale, Wayne Gaudin
+!>  @details Contains all utilities required to run TeaLeaf in a distributed
 !>  environment, including initialisation, mesh decompostion, reductions and
 !>  halo exchange using explicit buffers.
 !>
@@ -26,16 +26,17 @@
 !>  buffers with multiple data fields. This is intentional so the effect of these
 !>  optimisations can be measured on large systems, as and when they are added.
 !>
-!>  Even without these modifications CloverLeaf weak scales well on moderately sized
+!>  Even without these modifications TeaLeaf weak scales well on moderately sized
 !>  systems of the order of 10K cores.
 
 MODULE clover_module
 
   USE data_module
   USE definitions_module
-  USE MPI
+  !USE MPI
 
   IMPLICIT NONE
+  include "mpif.h"
 
 CONTAINS
 
@@ -231,7 +232,7 @@ SUBROUTINE clover_exchange(fields,depth)
 
   IMPLICIT NONE
 
-  INTEGER      :: fields(:),depth
+  INTEGER      :: fields(num_fields),depth
 
   ! Assuming 1 patch per task, this will be changed
   ! Also, not packing all fields for each communication, doing one at a time
@@ -246,7 +247,9 @@ SUBROUTINE clover_exchange(fields,depth)
                                  chunks(parallel%task+1)%bottom_rcv_buffer,                    &
                                  chunks(parallel%task+1)%top_snd_buffer,                       &
                                  chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,CELL_DATA,FIELD_DENSITY0)
+                                 depth, &
+                                 0, 0, &
+                                 FIELD_DENSITY0)
   ENDIF
 
   IF(fields(FIELD_DENSITY1).EQ.1) THEN
@@ -259,7 +262,9 @@ SUBROUTINE clover_exchange(fields,depth)
                                  chunks(parallel%task+1)%bottom_rcv_buffer,                    &
                                  chunks(parallel%task+1)%top_snd_buffer,                       &
                                  chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,CELL_DATA,FIELD_DENSITY1)
+                                 depth, &
+                                 0, 0, &
+                                 FIELD_density1)
   ENDIF
 
   IF(fields(FIELD_ENERGY0).EQ.1) THEN
@@ -272,7 +277,9 @@ SUBROUTINE clover_exchange(fields,depth)
                                  chunks(parallel%task+1)%bottom_rcv_buffer,                    &
                                  chunks(parallel%task+1)%top_snd_buffer,                       &
                                  chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,CELL_DATA,FIELD_ENERGY0)
+                                 depth, &
+                                 0, 0, &
+                                 FIELD_energy0)
   ENDIF
 
   IF(fields(FIELD_ENERGY1).EQ.1) THEN
@@ -285,7 +292,9 @@ SUBROUTINE clover_exchange(fields,depth)
                                  chunks(parallel%task+1)%bottom_rcv_buffer,                    &
                                  chunks(parallel%task+1)%top_snd_buffer,                       &
                                  chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,CELL_DATA,FIELD_ENERGY1)
+                                 depth, &
+                                 0, 0, &
+                                 FIELD_energy1)
   ENDIF
 
   IF(fields(FIELD_PRESSURE).EQ.1) THEN
@@ -298,7 +307,9 @@ SUBROUTINE clover_exchange(fields,depth)
                                  chunks(parallel%task+1)%bottom_rcv_buffer,                    &
                                  chunks(parallel%task+1)%top_snd_buffer,                       &
                                  chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,CELL_DATA,FIELD_PRESSURE)
+                                 depth, &
+                                 0, 0, &
+                                 FIELD_pressure)
   ENDIF
 
   IF(fields(FIELD_VISCOSITY).EQ.1) THEN
@@ -311,7 +322,9 @@ SUBROUTINE clover_exchange(fields,depth)
                                  chunks(parallel%task+1)%bottom_rcv_buffer,                    &
                                  chunks(parallel%task+1)%top_snd_buffer,                       &
                                  chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,CELL_DATA,FIELD_VISCOSITY)
+                                 depth, &
+                                 0, 0, &
+                                 FIELD_viscosity)
   ENDIF
 
   IF(fields(FIELD_SOUNDSPEED).EQ.1) THEN
@@ -324,7 +337,9 @@ SUBROUTINE clover_exchange(fields,depth)
                                  chunks(parallel%task+1)%bottom_rcv_buffer,                    &
                                  chunks(parallel%task+1)%top_snd_buffer,                       &
                                  chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,CELL_DATA,FIELD_SOUNDSPEED)
+                                 depth, &
+                                 0, 0, &
+                                 FIELD_soundspeed)
   ENDIF
 
   IF(fields(FIELD_XVEL0).EQ.1) THEN
@@ -337,7 +352,9 @@ SUBROUTINE clover_exchange(fields,depth)
                                  chunks(parallel%task+1)%bottom_rcv_buffer,                    &
                                  chunks(parallel%task+1)%top_snd_buffer,                       &
                                  chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,VERTEX_DATA,FIELD_XVEL0)
+                                 depth, &
+                                 1, 1, &
+                                 FIELD_xvel0)
   ENDIF
 
   IF(fields(FIELD_XVEL1).EQ.1) THEN
@@ -350,7 +367,9 @@ SUBROUTINE clover_exchange(fields,depth)
                                  chunks(parallel%task+1)%bottom_rcv_buffer,                    &
                                  chunks(parallel%task+1)%top_snd_buffer,                       &
                                  chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,VERTEX_DATA,FIELD_XVEL1)
+                                 depth, &
+                                 1, 1, &
+                                 FIELD_xvel1)
   ENDIF
 
   IF(fields(FIELD_YVEL0).EQ.1) THEN
@@ -363,7 +382,9 @@ SUBROUTINE clover_exchange(fields,depth)
                                  chunks(parallel%task+1)%bottom_rcv_buffer,                    &
                                  chunks(parallel%task+1)%top_snd_buffer,                       &
                                  chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,VERTEX_DATA,FIELD_YVEL0)
+                                 depth, &
+                                 1, 1, &
+                                 FIELD_yvel0)
   ENDIF
 
   IF(fields(FIELD_YVEL1).EQ.1) THEN
@@ -376,7 +397,9 @@ SUBROUTINE clover_exchange(fields,depth)
                                  chunks(parallel%task+1)%bottom_rcv_buffer,                    &
                                  chunks(parallel%task+1)%top_snd_buffer,                       &
                                  chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,VERTEX_DATA,FIELD_YVEL1)
+                                 depth, &
+                                 1, 1, &
+                                 FIELD_yvel1)
   ENDIF
 
   IF(fields(FIELD_VOL_FLUX_X).EQ.1) THEN
@@ -389,7 +412,9 @@ SUBROUTINE clover_exchange(fields,depth)
                                  chunks(parallel%task+1)%bottom_rcv_buffer,                    &
                                  chunks(parallel%task+1)%top_snd_buffer,                       &
                                  chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,X_FACE_DATA,FIELD_VOL_FLUX_X)
+                                 depth, &
+                                 1, 0, &
+                                 FIELD_vol_flux_x)
   ENDIF
 
   IF(fields(FIELD_VOL_FLUX_Y).EQ.1) THEN
@@ -402,7 +427,9 @@ SUBROUTINE clover_exchange(fields,depth)
                                  chunks(parallel%task+1)%bottom_rcv_buffer,                    &
                                  chunks(parallel%task+1)%top_snd_buffer,                       &
                                  chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,Y_FACE_DATA,FIELD_VOL_FLUX_Y)
+                                 depth, &
+                                 0, 1, &
+                                 FIELD_vol_flux_y)
   ENDIF
 
   IF(fields(FIELD_MASS_FLUX_X).EQ.1) THEN
@@ -415,7 +442,9 @@ SUBROUTINE clover_exchange(fields,depth)
                                  chunks(parallel%task+1)%bottom_rcv_buffer,                    &
                                  chunks(parallel%task+1)%top_snd_buffer,                       &
                                  chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,X_FACE_DATA,FIELD_MASS_FLUX_X)
+                                 depth, &
+                                 1, 0, &
+                                 FIELD_mass_flux_x)
   ENDIF
 
   IF(fields(FIELD_MASS_FLUX_Y).EQ.1) THEN
@@ -428,7 +457,9 @@ SUBROUTINE clover_exchange(fields,depth)
                                  chunks(parallel%task+1)%bottom_rcv_buffer,                    &
                                  chunks(parallel%task+1)%top_snd_buffer,                       &
                                  chunks(parallel%task+1)%top_rcv_buffer,                       &
-                                 depth,Y_FACE_DATA,FIELD_MASS_FLUX_Y)
+                                 depth, &
+                                 0, 1, &
+                                 FIELD_MASS_FLUX_Y)
   ENDIF
 
 
@@ -444,20 +475,32 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                                    top_snd_buffer,                         &
                                    top_rcv_buffer,                         &
                                    depth,                                  &
-                                   field_type,                             &
-                                   field_name)
+                                   x_inc, y_inc, &
+                                   which_field)
+
+  USE pack_kernel_module
 
   IMPLICIT NONE
 
-  REAL(KIND=8) :: field(-1:,-1:) ! This seems to work for any type of mesh data
-  REAL(KIND=8) :: left_snd_buffer(:),left_rcv_buffer(:),right_snd_buffer(:),right_rcv_buffer(:)
-  REAL(KIND=8) :: bottom_snd_buffer(:),bottom_rcv_buffer(:),top_snd_buffer(:),top_rcv_buffer(:)
+  INTEGER      :: x_min, x_max, y_min, y_max, x_inc, y_inc
 
-  INTEGER      :: chunk,depth,field_type,field_name
 
-  INTEGER      :: size,err,request(8),tag,message_count,j,k,x_inc,y_inc,index
+  INTEGER      :: chunk,depth,field_type
+
+  REAL(KIND=8) :: field(chunks(chunk)%field%x_min-2:chunks(chunk)%field%x_max+2+x_inc, &
+                        chunks(chunk)%field%y_min-2:chunks(chunk)%field%y_max+2+y_inc) ! This seems to work for any type of mesh data
+
+  REAL(KIND=8), dimension(2*(chunks(chunk)%field%y_max+5)) :: &
+    left_snd_buffer, left_rcv_buffer, right_snd_buffer, right_rcv_buffer
+  REAL(KIND=8), dimension(2*(chunks(chunk)%field%x_max+5)) :: &
+    bottom_snd_buffer, bottom_rcv_buffer, top_snd_buffer, top_rcv_buffer
+
+  INTEGER      :: size,err,request(8),tag,message_count,j,k,index
   INTEGER      :: status(MPI_STATUS_SIZE,8)
   INTEGER      :: receiver,sender
+
+  ! pass the field so it can be passed to ocl
+  INTEGER :: which_field
 
   ! Field type will either be cell, vertex, x_face or y_face to get the message limits correct
 
@@ -479,57 +522,37 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 
   ! Pack and send
 
-  ! These array modifications still need to be added on, plus the donor data location changes as in update_halo
-  IF(field_type.EQ.CELL_DATA) THEN
-    x_inc=0
-    y_inc=0
-  ENDIF
-  IF(field_type.EQ.VERTEX_DATA) THEN
-    x_inc=1
-    y_inc=1
-  ENDIF
-  IF(field_type.EQ.X_FACE_DATA) THEN
-    x_inc=1
-    y_inc=0
-  ENDIF
-  IF(field_type.EQ.Y_FACE_DATA) THEN
-    x_inc=0
-    y_inc=1
-  ENDIF
-
-  ! Magic numbers for OpenCL face locations:
-  !      1 - top
-  !      2 - right
-  !      3 - bottom
-  !      4 - left
-
   ! Pack real data into buffers
   IF(parallel%task.EQ.chunks(chunk)%task) THEN
     size=(1+(chunks(chunk)%field%y_max+y_inc+depth)-(chunks(chunk)%field%y_min-depth))*depth
-
-    IF ((chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) .OR. & 
-        (chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face)) THEN 
-#ifdef USE_EXPLICIT_COMMS_BUFF_PACK
-        CALL pack_comms_buffers_left_right_kernel_ocl(chunks(chunk)%chunk_neighbours(chunk_left),          &
-                                                      chunks(chunk)%chunk_neighbours(chunk_right),         &
-                                                      x_inc, y_inc, depth, size, field_name,               &
-                                                      left_snd_buffer, right_snd_buffer)
-#else
-        IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
-            CALL ocl_read_comm_buffer(chunks(chunk)%field%x_min, &
-                                      chunks(chunk)%field%x_max, chunks(chunk)%field%y_min, &
-                                      chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
-                                      left_snd_buffer, 4)
-        ENDIF
-        IF(chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face) THEN
-            CALL ocl_read_comm_buffer(chunks(chunk)%field%x_min, &
-                                      chunks(chunk)%field%x_max, chunks(chunk)%field%y_min, &
-                                      chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
-                                      right_snd_buffer, 2)
-        ENDIF
-#endif 
+    IF(use_fortran_kernels) THEN
+      CALL pack_left_right_buffers(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
+                                   chunks(chunk)%field%y_min,chunks(chunk)%field%y_max, &
+                                   chunks(chunk)%chunk_neighbours(chunk_left),          &
+                                   chunks(chunk)%chunk_neighbours(chunk_right),         &
+                                   external_face,                                       &
+                                   x_inc,y_inc,depth,size,                              &
+                                   field,left_snd_buffer,right_snd_buffer)
+    ELSEIF(use_opencl_kernels)THEN
+      CALL pack_left_right_buffers_ocl(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
+                                       chunks(chunk)%field%y_min,chunks(chunk)%field%y_max, &
+                                       chunks(chunk)%chunk_neighbours(chunk_left),          &
+                                       chunks(chunk)%chunk_neighbours(chunk_right),         &
+                                       external_face,                                       &
+                                       x_inc,y_inc,depth,                                   &
+                                       which_field,                                         &
+                                       field,left_snd_buffer,right_snd_buffer)
+    ELSEIF(use_C_kernels)THEN
+      CALL pack_left_right_buffers_c(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
+                                     chunks(chunk)%field%y_min,chunks(chunk)%field%y_max, &
+                                     chunks(chunk)%chunk_neighbours(chunk_left),          &
+                                     chunks(chunk)%chunk_neighbours(chunk_right),         &
+                                     external_face,                                       &
+                                     x_inc,y_inc,depth,size,                              &
+                                     field,left_snd_buffer,right_snd_buffer)
     ENDIF
 
+    ! Send/receive the data
     IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
       tag=4*(chunk)+1 ! 4 because we have 4 faces, 1 because it is leaving the left face
       receiver=chunks(chunks(chunk)%chunk_neighbours(chunk_left))%task
@@ -560,65 +583,68 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 
   ! Unpack buffers in halo cells
   IF(parallel%task.EQ.chunks(chunk)%task) THEN
-
-    IF ((chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) .OR.  &
-        (chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face)) THEN
-#ifdef USE_EXPLICIT_COMMS_BUFF_PACK
-        CALL unpack_comms_buffers_left_right_kernel_ocl(chunks(chunk)%chunk_neighbours(chunk_left),          &
-                                                        chunks(chunk)%chunk_neighbours(chunk_right),         &
-                                                        x_inc, y_inc, depth, size, field_name,               &
-                                                        left_rcv_buffer, right_rcv_buffer)
-#else
-        IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
-
-            CALL ocl_write_comm_buffer(chunks(chunk)%field%x_min, & 
-                                       chunks(chunk)%field%x_max, chunks(chunk)%field%y_min,&
-                                       chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
-                                       left_rcv_buffer, 4)
-
-        ENDIF
-        IF(chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face) THEN
-
-            CALL ocl_write_comm_buffer(chunks(chunk)%field%x_min, &
-                                       chunks(chunk)%field%x_max, chunks(chunk)%field%y_min,&
-                                       chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
-                                       right_rcv_buffer, 2)
-
-        ENDIF
-#endif
+    IF(use_fortran_kernels) THEN
+      CALL unpack_left_right_buffers(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
+                                     chunks(chunk)%field%y_min,chunks(chunk)%field%y_max, &
+                                     chunks(chunk)%chunk_neighbours(chunk_left),          &
+                                     chunks(chunk)%chunk_neighbours(chunk_right),         &
+                                     external_face,                                       &
+                                     x_inc,y_inc,depth,size,                              &
+                                     field,left_rcv_buffer,right_rcv_buffer)
+    ELSEIF(use_opencl_kernels)THEN
+      CALL unpack_left_right_buffers_ocl(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
+                                         chunks(chunk)%field%y_min,chunks(chunk)%field%y_max, &
+                                         chunks(chunk)%chunk_neighbours(chunk_left),          &
+                                         chunks(chunk)%chunk_neighbours(chunk_right),         &
+                                         external_face,                                       &
+                                         x_inc,y_inc,depth,                                   &
+                                         which_field,                                         &
+                                         field,left_rcv_buffer,right_rcv_buffer)
+    ELSEIF(use_C_kernels)THEN
+      CALL unpack_left_right_buffers_c(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
+                                       chunks(chunk)%field%y_min,chunks(chunk)%field%y_max, &
+                                       chunks(chunk)%chunk_neighbours(chunk_left),          &
+                                       chunks(chunk)%chunk_neighbours(chunk_right),         &
+                                       external_face,                                       &
+                                       x_inc,y_inc,depth,size,                              &
+                                       field,left_rcv_buffer,right_rcv_buffer)
     ENDIF
-
   ENDIF
 
   request=0
   message_count=0
 
+  ! Pack real data into buffers
   IF(parallel%task.EQ.chunks(chunk)%task) THEN
     size=(1+(chunks(chunk)%field%x_max+x_inc+depth)-(chunks(chunk)%field%x_min-depth))*depth
-
-    IF ((chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) .OR. & 
-        (chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face)) THEN
-#ifdef USE_EXPLICIT_COMMS_BUFF_PACK
-        CALL pack_comms_buffers_top_bottom_kernel_ocl(chunks(chunk)%chunk_neighbours(chunk_top),           &
-                                                      chunks(chunk)%chunk_neighbours(chunk_bottom),        &
-                                                      x_inc, y_inc, depth, size, field_name,               &
-                                                      top_snd_buffer, bottom_snd_buffer)
-#else
-        IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
-            CALL ocl_read_comm_buffer(chunks(chunk)%field%x_min, &
-                                      chunks(chunk)%field%x_max, chunks(chunk)%field%y_min,&
-                                      chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
-                                      bottom_snd_buffer, 3)
-        ENDIF
-        IF(chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) THEN
-            CALL ocl_read_comm_buffer(chunks(chunk)%field%x_min, &
-                                      chunks(chunk)%field%x_max, chunks(chunk)%field%y_min,&
-                                      chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
-                                      top_snd_buffer, 1)
-        ENDIF
-#endif
+    IF(use_fortran_kernels) THEN
+      CALL pack_top_bottom_buffers(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
+                                   chunks(chunk)%field%y_min,chunks(chunk)%field%y_max, &
+                                   chunks(chunk)%chunk_neighbours(chunk_bottom),        &
+                                   chunks(chunk)%chunk_neighbours(chunk_top),           &
+                                   external_face,                                       &
+                                   x_inc,y_inc,depth,size,                              &
+                                   field,bottom_snd_buffer,top_snd_buffer)
+    ELSEIF(use_opencl_kernels)THEN
+      CALL pack_top_bottom_buffers_ocl(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
+                                       chunks(chunk)%field%y_min,chunks(chunk)%field%y_max, &
+                                       chunks(chunk)%chunk_neighbours(chunk_left),          &
+                                       chunks(chunk)%chunk_neighbours(chunk_right),         &
+                                       external_face,                                       &
+                                       x_inc,y_inc,depth,                                   &
+                                       which_field,                                         &
+                                       field,left_snd_buffer,right_snd_buffer)
+    ELSEIF(use_C_kernels)THEN
+      CALL pack_top_bottom_buffers_c(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
+                                     chunks(chunk)%field%y_min,chunks(chunk)%field%y_max, &
+                                     chunks(chunk)%chunk_neighbours(chunk_bottom),        &
+                                     chunks(chunk)%chunk_neighbours(chunk_top),           &
+                                     external_face,                                       &
+                                     x_inc,y_inc,depth,size,                              &
+                                     field,bottom_snd_buffer,top_snd_buffer)
     ENDIF
 
+    ! Send/receive the data
     IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
       tag=4*(chunk)+3 ! 4 because we have 4 faces, 3 because it is leaving the bottom face
       receiver=chunks(chunks(chunk)%chunk_neighbours(chunk_bottom))%task
@@ -642,6 +668,7 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
                      MPI_COMM_WORLD,request(message_count+2),err)
       message_count=message_count+2
     ENDIF
+
   ENDIF
 
   ! Wait for the messages
@@ -649,34 +676,32 @@ SUBROUTINE clover_exchange_message(chunk,field,                            &
 
   ! Unpack buffers in halo cells
   IF(parallel%task.EQ.chunks(chunk)%task) THEN
-
-    IF ((chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) .OR. & 
-        (chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face)) THEN
-#ifdef USE_EXPLICIT_COMMS_BUFF_PACK
-        CALL unpack_comms_buffers_top_bottom_kernel_ocl(chunks(chunk)%chunk_neighbours(chunk_top),           &
-                                                        chunks(chunk)%chunk_neighbours(chunk_bottom),        &
-                                                        x_inc, y_inc, depth, size, field_name,               &
-                                                        top_rcv_buffer, bottom_rcv_buffer)
-#else
-        IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
-
-            CALL ocl_write_comm_buffer(chunks(chunk)%field%x_min, &
-                                       chunks(chunk)%field%x_max, chunks(chunk)%field%y_min,&
-                                       chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
-                                       bottom_rcv_buffer, 3)
-
-        ENDIF
-        IF(chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) THEN
-
-            CALL ocl_write_comm_buffer(chunks(chunk)%field%x_min, &
-                                       chunks(chunk)%field%x_max, chunks(chunk)%field%y_min,&
-                                       chunks(chunk)%field%y_max, depth, x_inc, y_inc, field_name,&
-                                       top_rcv_buffer, 1)
-
-        ENDIF
-#endif
+    IF(use_fortran_kernels) THEN
+      CALL unpack_top_bottom_buffers(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
+                                     chunks(chunk)%field%y_min,chunks(chunk)%field%y_max, &
+                                     chunks(chunk)%chunk_neighbours(chunk_bottom),        &
+                                     chunks(chunk)%chunk_neighbours(chunk_top),           &
+                                     external_face,                                       &
+                                     x_inc,y_inc,depth,size,                              &
+                                     field,bottom_rcv_buffer,top_rcv_buffer)
+    ELSEIF(use_opencl_kernels)THEN
+      CALL unpack_top_bottom_buffers_ocl(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
+                                       chunks(chunk)%field%y_min,chunks(chunk)%field%y_max, &
+                                       chunks(chunk)%chunk_neighbours(chunk_left),          &
+                                       chunks(chunk)%chunk_neighbours(chunk_right),         &
+                                       external_face,                                       &
+                                       x_inc,y_inc,depth,                                   &
+                                       which_field,                                         &
+                                       field,left_snd_buffer,right_snd_buffer)
+    ELSEIF(use_C_kernels)THEN
+      CALL unpack_top_bottom_buffers_c(chunks(chunk)%field%x_min,chunks(chunk)%field%x_max, &
+                                       chunks(chunk)%field%y_min,chunks(chunk)%field%y_max, &
+                                       chunks(chunk)%chunk_neighbours(chunk_bottom),        &
+                                       chunks(chunk)%chunk_neighbours(chunk_top),           &
+                                       external_face,                                       &
+                                       x_inc,y_inc,depth,size,                              &
+                                       field,bottom_rcv_buffer,top_rcv_buffer)
     ENDIF
-
   ENDIF
 
 END SUBROUTINE clover_exchange_message
@@ -718,6 +743,40 @@ SUBROUTINE clover_min(value)
   value=minimum
 
 END SUBROUTINE clover_min
+
+SUBROUTINE clover_max(value)
+
+  IMPLICIT NONE
+
+  REAL(KIND=8) :: value
+
+  REAL(KIND=8) :: maximum
+
+  INTEGER :: err
+
+  maximum=value
+
+  CALL MPI_ALLREDUCE(value,maximum,1,MPI_DOUBLE_PRECISION,MPI_MAX,MPI_COMM_WORLD,err)
+
+  value=maximum
+
+END SUBROUTINE clover_max
+
+SUBROUTINE clover_allgather(value,values)
+
+  IMPLICIT NONE
+
+  REAL(KIND=8) :: value
+
+  REAL(KIND=8) :: values(parallel%max_task)
+
+  INTEGER :: err
+
+  values(1)=value ! Just to ensure it will work in serial
+
+  CALL MPI_ALLGATHER(value,1,MPI_DOUBLE_PRECISION,values,1,MPI_DOUBLE_PRECISION,MPI_COMM_WORLD,err)
+
+END SUBROUTINE clover_allgather
 
 SUBROUTINE clover_check_error(error)
 
