@@ -228,7 +228,7 @@ __kernel void advec_cell_ener_flux_y
             upwind = (row == (y_max + 1) + 2) ? 0 : 1;
             donor = 0;
             downwind = -1;
-            dif = downwind;
+            dif = upwind;
         }
 
         sigmat = fabs(vol_flux_y[THARR2D(0, 0, 0)]) / pre_vol[THARR2D(0, donor, 1)];
