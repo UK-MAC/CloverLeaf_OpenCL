@@ -1,3 +1,4 @@
+#include <kernel_files/macros_cl.cl>
 
 __kernel void initialise_chunk_first
 (const double d_xmin,

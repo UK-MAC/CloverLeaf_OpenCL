@@ -8,7 +8,7 @@
 #include <map>
 
 // 2 dimensional arrays - use a 2D tile for local group
-const static size_t LOCAL_X = 64;
+const static size_t LOCAL_X = 128;
 
 #ifdef ONED_KERNEL_LAUNCHES
 const static size_t LOCAL_Y = 1;
@@ -18,26 +18,39 @@ const static size_t LOCAL_Y = 1;
 const static cl::NDRange local_group_size(LOCAL_X, LOCAL_Y);
 #endif
 
-// halo update
-enum {CELL_DATA, VERTEX_DATA, X_FACE_DATA, Y_FACE_DATA};
-
 // used in update_halo and for copying back to host for mpi transfers
-#define FIELD_density0      0
-#define FIELD_density1      1
-#define FIELD_energy0       2
-#define FIELD_energy1       3
-#define FIELD_pressure      4
-#define FIELD_viscosity     5
-#define FIELD_soundspeed    6
-#define FIELD_xvel0         7
-#define FIELD_xvel1         8
-#define FIELD_yvel0         9
-#define FIELD_yvel1         10
-#define FIELD_vol_flux_x    11
-#define FIELD_vol_flux_y    12
-#define FIELD_mass_flux_x   13
-#define FIELD_mass_flux_y   14
+#define FIELD_density0      1
+#define FIELD_density1      2
+#define FIELD_energy0       3
+#define FIELD_energy1       4
+#define FIELD_pressure      5
+#define FIELD_viscosity     6
+#define FIELD_soundspeed    7
+#define FIELD_xvel0         8
+#define FIELD_xvel1         9
+#define FIELD_yvel0         10
+#define FIELD_yvel1         11
+#define FIELD_vol_flux_x    12
+#define FIELD_vol_flux_y    13
+#define FIELD_mass_flux_x   14
+#define FIELD_mass_flux_y   15
 #define NUM_FIELDS          15
+
+// which side to pack - keep the same as in fortran file
+#define CHUNK_LEFT 1
+#define CHUNK_left 1
+#define CHUNK_RIGHT 2
+#define CHUNK_right 2
+#define CHUNK_BOTTOM 3
+#define CHUNK_bottom 3
+#define CHUNK_TOP 4
+#define CHUNK_top 4
+#define EXTERNAL_FACE       (-1)
+
+#define CELL_DATA   1
+#define VERTEX_DATA 2
+#define X_FACE_DATA 3
+#define Y_FACE_DATA 4
 
 typedef struct cell_info {
     const int x_extra;
@@ -79,7 +92,8 @@ private:
     // kernels
     cl::Kernel ideal_gas_device;
     cl::Kernel accelerate_device;
-    cl::Kernel flux_calc_device;
+    cl::Kernel flux_calc_y_device;
+    cl::Kernel flux_calc_x_device;
     cl::Kernel viscosity_device;
     cl::Kernel revert_device;
     cl::Kernel reset_field_device;
@@ -97,11 +111,13 @@ private:
     cl::Kernel PdV_not_predict_device;
 
     cl::Kernel advec_mom_vol_device;
-    cl::Kernel advec_mom_node_flux_post_x_device;
+    cl::Kernel advec_mom_node_flux_post_x_1_device;
+    cl::Kernel advec_mom_node_flux_post_x_2_device;
     cl::Kernel advec_mom_node_pre_x_device;
     cl::Kernel advec_mom_flux_x_device;
     cl::Kernel advec_mom_xvel_device;
-    cl::Kernel advec_mom_node_flux_post_y_device;
+    cl::Kernel advec_mom_node_flux_post_y_1_device;
+    cl::Kernel advec_mom_node_flux_post_y_2_device;
     cl::Kernel advec_mom_node_pre_y_device;
     cl::Kernel advec_mom_flux_y_device;
     cl::Kernel advec_mom_yvel_device;
@@ -200,6 +216,8 @@ private:
     cl::NDRange global_size;
     // total number of cells
     size_t total_cells;
+    // number of cells reduced
+    size_t reduced_cells;
 
     // sizes for launching update halo kernels - l/r and u/d updates
     cl::NDRange update_lr_global_size[2];
@@ -254,6 +272,9 @@ private:
      const std::string& options);
     // keep track of built programs to avoid rebuilding them
     std::map<std::string, cl::Program> built_programs;
+    std::vector<double> dumpArray
+    (const std::string& arr_name, int x_extra, int y_extra);
+    std::map<std::string, cl::Buffer> arr_names;
 
     /*
      *  initialisation subroutines
@@ -282,10 +303,6 @@ private:
     #define DIE(...) cloverDie(__LINE__, __FILE__, __VA_ARGS__)
     void cloverDie
     (int line, const char* filename, const char* format, ...);
-
-    // dump sum of contents of array
-    double dumpArray
-    (cl::Buffer& buffer, int x_extra, int y_extra);
 
 public:
     // kernels
@@ -356,8 +373,7 @@ public:
      const std::vector< cl::Event > * const events=NULL,
      cl::Event * const event=NULL) ;
 
-    // not compatible - can't 'pad' a 1d work group
-#if defined(ONED_KERNEL_LAUNCHES)
+#if 0
     #define ENQUEUE_OFFSET(knl) ENQUEUE(knl)
 #else
     #define ENQUEUE_OFFSET(knl)                                     \
@@ -395,5 +411,17 @@ public:
      int x_inc, int y_inc, int edge, int dest,
      int which_field, int depth);
 };
+
+class KernelCompileError : std::exception
+{
+private:
+    const std::string _err;
+public:
+    KernelCompileError(const char* err):_err(err){}
+    ~KernelCompileError() throw(){}
+    const char* what() const throw() {return this->_err.c_str();}
+};
+
+extern "C" void tqli_(double *d, double *e, int *np, double **z, int* info);
 
 #endif

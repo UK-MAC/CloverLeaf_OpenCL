@@ -21,15 +21,6 @@ void CloverChunk::initProgram
     options << "-DCLOVER_NO_BUILTINS ";
 #endif
 
-#if defined(NO_KERNEL_REDUCTIONS)
-    // don't do any reductions inside the kernels
-    options << "-D NO_KERNEL_REDUCTIONS ";
-#endif
-
-#ifdef ONED_KERNEL_LAUNCHES
-    // launch kernels with 1d work group size
-    options << "-DONED_KERNEL_LAUNCHES ";
-#endif
 
     // pass in these values so you don't have to pass them in to every kernel
     options << "-Dx_min=" << x_min << " ";
@@ -62,7 +53,8 @@ void CloverChunk::initProgram
 
     compileKernel(options_str, src_ideal_gas_cl, "ideal_gas", ideal_gas_device);
     compileKernel(options_str, src_accelerate_cl, "accelerate", accelerate_device);
-    compileKernel(options_str, src_flux_calc_cl, "flux_calc", flux_calc_device);
+    compileKernel(options_str, src_flux_calc_cl, "flux_calc_x", flux_calc_x_device);
+    compileKernel(options_str, src_flux_calc_cl, "flux_calc_y", flux_calc_y_device);
     compileKernel(options_str, src_viscosity_cl, "viscosity", viscosity_device);
     compileKernel(options_str, src_revert_cl, "revert", revert_device);
 
@@ -86,11 +78,13 @@ void CloverChunk::initProgram
     compileKernel(options_str, src_update_halo_cl, "update_halo_right", update_halo_right_device);
 
     compileKernel(options_str, src_advec_mom_cl, "advec_mom_vol", advec_mom_vol_device);
-    compileKernel(options_str, src_advec_mom_cl, "advec_mom_node_flux_post_x", advec_mom_node_flux_post_x_device);
+    compileKernel(options_str, src_advec_mom_cl, "advec_mom_node_flux_post_x_1", advec_mom_node_flux_post_x_1_device);
+    compileKernel(options_str, src_advec_mom_cl, "advec_mom_node_flux_post_x_2", advec_mom_node_flux_post_x_2_device);
     compileKernel(options_str, src_advec_mom_cl, "advec_mom_node_pre_x", advec_mom_node_pre_x_device);
     compileKernel(options_str, src_advec_mom_cl, "advec_mom_flux_x", advec_mom_flux_x_device);
     compileKernel(options_str, src_advec_mom_cl, "advec_mom_xvel", advec_mom_xvel_device);
-    compileKernel(options_str, src_advec_mom_cl, "advec_mom_node_flux_post_y", advec_mom_node_flux_post_y_device);
+    compileKernel(options_str, src_advec_mom_cl, "advec_mom_node_flux_post_y_1", advec_mom_node_flux_post_y_1_device);
+    compileKernel(options_str, src_advec_mom_cl, "advec_mom_node_flux_post_y_2", advec_mom_node_flux_post_y_2_device);
     compileKernel(options_str, src_advec_mom_cl, "advec_mom_node_pre_y", advec_mom_node_pre_y_device);
     compileKernel(options_str, src_advec_mom_cl, "advec_mom_flux_y", advec_mom_flux_y_device);
     compileKernel(options_str, src_advec_mom_cl, "advec_mom_yvel", advec_mom_yvel_device);
@@ -107,7 +101,7 @@ void CloverChunk::initProgram
 }
 
 void CloverChunk::compileKernel
-(const std::string& options,
+(const std::string& options_orig,
  const std::string& source_name,
  const char* kernel_name,
  cl::Kernel& kernel)
@@ -116,15 +110,29 @@ void CloverChunk::compileKernel
     fprintf(DBGOUT, "Compiling %s...", kernel_name);
     cl::Program program;
 
+    std::stringstream plusprof("");
+
+#if defined(PHI_SOURCE_PROFILING)
+    if (desired_type == CL_DEVICE_TYPE_ACCELERATOR)
+    {
+        plusprof << " -profiling ";
+        plusprof << " -s \"" << _PWD_ << kernel_name << "_cl.cl\" ";
+    }
+    plusprof << options_orig;
+    std::string options(plusprof.str());
+#else
+    std::string options(options_orig);
+#endif
+
     if (built_programs.find(source_name) == built_programs.end())
     {
         try
         {
             program = compileProgram(source_str, options);
         }
-        catch (std::string errs)
+        catch (KernelCompileError err)
         {
-            DIE("Errors in compiling %s:\n%s\n", kernel_name, errs.c_str());
+            DIE("Errors in compiling %s:\n%s\n", kernel_name, err.what());
         }
 
         built_programs[source_name] = program;
@@ -143,8 +151,8 @@ void CloverChunk::compileKernel
     catch (cl::Error e)
     {
         fprintf(DBGOUT, "Failed\n");
-        DIE("Error in creating %s kernel %d\n",
-                kernel_name, e.err());
+        DIE("Error %d (%s) in creating %s kernel\n",
+            e.err(), e.what(), kernel_name);
     }
     cl::detail::errHandler(
         clGetKernelWorkGroupInfo(kernel(),
@@ -202,7 +210,7 @@ cl::Program CloverChunk::compileProgram
 
         std::string errs(errstream.str());
         //DIE("%s\n", errs.c_str());
-        throw errs;
+        throw KernelCompileError(errs.c_str());
     }
 
     // return
@@ -221,32 +229,29 @@ cl::Program CloverChunk::compileProgram
 void CloverChunk::initSizes
 (void)
 {
-#if defined(ONED_KERNEL_LAUNCHES)
-    size_t glob_x = x_max+5;
-    size_t glob_y = y_max+5;
-    total_cells = glob_x*glob_y;
-
-    // pad as below
-    while (total_cells % LOCAL_X)
-    {
-        total_cells++;
-    }
-
-    fprintf(DBGOUT, "Global size = %zu\n", total_cells);
-    global_size = cl::NDRange(total_cells);
-#else
     fprintf(DBGOUT, "Local size = %zux%zu\n", LOCAL_X, LOCAL_Y);
 
     // pad the global size so the local size fits
-    size_t glob_x = x_max+5 +
+    const size_t glob_x = x_max+5 +
         (((x_max+5)%LOCAL_X == 0) ? 0 : (LOCAL_X - ((x_max+5)%LOCAL_X)));
-    size_t glob_y = y_max+5 +
+    const size_t glob_y = y_max+5 +
         (((y_max+5)%LOCAL_Y == 0) ? 0 : (LOCAL_Y - ((y_max+5)%LOCAL_Y)));
     total_cells = glob_x*glob_y;
 
     fprintf(DBGOUT, "Global size = %zux%zu\n", glob_x, glob_y);
     global_size = cl::NDRange(glob_x, glob_y);
-#endif
+
+    /*
+     *  all the reductions only operate on the inner cells, because the halo
+     *  cells aren't really part of the simulation. create a new global size
+     *  that doesn't include these halo cells for the reduction which should
+     *  speed it up a bit
+     */
+    const size_t red_x = x_max +
+        (((x_max)%LOCAL_X == 0) ? 0 : (LOCAL_X - ((x_max)%LOCAL_X)));
+    const size_t red_y = y_max +
+        (((y_max)%LOCAL_Y == 0) ? 0 : (LOCAL_Y - ((y_max)%LOCAL_Y)));
+    reduced_cells = red_x*red_y;
 
     /*
      *  update halo kernels need specific work group sizes - not doing a
@@ -316,20 +321,21 @@ void CloverChunk::initSizes
      *  no 'smart' way to do this?
      */
     #define FIND_PADDING_SIZE(knl, vmin, vmax, hmin, hmax)                      \
-    {                                                                            \
+    {                                                                           \
         size_t global_horz_size = (-(hmin)) + (hmax) + x_max;                   \
         while (global_horz_size % LOCAL_X) global_horz_size++;                  \
         size_t global_vert_size = (-(vmin)) + (vmax) + y_max;                   \
         while (global_vert_size % LOCAL_Y) global_vert_size++;                  \
         launch_specs_t cur_specs;                                               \
         cur_specs.global = cl::NDRange(global_horz_size, global_vert_size);     \
-        cur_specs.offset = cl::NDRange(x_min + 1 + (vmin), y_min + 1 + (hmin)); \
+        cur_specs.offset = cl::NDRange((x_min + 1) + (hmin), (y_min + 1) + (vmin)); \
         launch_specs[#knl"_device"] = cur_specs;                                \
     }
 
     FIND_PADDING_SIZE(ideal_gas, 0, 0, 0, 0); // works
     FIND_PADDING_SIZE(accelerate, 0, 1, 0, 1); // works
-    FIND_PADDING_SIZE(flux_calc, 0, 0, 1, 1);
+    FIND_PADDING_SIZE(flux_calc_x, 0, 0, 1, 0); // works
+    FIND_PADDING_SIZE(flux_calc_y, 0, 0, 0, 1); // works
     FIND_PADDING_SIZE(viscosity, 0, 0, 0, 0); // works
     FIND_PADDING_SIZE(revert, 0, 0, 0, 0); // works
     FIND_PADDING_SIZE(reset_field, 0, 1, 0, 1); // works
@@ -338,11 +344,15 @@ void CloverChunk::initSizes
     FIND_PADDING_SIZE(calc_dt, 0, 0, 0, 0);
 
     FIND_PADDING_SIZE(advec_mom_vol, -2, 2, -2, 2); // works
-    FIND_PADDING_SIZE(advec_mom_node_flux_post_x, -1, 1, -1, 2);
+
+    FIND_PADDING_SIZE(advec_mom_node_flux_post_x_1, 0, 1, -2, 2); // works
+    FIND_PADDING_SIZE(advec_mom_node_flux_post_x_2, 0, 1, -1, 2); // works
     FIND_PADDING_SIZE(advec_mom_node_pre_x, 0, 1, -1, 2); // works
     FIND_PADDING_SIZE(advec_mom_flux_x, 0, 1, -1, 1); // works
     FIND_PADDING_SIZE(advec_mom_xvel, 0, 1, 0, 1); // works
-    FIND_PADDING_SIZE(advec_mom_node_flux_post_y, -1, 2, -1, 1);
+
+    FIND_PADDING_SIZE(advec_mom_node_flux_post_y_1, -2, 2, 0, 1); // works
+    FIND_PADDING_SIZE(advec_mom_node_flux_post_y_2, -1, 2, 0, 1); // works
     FIND_PADDING_SIZE(advec_mom_node_pre_y, -1, 2, 0, 1); // works
     FIND_PADDING_SIZE(advec_mom_flux_y, -1, 1, 0, 1); // works
     FIND_PADDING_SIZE(advec_mom_yvel, 0, 1, 0, 1); // works
@@ -350,8 +360,9 @@ void CloverChunk::initSizes
     FIND_PADDING_SIZE(advec_cell_pre_vol_x, -2, 2, -2, 2); // works
     FIND_PADDING_SIZE(advec_cell_ener_flux_x, 0, 0, 0, 2); // works
     FIND_PADDING_SIZE(advec_cell_x, 0, 0, 0, 0); // works
+
     FIND_PADDING_SIZE(advec_cell_pre_vol_y, -2, 2, -2, 2); // works
-    FIND_PADDING_SIZE(advec_cell_ener_flux_y, 0, 2, 0, 2); // works
+    FIND_PADDING_SIZE(advec_cell_ener_flux_y, 0, 2, 0, 0); // works
     FIND_PADDING_SIZE(advec_cell_y, 0, 0, 0, 0); // works
 
     FIND_PADDING_SIZE(PdV_predict, 0, 0, 0, 0); // works
@@ -363,5 +374,282 @@ void CloverChunk::initSizes
     FIND_PADDING_SIZE(generate_chunk, -2, 2, -2, 2);
 
     FIND_PADDING_SIZE(generate_chunk, -2, 2, -2, 2);
+}
+
+void CloverChunk::initArgs
+(void)
+{
+    #define SETARG_CHECK(knl, idx, buf) \
+        try \
+        { \
+            knl.setArg(idx, buf); \
+        } \
+        catch (cl::Error e) \
+        { \
+            DIE("Error in setting argument index %d to %s for kernel %s (%s - %d)", \
+                idx, #buf, #knl, \
+                e.what(), e.err()); \
+        }
+
+    // ideal_gas
+    ideal_gas_device.setArg(2, pressure);
+    ideal_gas_device.setArg(3, soundspeed);
+
+    // accelerate
+    accelerate_device.setArg(1, xarea);
+    accelerate_device.setArg(2, yarea);
+    accelerate_device.setArg(3, volume);
+    accelerate_device.setArg(4, density0);
+    accelerate_device.setArg(5, pressure);
+    accelerate_device.setArg(6, viscosity);
+    accelerate_device.setArg(7, xvel0);
+    accelerate_device.setArg(8, yvel0);
+    accelerate_device.setArg(9, xvel1);
+    accelerate_device.setArg(10, yvel1);
+
+    // flux calc
+    flux_calc_x_device.setArg(1, xarea);
+    flux_calc_x_device.setArg(2, xvel0);
+    flux_calc_x_device.setArg(3, xvel1);
+    flux_calc_x_device.setArg(4, vol_flux_x);
+
+    flux_calc_y_device.setArg(1, yarea);
+    flux_calc_y_device.setArg(2, yvel0);
+    flux_calc_y_device.setArg(3, yvel1);
+    flux_calc_y_device.setArg(4, vol_flux_y);
+
+    // viscosity
+    viscosity_device.setArg(0, celldx);
+    viscosity_device.setArg(1, celldy);
+    viscosity_device.setArg(2, density0);
+    viscosity_device.setArg(3, pressure);
+    viscosity_device.setArg(4, viscosity);
+    viscosity_device.setArg(5, xvel0);
+    viscosity_device.setArg(6, yvel0);
+
+    // revert
+    revert_device.setArg(0, density0);
+    revert_device.setArg(1, density1);
+    revert_device.setArg(2, energy0);
+    revert_device.setArg(3, energy1);
+
+    // initialise chunk
+    initialise_chunk_first_device.setArg(4, vertexx);
+    initialise_chunk_first_device.setArg(5, vertexdx);
+    initialise_chunk_first_device.setArg(6, vertexy);
+    initialise_chunk_first_device.setArg(7, vertexdy);
+
+    initialise_chunk_second_device.setArg(4, vertexx);
+    initialise_chunk_second_device.setArg(5, vertexdx);
+    initialise_chunk_second_device.setArg(6, vertexy);
+    initialise_chunk_second_device.setArg(7, vertexdy);
+    initialise_chunk_second_device.setArg(8, cellx);
+    initialise_chunk_second_device.setArg(9, celldx);
+    initialise_chunk_second_device.setArg(10, celly);
+    initialise_chunk_second_device.setArg(11, celldy);
+    initialise_chunk_second_device.setArg(12, volume);
+    initialise_chunk_second_device.setArg(13, xarea);
+    initialise_chunk_second_device.setArg(14, yarea);
+
+    // advec_mom
+    /*
+    post_vol = work array 1
+    node_flux = work array 2 _AND_ pre_vol = work array 2
+    node_mass_post = work array 3
+    node_mass_pre = work array 4
+    mom_flux = work array 5
+    */
+    advec_mom_vol_device.setArg(1, work_array_1);
+    advec_mom_vol_device.setArg(2, work_array_2);
+    advec_mom_vol_device.setArg(3, volume);
+    advec_mom_vol_device.setArg(4, vol_flux_x);
+    advec_mom_vol_device.setArg(5, vol_flux_y);
+
+    // x kernels
+    advec_mom_node_flux_post_x_1_device.setArg(0, work_array_2);
+    advec_mom_node_flux_post_x_1_device.setArg(1, mass_flux_x);
+
+    advec_mom_node_flux_post_x_2_device.setArg(0, work_array_3);
+    advec_mom_node_flux_post_x_2_device.setArg(1, work_array_1);
+    advec_mom_node_flux_post_x_2_device.setArg(2, density1);
+
+    advec_mom_node_pre_x_device.setArg(0, work_array_2);
+    advec_mom_node_pre_x_device.setArg(1, work_array_3);
+    advec_mom_node_pre_x_device.setArg(2, work_array_4);
+
+    advec_mom_flux_x_device.setArg(0, work_array_2);
+    advec_mom_flux_x_device.setArg(1, work_array_3);
+    advec_mom_flux_x_device.setArg(2, work_array_4);
+    advec_mom_flux_x_device.setArg(4, celldx);
+    advec_mom_flux_x_device.setArg(5, work_array_5);
+
+    advec_mom_xvel_device.setArg(0, work_array_3);
+    advec_mom_xvel_device.setArg(1, work_array_4);
+    advec_mom_xvel_device.setArg(2, work_array_5);
+
+    // y kernels
+    advec_mom_node_flux_post_y_1_device.setArg(0, work_array_2);
+    advec_mom_node_flux_post_y_1_device.setArg(1, mass_flux_y);
+
+    advec_mom_node_flux_post_y_2_device.setArg(0, work_array_3);
+    advec_mom_node_flux_post_y_2_device.setArg(1, work_array_1);
+    advec_mom_node_flux_post_y_2_device.setArg(2, density1);
+
+    advec_mom_node_pre_y_device.setArg(0, work_array_2);
+    advec_mom_node_pre_y_device.setArg(1, work_array_3);
+    advec_mom_node_pre_y_device.setArg(2, work_array_4);
+
+    advec_mom_flux_y_device.setArg(0, work_array_2);
+    advec_mom_flux_y_device.setArg(1, work_array_3);
+    advec_mom_flux_y_device.setArg(2, work_array_4);
+    advec_mom_flux_y_device.setArg(4, celldy);
+    advec_mom_flux_y_device.setArg(5, work_array_5);
+
+    advec_mom_yvel_device.setArg(0, work_array_3);
+    advec_mom_yvel_device.setArg(1, work_array_4);
+    advec_mom_yvel_device.setArg(2, work_array_5);
+
+    // advec cell
+    /*
+    post_vol = work array 1 _AND_ ener_flux = work_array_1
+    pre_vol = work array 2
+    */
+
+    #define SET_SHARED(knl)             \
+        knl.setArg(1, volume);          \
+        knl.setArg(2, vol_flux_x);      \
+        knl.setArg(3, vol_flux_y);      \
+        knl.setArg(4, work_array_2);    \
+        knl.setArg(5, density1);        \
+        knl.setArg(6, energy1);         \
+        knl.setArg(7, work_array_1);
+
+    // x kernels
+    advec_cell_pre_vol_x_device.setArg(1, work_array_2);
+    advec_cell_pre_vol_x_device.setArg(2, work_array_1);
+    advec_cell_pre_vol_x_device.setArg(3, volume);
+    advec_cell_pre_vol_x_device.setArg(4, vol_flux_x);
+    advec_cell_pre_vol_x_device.setArg(5, vol_flux_y);
+
+    SET_SHARED(advec_cell_ener_flux_x_device)
+    advec_cell_ener_flux_x_device.setArg(8, vertexdx);
+    advec_cell_ener_flux_x_device.setArg(9, mass_flux_x);
+
+    SET_SHARED(advec_cell_x_device)
+    advec_cell_x_device.setArg(8, mass_flux_x);
+
+    // y kernels
+    advec_cell_pre_vol_y_device.setArg(1, work_array_2);
+    advec_cell_pre_vol_y_device.setArg(2, work_array_1);
+    advec_cell_pre_vol_y_device.setArg(3, volume);
+    advec_cell_pre_vol_y_device.setArg(4, vol_flux_x);
+    advec_cell_pre_vol_y_device.setArg(5, vol_flux_y);
+
+    SET_SHARED(advec_cell_ener_flux_y_device)
+    advec_cell_ener_flux_y_device.setArg(8, vertexdy);
+    advec_cell_ener_flux_y_device.setArg(9, mass_flux_y);
+
+    SET_SHARED(advec_cell_y_device)
+    advec_cell_y_device.setArg(8, mass_flux_y);
+
+    #undef SET_SHARED
+
+    // reset field
+    reset_field_device.setArg(0, density0);
+    reset_field_device.setArg(1, density1);
+    reset_field_device.setArg(2, energy0);
+    reset_field_device.setArg(3, energy1);
+    reset_field_device.setArg(4, xvel0);
+    reset_field_device.setArg(5, xvel1);
+    reset_field_device.setArg(6, yvel0);
+    reset_field_device.setArg(7, yvel1);
+
+    // set field
+    set_field_device.setArg(0, density0);
+    set_field_device.setArg(1, density1);
+    set_field_device.setArg(2, energy0);
+    set_field_device.setArg(3, energy1);
+
+    // generate chunk
+    generate_chunk_init_device.setArg(0, density0);
+    generate_chunk_init_device.setArg(1, energy0);
+    generate_chunk_init_device.setArg(2, xvel0);
+    generate_chunk_init_device.setArg(3, yvel0);
+
+    generate_chunk_device.setArg(0, vertexx);
+    generate_chunk_device.setArg(1, vertexy);
+    generate_chunk_device.setArg(2, cellx);
+    generate_chunk_device.setArg(3, celly);
+    generate_chunk_device.setArg(4, density0);
+    generate_chunk_device.setArg(5, energy0);
+    generate_chunk_device.setArg(6, xvel0);
+    generate_chunk_device.setArg(7, yvel0);
+
+    // PdV
+    PdV_predict_device.setArg(1, PdV_reduce_buf);
+    PdV_predict_device.setArg(2, xarea);
+    PdV_predict_device.setArg(3, yarea);
+    PdV_predict_device.setArg(4, volume);
+    PdV_predict_device.setArg(5, density0);
+    PdV_predict_device.setArg(6, density1);
+    PdV_predict_device.setArg(7, energy0);
+    PdV_predict_device.setArg(8, energy1);
+    PdV_predict_device.setArg(9, pressure);
+    PdV_predict_device.setArg(10, viscosity);
+    PdV_predict_device.setArg(11, xvel0);
+    PdV_predict_device.setArg(12, yvel0);
+    PdV_predict_device.setArg(13, xvel1);
+    PdV_predict_device.setArg(14, yvel1);
+
+    PdV_not_predict_device.setArg(1, PdV_reduce_buf);
+    PdV_not_predict_device.setArg(2, xarea);
+    PdV_not_predict_device.setArg(3, yarea);
+    PdV_not_predict_device.setArg(4, volume);
+    PdV_not_predict_device.setArg(5, density0);
+    PdV_not_predict_device.setArg(6, density1);
+    PdV_not_predict_device.setArg(7, energy0);
+    PdV_not_predict_device.setArg(8, energy1);
+    PdV_not_predict_device.setArg(9, pressure);
+    PdV_not_predict_device.setArg(10, viscosity);
+    PdV_not_predict_device.setArg(11, xvel0);
+    PdV_not_predict_device.setArg(12, yvel0);
+    PdV_not_predict_device.setArg(13, xvel1);
+    PdV_not_predict_device.setArg(14, yvel1);
+
+    // field summary
+    field_summary_device.setArg(0, volume);
+    field_summary_device.setArg(1, density0);
+    field_summary_device.setArg(2, energy0);
+    field_summary_device.setArg(3, pressure);
+    field_summary_device.setArg(4, xvel0);
+    field_summary_device.setArg(5, yvel0);
+
+    field_summary_device.setArg(6, reduce_buf_1);
+    field_summary_device.setArg(7, reduce_buf_2);
+    field_summary_device.setArg(8, reduce_buf_3);
+    field_summary_device.setArg(9, reduce_buf_4);
+    field_summary_device.setArg(10, reduce_buf_5);
+
+    // calc dt
+    /*
+    work_array_1 = jk_ctrl
+    work_array_2 = dt_min
+    */
+    calc_dt_device.setArg(7, xarea);
+    calc_dt_device.setArg(8, yarea);
+    calc_dt_device.setArg(9, celldx);
+    calc_dt_device.setArg(10, celldy);
+    calc_dt_device.setArg(11, volume);
+    calc_dt_device.setArg(12, density0);
+    calc_dt_device.setArg(13, viscosity);
+    calc_dt_device.setArg(14, soundspeed);
+    calc_dt_device.setArg(15, xvel0);
+    calc_dt_device.setArg(16, xvel0);
+    calc_dt_device.setArg(17, reduce_buf_1);
+    calc_dt_device.setArg(18, reduce_buf_2);
+
+    // no parameters set for update_halo here
+
+    fprintf(DBGOUT, "Kernel arguments set\n");
 }
 

@@ -1,3 +1,4 @@
+#include <kernel_files/macros_cl.cl>
 
 __kernel void PdV_predict
 (double dt,
@@ -18,12 +19,8 @@ __kernel void PdV_predict
 {
     __kernel_indexes;
 
-#if defined(NO_KERNEL_REDUCTIONS)
-    error_condition[gid] = 0;
-#else
     __local int err_cond_kernel[BLOCK_SZ];
     err_cond_kernel[lid] = 0;
-#endif
 
     double volume_change;
     double recip_volume, energy_change, min_cell_volume,
@@ -61,16 +58,6 @@ __kernel void PdV_predict
             MIN(volume[THARR2D(0, 0, 0)] + right_flux - left_flux,
                 volume[THARR2D(0, 0, 0)] + top_flux - bottom_flux));
 
-#if defined(NO_KERNEL_REDUCTIONS)
-        if(volume_change <= 0.0)
-        {
-            error_condition[gid] = 1;
-        }
-        if(min_cell_volume <= 0.0)
-        {
-            error_condition[gid] = 2;
-        }
-#else
         if(volume_change <= 0.0)
         {
             err_cond_kernel[lid] = 1;
@@ -79,7 +66,6 @@ __kernel void PdV_predict
         {
             err_cond_kernel[lid] = 2;
         }
-#endif
 
         recip_volume = 1.0/volume[THARR2D(0, 0, 0)];
 
@@ -91,9 +77,7 @@ __kernel void PdV_predict
         density1[THARR2D(0, 0, 0)] = density0[THARR2D(0, 0, 0)] * volume_change;
     }
     
-#if !defined(NO_KERNEL_REDUCTIONS)
     REDUCTION(err_cond_kernel, error_condition, MAX)
-#endif
 }
 
 __kernel void PdV_not_predict
@@ -115,12 +99,8 @@ __kernel void PdV_not_predict
 {
     __kernel_indexes;
 
-#if defined(NO_KERNEL_REDUCTIONS)
-    error_condition[gid] = 0;
-#else
     __local int err_cond_kernel[BLOCK_SZ];
     err_cond_kernel[lid] = 0;
-#endif
 
     double volume_change;
     double recip_volume, energy_change, min_cell_volume,
@@ -157,16 +137,6 @@ __kernel void PdV_not_predict
             MIN(volume[THARR2D(0, 0, 0)] + right_flux - left_flux,
                 volume[THARR2D(0, 0, 0)] + top_flux - bottom_flux));
 
-#if defined(NO_KERNEL_REDUCTIONS)
-        if(volume_change <= 0.0)
-        {
-            error_condition[gid] = 1;
-        }
-        if(min_cell_volume <= 0.0)
-        {
-            error_condition[gid] = 2;
-        }
-#else
         if(volume_change <= 0.0)
         {
             err_cond_kernel[lid] = 1;
@@ -175,7 +145,6 @@ __kernel void PdV_not_predict
         {
             err_cond_kernel[lid] = 2;
         }
-#endif
 
         recip_volume = 1.0/volume[THARR2D(0, 0, 0)];
 
@@ -185,11 +154,8 @@ __kernel void PdV_not_predict
 
         energy1[THARR2D(0, 0, 0)] = energy0[THARR2D(0, 0, 0)] - energy_change;
         density1[THARR2D(0, 0, 0)] = density0[THARR2D(0, 0, 0)] * volume_change;
-
     }
 
-#if !defined(NO_KERNEL_REDUCTIONS)
     REDUCTION(err_cond_kernel, error_condition, MAX)
-#endif
 }
 

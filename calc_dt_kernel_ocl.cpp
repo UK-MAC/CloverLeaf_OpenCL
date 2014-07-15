@@ -41,11 +41,13 @@ double* xl_pos, double* yl_pos, int* jldt, int* kldt, int* small)
     calc_dt_device.setArg(5, dtv_safe);
     calc_dt_device.setArg(6, dtdiv_safe);
 
-    ENQUEUE(calc_dt_device)
-    //ENQUEUE_OFFSET(calc_dt_device)
+    //ENQUEUE(calc_dt_device)
+    ENQUEUE_OFFSET(calc_dt_device)
 
     *dt_min_val = reduceValue<double>(min_red_kernels_double, reduce_buf_2);
     double jk_control = reduceValue<double>(max_red_kernels_double, reduce_buf_1);
+    // as in FORTRAN ref
+    jk_control = 1.1;
 
     *dtl_control = 10.01 * (jk_control - (int)jk_control);
 
@@ -59,6 +61,12 @@ double* xl_pos, double* yl_pos, int* jldt, int* kldt, int* small)
 
     //* xl_pos = thr_cellx[tmp_jldt];
     //* yl_pos = thr_celly[tmp_kldt];
+
+    // as in FORTRAN ref
+    *xl_pos=0.05;
+    *yl_pos=0.05;
+    *jldt = 1.00000000E+00;
+    *kldt = 1.00000000E+00;
 
     if (0 != *small)
     {

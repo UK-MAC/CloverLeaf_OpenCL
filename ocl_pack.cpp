@@ -1,12 +1,6 @@
 #include "ocl_common.hpp"
 extern CloverChunk chunk;
 
-// which side to pack - keep the same as in fortran file
-#define CHUNK_LEFT 1
-#define CHUNK_RIGHT 2
-#define CHUNK_BOTTOM 3
-#define CHUNK_TOP 4
-
 // define a generic interface for fortran
 #define C_PACK_INTERFACE(operation, dir)                            \
 extern "C" void operation##_##dir##_buffers_ocl_                    \
@@ -17,7 +11,7 @@ extern "C" void operation##_##dir##_buffers_ocl_                    \
 {                                                                   \
     chunk.operation##_##dir(*chunk_1, *chunk_2, *external_face,     \
                             *x_inc, *y_inc, *depth,                 \
-                            (*which_field)-1, buffer_1, buffer_2);  \
+                            *which_field, buffer_1, buffer_2);  \
 }
 
 C_PACK_INTERFACE(pack, left_right)
@@ -79,8 +73,8 @@ void CloverChunk::packRect
     CASE_BUF(mass_flux_x); break;
     CASE_BUF(mass_flux_y); break;
     default:
-        DIE("Invalid face %d passed to left/right pack buffer\n",
-                which_field);
+        device_buf = NULL;
+        DIE("Invalid face %d passed to left/right pack buffer\n", which_field);
     }
 
     switch (edge)

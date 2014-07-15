@@ -1,3 +1,4 @@
+#include <kernel_files/macros_cl.cl>
 
 __kernel void update_halo_bottom_BARE
 (int depth,

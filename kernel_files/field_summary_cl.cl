@@ -1,3 +1,4 @@
+#include <kernel_files/macros_cl.cl>
 
 __kernel void field_summary
 (__global const double * __restrict const volume,
@@ -34,8 +35,8 @@ __kernel void field_summary
     press_shared[lid] = 0.0;
 #endif
 
-    if(row >= (y_min + 1) && row <= (y_max + 1)
-    && column >= (x_min + 1) && column <= (x_max + 1))
+    if(/*row >= (y_min + 1) &&*/ row <= (y_max + 1)
+    && /*column >= (x_min + 1) &&*/ column <= (x_max + 1))
     {
         double vsqrd = 0.0;
 

@@ -1,13 +1,6 @@
 #include "ocl_common.hpp"
 extern CloverChunk chunk;
 
-#define CHUNK_left          0
-#define CHUNK_right         1
-#define CHUNK_bottom        2
-#define CHUNK_top           3
-
-#define EXTERNAL_FACE       (-1)
-
 // types of array data
 const static cell_info_t CELL(    0, 0,  1,  1, 0, 0, CELL_DATA);
 const static cell_info_t VERTEX_X(1, 1, -1,  1, 0, 0, VERTEX_DATA);
@@ -33,7 +26,7 @@ int depth)
 
     // could do offset launch for updating bottom/right, but dont to keep parity with cuda
     #define CHECK_LAUNCH(face, dir) \
-    if(chunk_neighbours[CHUNK_ ## face] == EXTERNAL_FACE)\
+    if(chunk_neighbours[CHUNK_ ## face - 1] == EXTERNAL_FACE)\
     {\
         update_halo_##face##_device.setArg(0, array_type.x_extra); \
         update_halo_##face##_device.setArg(1, array_type.y_extra); \
@@ -57,15 +50,13 @@ int depth)
     CHECK_LAUNCH(bottom, ud)
 }
 
-#include <numeric>
-
 void CloverChunk::update_halo_kernel
 (const int* fields,
 const int depth,
 const int* chunk_neighbours)
 {
     #define HALO_UPDATE_RESIDENT(arr, type)                 \
-    if(fields[FIELD_ ## arr] == 1)                          \
+    if(fields[FIELD_ ## arr - 1] == 1)                      \
     {                                                       \
         update_array(arr, type, chunk_neighbours, depth);   \
     }

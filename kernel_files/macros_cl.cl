@@ -1,20 +1,12 @@
 #pragma OPENCL EXTENSION cl_khr_fp64 : enable
 
-#ifdef ONED_KERNEL_LAUNCHES
-    #define __kernel_indexes                            \
-        const size_t glob_id = get_global_id(0); \
-        const size_t row = glob_id / (x_max + 4);  \
-        const size_t column = glob_id % (x_max + 4); \
-        const size_t lid = get_local_id(0);
-#else
-    #define __kernel_indexes                            \
-        const size_t column = get_global_id(0);			\
-        const size_t row = get_global_id(1);				\
-        const size_t loc_column = get_local_id(0);			\
-        const size_t loc_row = get_local_id(1);			\
-        const size_t lid = loc_row*LOCAL_X + loc_column;	\
-        const size_t gid = row*get_global_size(0) + column;
-#endif
+#define __kernel_indexes                            \
+    const size_t column = get_global_id(0);			\
+    const size_t row = get_global_id(1);				\
+    const size_t loc_column = get_local_id(0);			\
+    const size_t loc_row = get_local_id(1);			\
+    const size_t lid = loc_row*LOCAL_X + loc_column;	\
+    const size_t gid = row*get_global_size(0) + column;
 
 #define THARR2D(x_offset, y_offset, big_row)        \
     (                                               \
@@ -43,9 +35,9 @@
 #if defined(CL_DEVICE_TYPE_GPU)
 
     // binary tree reduction
-    #define REDUCTION(in, out, operation)                    \
+    #define REDUCTION(in, out, operation)                           \
         barrier(CLK_LOCAL_MEM_FENCE);                               \
-        for (int offset = BLOCK_SZ / 2; offset > 0; offset /= 2) \
+        for (int offset = BLOCK_SZ / 2; offset > 0; offset /= 2)    \
         {                                                           \
             if (lid < offset)                                       \
             {                                                       \
@@ -62,32 +54,31 @@
 #elif defined(CL_DEVICE_TYPE_CPU)
 
     // loop in first thread
-    #define REDUCTION(in, out, operation)                    \
-        barrier(CLK_LOCAL_MEM_FENCE);                               \
-        if (0 == lid)                                               \
-        {                                                           \
-            for (int offset = 1; offset < BLOCK_SZ; offset++)    \
-            {                                                       \
-                in[0] = operation(in[0], in[offset]);               \
-            }                                                       \
+    #define REDUCTION(in, out, operation)                       \
+        barrier(CLK_LOCAL_MEM_FENCE);                           \
+        if (0 == lid)                                           \
+        {                                                       \
+            for (int offset = 1; offset < BLOCK_SZ; offset++)   \
+            {                                                   \
+                in[0] = operation(in[0], in[offset]);           \
+            }                                                   \
             out[get_group_id(1)*get_num_groups(0) + get_group_id(0)] = in[0]; \
         }
 
 #elif defined(CL_DEVICE_TYPE_ACCELERATOR)
 
-    //#warning Using CPU style reduction for xeon phi - better performance may be obtained by using the NO_KERNEL_REDUCTIONS option which removes the need for the barrier
-
     // loop in first thread
-    #define REDUCTION(in, out, operation)                    \
-        barrier(CLK_LOCAL_MEM_FENCE);                               \
-        if (0 == lid)                                               \
-        {                                                           \
-            for (int offset = 1; offset < BLOCK_SZ; offset++)    \
-            {                                                       \
-                in[0] = operation(in[0], in[offset]);               \
-            }                                                       \
+    #define REDUCTION(in, out, operation)                       \
+        barrier(CLK_LOCAL_MEM_FENCE);                           \
+        if (0 == lid)                                           \
+        {                                                       \
+            for (int offset = 1; offset < BLOCK_SZ; offset++)   \
+            {                                                   \
+                in[0] = operation(in[0], in[offset]);           \
+            }                                                   \
             out[get_group_id(1)*get_num_groups(0) + get_group_id(0)] = in[0]; \
         }
+
 #if 0
 
     /*

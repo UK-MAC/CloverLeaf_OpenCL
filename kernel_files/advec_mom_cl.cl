@@ -1,3 +1,4 @@
+#include <kernel_files/macros_cl.cl>
 
 __kernel void advec_mom_vol
 (int mom_sweep,
@@ -44,10 +45,23 @@ __kernel void advec_mom_vol
 ////////////////////////////////////////////////////////////
 //x kernels
 
-__kernel void advec_mom_node_flux_post_x
+__kernel void advec_mom_node_flux_post_x_1
 (__global       double* __restrict const node_flux,
- __global       double* __restrict const node_mass_post,
- __global const double* __restrict const mass_flux_x,
+ __global const double* __restrict const mass_flux_x)
+{
+    __kernel_indexes;
+
+    if(/*row >= (y_min + 1) &&*/ row <= (y_max + 1) + 1
+    && /*column >= (x_min + 1) - 2 &&*/ column <= (x_max + 1) + 2)
+    {
+        node_flux[THARR2D(0, 0, 1)] = 0.25
+            * (mass_flux_x[THARR2D(0, -1, 1)] + mass_flux_x[THARR2D(0, 0, 1)]
+            +  mass_flux_x[THARR2D(1, -1, 1)] + mass_flux_x[THARR2D(1, 0, 1)]);
+    }
+}
+
+__kernel void advec_mom_node_flux_post_x_2
+(__global       double* __restrict const node_mass_post,
  __global const double* __restrict const post_vol,
  __global const double* __restrict const density1)
 {
@@ -56,21 +70,11 @@ __kernel void advec_mom_node_flux_post_x
     if(/*row >= (y_min + 1) &&*/ row <= (y_max + 1) + 1
     && /*column >= (x_min + 1) - 1 &&*/ column <= (x_max + 1) + 2)
     {
-        node_flux[THARR2D(0, 0, 1)] = 0.25
-            * (mass_flux_x[THARR2D(0, -1, 1)] + mass_flux_x[THARR2D(0, 0, 1)]
-            + mass_flux_x[THARR2D(1, -1, 1)] + mass_flux_x[THARR2D(1, 0, 1)]);
-/*
-    }
-
-    if(row >= (y_min + 1) && row <= (y_max + 1) + 1
-    && column >= (x_min + 1) - 1 && column <= (x_max + 1) + 2)
-    {
-*/
-            node_mass_post[THARR2D(0, 0, 1)] = 0.25
-                *(density1[THARR2D(0, -1, 0)]  * post_vol[THARR2D(0, -1, 1)]
-                + density1[THARR2D(0, 0, 0)]   * post_vol[THARR2D(0, 0, 1)]
-                + density1[THARR2D(-1, -1, 0)] * post_vol[THARR2D(-1, -1, 1)]
-                + density1[THARR2D(-1, 0, 0)]  * post_vol[THARR2D(-1, 0, 1)]);
+        node_mass_post[THARR2D(0, 0, 1)] = 0.25
+            *(density1[THARR2D(0, -1, 0)]  * post_vol[THARR2D(0, -1, 1)]
+            + density1[THARR2D(0, 0, 0)]   * post_vol[THARR2D(0, 0, 1)]
+            + density1[THARR2D(-1, -1, 0)] * post_vol[THARR2D(-1, -1, 1)]
+            + density1[THARR2D(-1, 0, 0)]  * post_vol[THARR2D(-1, 0, 1)]);
     }
 }
 
@@ -163,12 +167,9 @@ __kernel void advec_mom_xvel
 ////////////////////////////////////////////////////////////
 //y kernels
 
-__kernel void advec_mom_node_flux_post_y
+__kernel void advec_mom_node_flux_post_y_1
 (__global       double* __restrict const node_flux,
- __global       double* __restrict const node_mass_post,
- __global const double* __restrict const mass_flux_y,
- __global const double* __restrict const post_vol,
- __global const double* __restrict const density1)
+ __global const double* __restrict const mass_flux_y)
 {
     __kernel_indexes;
 
@@ -177,14 +178,20 @@ __kernel void advec_mom_node_flux_post_y
     {
         node_flux[THARR2D(0, 0, 1)] = 0.25
             * (mass_flux_y[THARR2D(-1, 0, 0)] + mass_flux_y[THARR2D(0, 0, 0)]
-            + mass_flux_y[THARR2D(-1, 1, 0)] + mass_flux_y[THARR2D(0, 1, 0)]);
-/*
+            +  mass_flux_y[THARR2D(-1, 1, 0)] + mass_flux_y[THARR2D(0, 1, 0)]);
     }
+}
 
-    if(row >= (y_min + 1) - 1 && row <= (y_max + 1) + 2
-    && column >= (x_min + 1) && column <= (x_max + 1) + 1)
+__kernel void advec_mom_node_flux_post_y_2
+(__global       double* __restrict const node_mass_post,
+ __global const double* __restrict const post_vol,
+ __global const double* __restrict const density1)
+{
+    __kernel_indexes;
+
+    if(/*row >= (y_min + 1) - 1 &&*/ row <= (y_max + 1) + 2
+    && /*column >= (x_min + 1) &&*/ column <= (x_max + 1) + 1)
     {
-*/
         node_mass_post[THARR2D(0, 0, 1)] = 0.25
             * (density1[THARR2D(0, -1, 0)] * post_vol[THARR2D(0, -1, 1)]
             + density1[THARR2D(0, 0, 0)]   * post_vol[THARR2D(0, 0, 1)]

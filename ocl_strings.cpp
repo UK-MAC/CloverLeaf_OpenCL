@@ -4,46 +4,49 @@
 #include <cstring>
 #include <sstream>
 
-// TODO make into a function instead of a macro
-// match something like param_name=param_string
-#define MATCH_PARAM(param_name) \
-    static char name_buf[101]; \
-    bool found = false; \
-    rewind(input); \
-    /* read in line from file */ \
-    while (NULL != fgets(name_buf, 100, input)) \
-    {   \
-        /* if it has the parameter name, its the line we want */ \
-        if (NULL != strstr(name_buf, param_name)) \
-        { \
-            /* mark as found for params which don't have an argument */ \
-            found = true;\
-            if (NULL != strstr(name_buf, "=")) \
-            { \
-                *(strstr(name_buf, "=")) = ' ';\
-                char param_buf[100]; \
-                sscanf(name_buf, "%*s %s", param_buf); \
-                param_string = std::string(param_buf); \
-                break; \
-            }   \
-        }   \
+std::string matchParam
+(FILE * input,
+ const char* param_name)
+{
+    std::string param_string;
+    static char name_buf[101];
+    rewind(input);
+    /* read in line from file */
+    while (NULL != fgets(name_buf, 100, input))
+    {
+        /* if it has the parameter name, its the line we want */
+        if (NULL != strstr(name_buf, param_name))
+        {
+            if (NULL != strstr(name_buf, "="))
+            {
+                *(strstr(name_buf, "=")) = ' ';
+                char param_buf[100];
+                sscanf(name_buf, "%*s %s", param_buf);
+                param_string = std::string(param_buf);
+                break;
+            }
+            else
+            {
+                param_string = std::string("NO_SETTING");
+                break;
+            }
+        }
     }
+
+    return param_string;
+}
 
 int platformRead
 (FILE* input)
 {
-    std::string param_string;
-    MATCH_PARAM("opencl_vendor");
-
+    std::string param_string = matchParam(input, "opencl_vendor");
     return platformMatch(param_string);
 }
 
 int typeRead
 (FILE* input)
 {
-    std::string param_string;
-    MATCH_PARAM("opencl_type");
-
+    std::string param_string = matchParam(input, "opencl_type");
     return typeMatch(param_string);
 }
 
@@ -70,6 +73,14 @@ int platformMatch
     else if (plat_name.find("nvidia") != std::string::npos)
     {
         return NVIDIA_PLAT;
+    }
+    else if (plat_name.find("list") != std::string::npos)
+    {
+        return LIST_PLAT;
+    }
+    else if (plat_name.find("any") != std::string::npos)
+    {
+        return ANY_PLAT;
     }
     else
     {
@@ -116,31 +127,28 @@ std::string strType
 {
     switch (dtype)
     {
-    case CL_DEVICE_TYPE_GPU : 
+    case CL_DEVICE_TYPE_GPU :
         return std::string("GPU");
-    case CL_DEVICE_TYPE_CPU : 
+    case CL_DEVICE_TYPE_CPU :
         return std::string("CPU");
-    case CL_DEVICE_TYPE_ACCELERATOR : 
+    case CL_DEVICE_TYPE_ACCELERATOR :
         return std::string("ACCELERATOR");
     default :
         return std::string("Device type does not match known values");
     }
 }
 
-bool cgEnabled
-(FILE* input)
+bool paramEnabled
+(FILE* input, const char* param)
 {
-    std::string param_string;
-    MATCH_PARAM("tl_use_cg");
-
-    return found;
+    std::string param_string = matchParam(input, param);
+    return param_string.size() > 0 ? true : false;
 }
 
 int preferredDevice
 (FILE* input)
 {
-    std::string param_string;
-    MATCH_PARAM("opencl_device");
+    std::string param_string = matchParam(input, "opencl_device");
 
     int preferred_device;
 

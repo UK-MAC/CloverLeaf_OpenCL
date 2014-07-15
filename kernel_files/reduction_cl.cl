@@ -132,15 +132,12 @@ __kernel void reduction
 
     if (0 == lid)
     {
-        if (LOCAL_SZ == GLOBAL_SZ)
-        {
-            // last stage - write back into 0 - no chance of data race
-            input[0] = scratch[0];
-        }
-        else
-        {
-            input[dest_offset + get_group_id(0)] = scratch[0];
-        }
+#if (LOCAL_SZ == GLOBAL_SZ)
+        // last stage - write back into 0 - no chance of data race
+        input[0] = scratch[0];
+#else
+        input[dest_offset + get_group_id(0)] = scratch[0];
+#endif
     }
 }
 

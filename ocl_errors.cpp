@@ -1,7 +1,12 @@
+#if defined(MPI_HDR)
+#include "mpi.h"
+#endif
 #include "ocl_common.hpp"
 
 #include <cstdio>
 #include <sstream>
+#include <stdexcept>
+#include <cstdarg>
 
 std::string errToString(cl_int err)
 {
@@ -93,8 +98,10 @@ void CloverChunk::enqueueKernel
             fprintf(stdout, "Enqueueing kernel: %s\n", func_name.c_str());
             fprintf(stdout, "%zu global dimensions\n", global_range.dimensions());
             fprintf(stdout, "%zu local dimensions\n", local_range.dimensions());
+            fprintf(stdout, "%zu offset dimensions\n", offset_range.dimensions());
             fprintf(stdout, "Global size: [%zu %zu]\n", global_range[0], global_range[1]);
             fprintf(stdout, "Local size:  [%zu %zu]\n", local_range[0], local_range[1]);
+            fprintf(stdout, "Offset size: [%zu %zu]\n", offset_range[0], offset_range[1]);
             fprintf(stdout, "\n");
             fflush(stdout);
             #endif
@@ -148,7 +155,7 @@ void CloverChunk::enqueueKernel
             errstr << global_range.dimensions() << " global dimensions, ";
             errstr << local_range.dimensions() << " local dimensions." << std::endl;
 
-            for (int ii = 0; ii < global_range.dimensions(); ii++)
+            for (unsigned int ii = 0; ii < global_range.dimensions(); ii++)
             {
                 errstr << "Launch dimension " << ii << ": ";
                 errstr << "global " << global_range[ii] << ", ";
@@ -170,16 +177,15 @@ void CloverChunk::enqueueKernel
     }
 }
 
-#include <cstdarg>
-
 // called when something goes wrong
 void CloverChunk::cloverDie
 (int line, const char* filename, const char* format, ...)
 {
     fprintf(stderr, "@@@@@\n");
     fprintf(stderr, "\x1b[31m");
-    fprintf(stderr, "Fatal error at line %d in %s:\n", line, filename);
+    fprintf(stderr, "Fatal error at line %d in %s:", line, filename);
     fprintf(stderr, "\x1b[0m");
+    fprintf(stderr, "\n");
 
     va_list arglist;
     va_start(arglist, format);
@@ -203,19 +209,18 @@ CloverChunk::~CloverChunk
 {
     if (profiler_on)
     {
-		fprintf(stdout, "@@@@@ PROFILING @@@@@\n");
+        fprintf(stdout, "@@@@@ PROFILING @@@@@\n");
 
         for (std::map<std::string, double>::iterator ii = kernel_times.begin();
-			ii != kernel_times.end(); ii++)
+            ii != kernel_times.end(); ii++)
         {
-            fprintf(stdout, "%30s : %.3lf\n", (*ii).first.c_str(), (*ii).second);
+            fprintf(stdout, "%30s : %.3f\n", (*ii).first.c_str(), (*ii).second);
         }
     }
 }
 
-#include <numeric>
-double CloverChunk::dumpArray
-(cl::Buffer& buffer, int x_extra, int y_extra)
+std::vector<double> CloverChunk::dumpArray
+(const std::string& arr_name, int x_extra, int y_extra)
 {
     // number of bytes to allocate for 2d array
     #define BUFSZ2D(x_extra, y_extra)   \
@@ -229,15 +234,21 @@ double CloverChunk::dumpArray
 
     try
     {
-        queue.enqueueReadBuffer(buffer, CL_TRUE, 0, BUFSZ2D(x_extra, y_extra), &host_buffer[0]);
+        queue.enqueueReadBuffer(arr_names.at(arr_name),
+            CL_TRUE, 0, BUFSZ2D(x_extra, y_extra), &host_buffer[0]);
     }
     catch (cl::Error e)
     {
-        DIE("DF");
+        DIE("Error '%s (%d)' reading array %s back from device",
+            e.what(), e.err(), arr_name.c_str());
+    }
+    catch (std::out_of_range e)
+    {
+        DIE("Error - %s was not in the arr_names map\n", arr_name.c_str());
     }
 
-    double sum = std::accumulate(host_buffer.begin(), host_buffer.end(), 0.0);
-    fprintf(stdout, "%.16f\n", sum);
-    return sum;
+    queue.finish();
+
+    return host_buffer;
 }
 

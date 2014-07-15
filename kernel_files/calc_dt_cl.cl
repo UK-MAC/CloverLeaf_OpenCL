@@ -1,3 +1,4 @@
+#include <kernel_files/macros_cl.cl>
 
 __kernel void calc_dt
 (const double g_small,
@@ -38,18 +39,13 @@ __kernel void calc_dt
     double dt_min_val = g_big;
     double jk_control = 0.0;
 
-#if defined(NO_KERNEL_REDUCTIONS)
-    dt_min_out[gid] = dt_min_val;
-    jk_ctrl_out[gid] = jk_control;
-#else
     __local double dt_min_shared[BLOCK_SZ];
     __local double jk_ctrl_shared[BLOCK_SZ];
     dt_min_shared[lid] = dt_min_val;
     jk_ctrl_shared[lid] = jk_control;
-#endif
 
-    if(row >= (y_min + 1) && row <= (y_max + 1)
-    && column >= (x_min + 1) && column <= (x_max + 1))
+    if (/*row >= (y_min + 1) &&*/ row <= (y_max + 1)
+    && /*column >= (x_min + 1) &&*/ column <= (x_max + 1))
     {
         dsx = celldx[column];
         dsy = celldy[row];
@@ -91,18 +87,11 @@ __kernel void calc_dt
 
         dtdivt = (div < (-g_small)) ? dtdiv_safe * (-1.0/div) : g_big;
 
-#if defined(NO_KERNEL_REDUCTIONS)
-        dt_min_out[gid] = MIN(dtdivt, MIN(dtvt, MIN(dtct, dtut)));
-        jk_ctrl_out[gid] = (column + (x_max * (row - 1))) + 0.4;
-#else
         dt_min_shared[lid] = MIN(dtdivt, MIN(dtvt, MIN(dtct, dtut)));
         jk_ctrl_shared[lid] = (column + (x_max * (row - 1))) + 0.4;
-#endif
     }
 
-#if !defined(NO_KERNEL_REDUCTIONS)
     REDUCTION(dt_min_shared, dt_min_out, MIN)
     REDUCTION(jk_ctrl_shared, jk_ctrl_out, MAX)
-#endif
 }
 

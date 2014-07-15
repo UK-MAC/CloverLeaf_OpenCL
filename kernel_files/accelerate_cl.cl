@@ -1,3 +1,5 @@
+#include <kernel_files/macros_cl.cl>
+
 __kernel void accelerate
 (double dbyt,
  __global const double * const __restrict xarea,

@@ -13,15 +13,10 @@ void CloverChunk::initReduction
      */
     fprintf(DBGOUT, "\n---- Reduction ----\n");
 
-    fprintf(DBGOUT, "Total cells = %zu\n", total_cells);
-
-#if defined(NO_KERNEL_REDUCTIONS)
-    // no reduction inside kernel
-    const size_t total_to_reduce = total_cells;
-#else
     // each work group reduces to 1 value inside each kernel
-    const size_t total_to_reduce = ceil(float(total_cells)/(LOCAL_X*LOCAL_Y));
-#endif
+    const size_t total_to_reduce = ceil(float(reduced_cells)/(LOCAL_X*LOCAL_Y));
+
+    fprintf(DBGOUT, "Total cells to reduce = %zu\n", total_to_reduce);
 
     size_t reduction_global_size = total_to_reduce;
     fprintf(DBGOUT, "Reduction within work group reduces to = %zu\n", reduction_global_size);
@@ -59,13 +54,13 @@ void CloverChunk::initReduction
         std::stringstream options("");
 
 #ifdef __arm__
-        options << "-DCLOVER_NO_BUILTINS ";
+        options << "-D CLOVER_NO_BUILTINS ";
 #endif
 
         // which stage this reduction kernel is at - starts at 1
-        options << "-DRED_STAGE=" << ii << " ";
+        options << "-D RED_STAGE=" << ii << " ";
         // original total number of elements to reduce
-        options << "-DORIG_ELEMS_TO_REDUCE=" << total_to_reduce << " ";
+        options << "-D ORIG_ELEMS_TO_REDUCE=" << total_to_reduce << " ";
 
         // device type in the form "-D..."
         options << device_type_prepro;
@@ -73,7 +68,7 @@ void CloverChunk::initReduction
 
         // the actual number of elements that needs to be reduced in this stage
         const size_t stage_elems_to_reduce = reduction_global_size;
-        options << "-DELEMS_TO_REDUCE=" << stage_elems_to_reduce << " ";
+        options << "-D ELEMS_TO_REDUCE=" << stage_elems_to_reduce << " ";
 
         fprintf(DBGOUT, "\n\nStage %d:\n", ii);
         fprintf(DBGOUT, "%zu elements remaining to reduce\n", stage_elems_to_reduce);
@@ -87,7 +82,7 @@ void CloverChunk::initReduction
          */
         size_t reduction_local_size = LOCAL_X*LOCAL_Y;
 
-        // if  there are more elements to reduce than the standard local size
+        // if there are more elements to reduce than the standard local size
         if (reduction_global_size > reduction_local_size)
         {
             /*
@@ -142,6 +137,7 @@ void CloverChunk::initReduction
         fprintf(DBGOUT, "Load threshold is %zu\n", red_load_threshold);
         #endif
         options << "-D RED_LOAD_THRESHOLD=" << 0 << " ";
+        options << "-I. ";
 
         fprintf(DBGOUT, "\n");
 
@@ -149,13 +145,21 @@ void CloverChunk::initReduction
         #define MAKE_REDUCE_KNL(name, data_type, init_val)              \
         {                                                               \
             std::string red_options = options.str()                     \
-                + "-D red_"+#name+" "                                    \
-                + "-D reduce_t="#data_type+" "                           \
-                + "-D INIT_RED_VAL="+#init_val+" ";                      \
+                + "-D red_"+#name+" "                                   \
+                + "-D reduce_t="#data_type+" "                          \
+                + "-D INIT_RED_VAL="+#init_val+" ";                     \
             fprintf(DBGOUT, "Making reduction kernel '%s' ", #name);    \
             fprintf(DBGOUT, "with options string:\n%s\n",               \
                     red_options.c_str());                               \
-            program = compileProgram(ss.str(), red_options);                      \
+            try                                                         \
+            {                                                           \
+                program = compileProgram(ss.str(), red_options);        \
+            }                                                           \
+            catch (KernelCompileError err)                              \
+            {                                                           \
+                DIE("Errors in compiling reduction %s_%s:\n%s\n",       \
+                    #name, #data_type, err.what());                     \
+            }                                                           \
             try                                                         \
             {                                                           \
                 name##_##data_type = cl::Kernel(program, "reduction");  \

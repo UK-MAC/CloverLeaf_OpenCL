@@ -32,16 +32,12 @@ void CloverChunk::advec_mom_kernel
         advec_mom_yvel_device.setArg(3, yvel1);
     }
 
-    // FIXME something still a bit dodgy - results slightly wrong
-	#ifdef ENQUEUE_OFFSET
-	#undef ENQUEUE_OFFSET
-	#endif
-    #define ENQUEUE_OFFSET ENQUEUE
-
     if (1 == direction)
     {
-        //ENQUEUE(advec_mom_node_flux_post_x_device);
-        ENQUEUE_OFFSET(advec_mom_node_flux_post_x_device);
+        //ENQUEUE(advec_mom_node_flux_post_x_1_device);
+        ENQUEUE_OFFSET(advec_mom_node_flux_post_x_1_device);
+        //ENQUEUE(advec_mom_node_flux_post_x_2_device);
+        ENQUEUE_OFFSET(advec_mom_node_flux_post_x_2_device);
 
         //ENQUEUE(advec_mom_node_pre_x_device);
         ENQUEUE_OFFSET(advec_mom_node_pre_x_device);
@@ -54,8 +50,10 @@ void CloverChunk::advec_mom_kernel
     }
     else if (2 == direction)
     {
-        //ENQUEUE(advec_mom_node_flux_post_y_device);
-        ENQUEUE_OFFSET(advec_mom_node_flux_post_y_device);
+        //ENQUEUE(advec_mom_node_flux_post_y_1_device);
+        ENQUEUE_OFFSET(advec_mom_node_flux_post_y_1_device);
+        //ENQUEUE(advec_mom_node_flux_post_y_2_device);
+        ENQUEUE_OFFSET(advec_mom_node_flux_post_y_2_device);
 
         //ENQUEUE(advec_mom_node_pre_y_device);
         ENQUEUE_OFFSET(advec_mom_node_pre_y_device);

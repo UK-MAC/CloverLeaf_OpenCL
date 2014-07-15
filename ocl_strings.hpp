@@ -2,7 +2,7 @@
 #include <string>
 #include "ocl_common.hpp"
 
-enum {AMD_PLAT, INTEL_PLAT, NVIDIA_PLAT, NO_PLAT};
+enum {AMD_PLAT, INTEL_PLAT, NVIDIA_PLAT, NO_PLAT, ANY_PLAT, LIST_PLAT};
 
 /*
  *  reads file given and finds the platform vendor to be used
@@ -44,12 +44,19 @@ std::string errToString
 /*
  *  Find if tl_use_cg is in the input file
  */
-bool cgEnabled
-(FILE* input);
+bool paramEnabled
+(FILE* input, const char* param);
 
 /*
  *  Returns index of desired device, or -1 if some error occurs (none specified, invalid specification, etc)
  */
 int preferredDevice
 (FILE* input);
+
+/*
+ *  Find out the value of a parameter
+ */
+std::string matchParam
+(FILE * input,
+ const char* param_name);
 

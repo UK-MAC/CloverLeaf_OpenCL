@@ -1,3 +1,4 @@
+#include <kernel_files/macros_cl.cl>
 
 __kernel void generate_chunk
 (__global const double * __restrict const vertexx,
@@ -28,8 +29,8 @@ __kernel void generate_chunk
 {
     __kernel_indexes;
 
-    if (/*row >= (y_min + 1) - 2 &&*/ row <= (y_max + 1) + 2
-    && /*column >= (x_min + 1) - 2 &&*/ column <= (x_max + 1) + 2)
+    if (row >= (y_min + 1) - 2 && row <= (y_max + 1) + 2
+    && column >= (x_min + 1) - 2 && column <= (x_max + 1) + 2)
     {
         const double x_cent = state_xmin[state];
         const double y_cent = state_ymin[state];
@@ -119,8 +120,8 @@ __kernel void generate_chunk_init
 {
     __kernel_indexes;
 
-    if(/*row >= (y_min + 1) - 2 &&*/ row <= (y_max + 1) + 2
-    && /*column >= (x_min + 1) - 2 &&*/ column <= (x_max + 1) + 2)
+    if(row >= (y_min + 1) - 2 && row <= (y_max + 1) + 2
+    && column >= (x_min + 1) - 2 && column <= (x_max + 1) + 2)
     {
         energy0[THARR2D(0, 0, 0)] = state_energy[0];
         density0[THARR2D(0, 0, 0)] = state_density[0];

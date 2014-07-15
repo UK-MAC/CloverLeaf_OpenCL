@@ -5,6 +5,7 @@
 #include "ocl_strings.hpp"
 
 #include <sstream>
+#include <iostream>
 
 CloverChunk chunk;
 
@@ -52,19 +53,14 @@ CloverChunk::CloverChunk
     rank = 0;
 #endif
 
+    double t0 = omp_get_wtime();
+
     if (!rank)
     {
         fprintf(stdout, "Initialising OpenCL\n");
     }
 
-#if defined(MPI_HDR)
-    double t0 = MPI_Wtime();
-#else
-    double t0 = omp_get_wtime();
-#endif
-
     initOcl();
-
     initProgram();
     initSizes();
     initReduction();
@@ -73,16 +69,11 @@ CloverChunk::CloverChunk
 
 #if defined(MPI_HDR)
     MPI_Barrier(MPI_COMM_WORLD);
-    if (!rank)
-    {
-        fprintf(stdout, "Finished initialisation in %lf seconds\n", MPI_Wtime()-t0);
-    }
-#else
-    if (!rank)
-    {
-        fprintf(stdout, "Finished initialisation in %lf seconds\n", omp_get_wtime()-t0);
-    }
 #endif
+    if (!rank)
+    {
+        fprintf(stdout, "Finished initialisation in %f seconds\n", omp_get_wtime()-t0);
+    }
 }
 
 void CloverChunk::initOcl
@@ -110,36 +101,90 @@ void CloverChunk::initOcl
         // should never happen
         DIE("Input file not found\n");
     }
+
     int desired_vendor = platformRead(input);
-    int preferred_device = preferredDevice(input);
-    fprintf(DBGOUT, "Preferred device is %d\n", preferred_device);
-    desired_type = typeRead(input);
 
-    fclose(input);
 
-    size_t ii = 0;
-
-    // go through all platforms
-    while(1)
+    if (desired_vendor == NO_PLAT)
     {
-        std::string plat_name;
-        platforms.at(ii).getInfo(CL_PLATFORM_VENDOR, &plat_name);
-        fprintf(DBGOUT, "Checking platform %s\n", plat_name.c_str());
+        DIE("No platform specified in tea.in\n");
+    }
+    else if (desired_vendor == LIST_PLAT)
+    {
+        // special case to print out platforms instead
+        fprintf(stdout, "Listing platforms\n\n");
 
-        // if the platform name given matches one in the LUT
-        if (platformMatch(plat_name) == desired_vendor)
+        for (size_t pp = 0; pp < platforms.size(); pp++)
         {
-            fprintf(DBGOUT, "correct vendor platform found\n");
-            platform = platforms.at(ii);
-            break;
+            std::string profile, version, name, vendor;
+            platforms.at(pp).getInfo(CL_PLATFORM_PROFILE, &profile);
+            platforms.at(pp).getInfo(CL_PLATFORM_VERSION, &version);
+            platforms.at(pp).getInfo(CL_PLATFORM_NAME, &name);
+            platforms.at(pp).getInfo(CL_PLATFORM_VENDOR, &vendor);
+
+            fprintf(stdout, "Platform %zu: %s - %s (profile = %s, version = %s)\n",
+                pp, vendor.c_str(), name.c_str(), profile.c_str(), version.c_str());
+
+            std::vector<cl::Device> devices;
+            platforms.at(pp).getDevices(CL_DEVICE_TYPE_ALL, &devices);
+
+            for (size_t ii = 0; ii < devices.size(); ii++)
+            {
+                std::string devname;
+                cl_device_type dtype;
+                devices.at(ii).getInfo(CL_DEVICE_NAME, &devname);
+                devices.at(ii).getInfo(CL_DEVICE_TYPE, &dtype);
+                // trim whitespace
+                devname.erase(devname.find_last_not_of(" \n\r\t")+1);
+                devname.erase(devname.begin(), devname.begin()+devname.find_first_not_of(" \n\r\t"));
+
+                std::string dtype_str = strType(dtype);
+                fprintf(stdout, " Device %zu: %s (%s)\n", ii, devname.c_str(), dtype_str.c_str());
+            }
         }
 
-        // if there are no platforms left to match
-        if (platforms.size() == ++ii)
+        exit(0);
+    }
+    else if (desired_vendor == ANY_PLAT)
+    {
+#if defined(MPI_HDR)
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+#endif
+        fprintf(stdout, "No platform specified - using platform %d in rank %d\n",
+            rank, rank);
+        platform = platforms.at(rank);
+    }
+    else
+    {
+        // go through all platforms
+        for (size_t ii = 0;;)
         {
-            DIE("correct vendor platform NOT found\n");
+            std::string plat_name;
+            platforms.at(ii).getInfo(CL_PLATFORM_VENDOR, &plat_name);
+            fprintf(DBGOUT, "Checking platform %s\n", plat_name.c_str());
+
+            // if the platform name given matches one in the LUT
+            if (platformMatch(plat_name) == desired_vendor)
+            {
+                fprintf(DBGOUT, "correct vendor platform found\n");
+                platform = platforms.at(ii);
+                break;
+            }
+
+            // if there are no platforms left to match
+            if (platforms.size() == ++ii)
+            {
+                DIE("correct vendor platform NOT found\n");
+            }
         }
     }
+
+    int preferred_device = preferredDevice(input);
+    preferred_device = (preferred_device < 0) ? 0 : preferred_device;
+    fprintf(DBGOUT, "Preferred device is %d\n", preferred_device);
+    bool usefirst = paramEnabled(input, "opencl_usefirst");
+    desired_type = typeRead(input);
+    fclose(input);
 
     // try to create a context with the desired type
     cl_context_properties properties[3] = {CL_CONTEXT_PLATFORM,
@@ -151,15 +196,18 @@ void CloverChunk::initOcl
     }
     catch (cl::Error e)
     {
+        if (e.err() == CL_DEVICE_NOT_AVAILABLE)
+        {
+            DIE("Devices found but are not available (CL_DEVICE_NOT_AVAILABLE)\n");
+        }
         // if there's no device of the desired type in this context
-        if (e.err() == CL_DEVICE_NOT_FOUND
-        || e.err() == CL_DEVICE_NOT_AVAILABLE)
+        else if (e.err() == CL_DEVICE_NOT_FOUND)
         {
             fprintf(stderr, "No devices of specified type found:\n");
             std::vector<cl::Device> devices;
             platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
 
-            for (int ii = 0; ii < devices.size(); ii++)
+            for (size_t ii = 0; ii < devices.size(); ii++)
             {
                 std::string devname;
                 cl_device_type dtype;
@@ -174,13 +222,13 @@ void CloverChunk::initOcl
         }
         else
         {
-            DIE("Error in creating context %d\n", e.err());
+            DIE("Error %d (%s) in creating context\n", e.err(), e.what());
         }
     }
 
 #if defined(MPI_HDR)
     // gets devices one at a time to prevent conflicts (on emerald)
-    int ranks, rank, cur_rank = 0;
+    int ranks, cur_rank = 0;
 
     MPI_Comm_size(MPI_COMM_WORLD, &ranks);
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -190,39 +238,47 @@ void CloverChunk::initOcl
         if (rank == cur_rank)
         {
 #endif
+            // index of device to use
+            int actual_device = 0;
+
             // get devices - just choose the first one
             std::vector<cl::Device> devices;
             context.getInfo(CL_CONTEXT_DEVICES, &devices);
+
+            if (usefirst)
+            {
+                // always use specified device and ignore rank
+                actual_device = preferred_device;
+            }
+            else
+            {
+                actual_device = preferred_device + (rank % devices.size());
+            }
 
             std::string devname;
 
             if (preferred_device < 0)
             {
                 // if none specified or invalid choice, choose 0
-                fprintf(stdout,
-                    "No device specified, choosing device 0\n");
-                device = devices.at(0);
+                fprintf(stdout, "No device specified, choosing device 0\n");
+                actual_device = 0;
+                device = devices.at(actual_device);
             }
-            else if (preferred_device+rank > devices.size())
+            else if (actual_device >= devices.size())
             {
-                // if preferred does not exist, choose 0 and warn
-                fprintf(stderr,
-                    "WARNING - device %d does not exist as there are only %zu available - choosing 0\n",
-                    preferred_device, devices.size());
-                device = devices.at(0);
+                DIE("Device %d was selected in rank %d but there are only %zu available\n",
+                    actual_device, rank, devices.size());
             }
             else
             {
-                device = devices.at(preferred_device+rank);
+                device = devices.at(actual_device);
             }
 
             device.getInfo(CL_DEVICE_NAME, &devname);
 
-#if defined(MPI_HDR)
-            fprintf(stdout, "OpenCL using %s in rank %d\n", devname.c_str(), rank);
-#else
-            fprintf(stdout, "OpenCL using %s\n", devname.c_str());
-#endif
+            fprintf(stdout, "OpenCL using device %d (%s) in rank %d\n",
+                actual_device, devname.c_str(), rank);
+
             // choose reduction based on device type
             switch (desired_type)
             {
@@ -236,13 +292,15 @@ void CloverChunk::initOcl
                 device_type_prepro = "-DCL_DEVICE_TYPE_ACCELERATOR ";
                 break;
             default :
-                device_type_prepro = "-DNODEVICETYPE ";
+                device_type_prepro = "-DCL_DEVICE_TYPE_GPU ";
                 break;
             }
 #if defined(MPI_HDR)
         }
         MPI_Barrier(MPI_COMM_WORLD);
     } while ((cur_rank++) < ranks);
+
+    MPI_Barrier(MPI_COMM_WORLD);
 #endif
 
     // initialise command queue

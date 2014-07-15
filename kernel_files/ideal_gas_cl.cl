@@ -1,3 +1,5 @@
+#include <kernel_files/macros_cl.cl>
+
 __kernel void ideal_gas
 (__global const double * __restrict const density,
  __global const double * __restrict const energy,
