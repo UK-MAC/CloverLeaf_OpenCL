@@ -2,13 +2,13 @@
 extern CloverChunk chunk;
 
 extern "C" void advec_mom_kernel_ocl_
-(int *whch_vl, int *swp_nmbr, int *drctn)
+(int * advec_int, int *whch_vl, int *swp_nmbr, int *drctn)
 {
-    chunk.advec_mom_kernel(*whch_vl, *swp_nmbr, *drctn);
+    chunk.advec_mom_kernel(*advect_int, *whch_vl, *swp_nmbr, *drctn);
 }
 
 void CloverChunk::advec_mom_kernel
-(int which_vel, int sweep_number, int direction)
+(int advect_int, int which_vel, int sweep_number, int direction)
 {
     int mom_sweep = direction + (2 * (sweep_number - 1));
 
@@ -44,12 +44,6 @@ void CloverChunk::advec_mom_kernel
         advec_mom_flux_z_device.setArg(3, zvel1);
         advec_mom_zvel_device.setArg(3, zvel1);
     }
-
-    // FIXME something still a bit dodgy - results slightly wrong
-#ifdef ENQUEUE_OFFSET
-#undef ENQUEUE_OFFSET
-#endif
-#define ENQUEUE_OFFSET ENQUEUE
 
     if (1 == direction)
     {

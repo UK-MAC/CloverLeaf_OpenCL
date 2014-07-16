@@ -1,4 +1,4 @@
-#Crown Copyright 2012 AWE.
+#Crown Copyright 2014 AWE.
 #
 # This file is part of CloverLeaf.
 #
@@ -16,9 +16,10 @@
 # CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 #  @brief Makefile for CloverLeaf
-#  @author Wayne Gaudin, Andy Herdman
-#  @details Agnostic, platform independent makefile for the Clover Leaf benchmark code.
+#  @author David Beckingsale, Wayne Gaudin
+#  @details Agnostic, platform independent makefile for the CloverLeaf benchmark code.
 
+# Agnostic, platform independent makefile for the CloverLeaf benchmark code.
 # It is not meant to be clever in anyway, just a simple build out of the box script.
 # Just make sure mpif90 is in your path. It uses mpif90 even for all builds because this abstracts the base
 #  name of the compiler. If you are on a system that doesn't use mpif90, just replace mpif90 with the compiler name
@@ -62,6 +63,12 @@ ifndef COMPILER
   MESSAGE=select a compiler to compile in OpenMP, e.g. make COMPILER=INTEL
 endif
 
+BLAS=
+BLAS+=$(MKLPATH)/libmkl_intel_lp64.so
+BLAS+=$(MKLPATH)/libmkl_sequential.so
+#BLAS+=/opt/intel/composer_xe_2015.0.024/mkl/lib/intel64/libmkl_intel_thread.so
+BLAS+=$(MKLPATH)/libmkl_core.so
+
 OMP_INTEL     = -openmp
 OMP_SUN       = -xopenmp=parallel -vpara
 OMP_GNU       = -fopenmp
@@ -71,7 +78,7 @@ OMP_PATHSCALE = -mp
 OMP_XL        = -qsmp=omp -qthreaded
 OMP=$(OMP_$(COMPILER))
 
-FLAGS_INTEL     = -O3 -no-prec-div
+FLAGS_INTEL     = -O3  -no-prec-div -xhost -g
 FLAGS_SUN       = -fast -xipo=2 -Xlistv4
 FLAGS_GNU       = -O3 -march=native -funroll-loops
 FLAGS_CRAY      = -em -ra -h acc_model=fast_addr:no_deep_copy:auto_async_all
@@ -79,7 +86,7 @@ FLAGS_PGI       = -fastsse -gopt -Mipa=fast -Mlist
 FLAGS_PATHSCALE = -O3
 FLAGS_XL       = -O5 -qipa=partition=large -g -qfullpath -Q -qsigtrap -qextname=flush:ideal_gas_kernel_c:viscosity_kernel_c:pdv_kernel_c:revert_kernel_c:accelerate_kernel_c:flux_calc_kernel_c:advec_cell_kernel_c:advec_mom_kernel_c:reset_field_kernel_c:timer_c:unpack_top_bottom_buffers_c:pack_top_bottom_buffers_c:unpack_left_right_buffers_c:pack_left_right_buffers_c:field_summary_kernel_c:update_halo_kernel_c:generate_chunk_kernel_c:initialise_chunk_kernel_c:calc_dt_kernel_c -qlistopt -qattr=full -qlist -qreport -qxref=full -qsource -qsuppress=1506-224:1500-036
 FLAGS_          = -O3
-CFLAGS_INTEL     = -O3 -no-prec-div -restrict -fno-alias
+CFLAGS_INTEL     = -O3  -no-prec-div -restrict -fno-alias
 CFLAGS_SUN       = -fast -xipo=2
 CFLAGS_GNU       = -O3 -march=native -funroll-loops
 CFLAGS_CRAY      = -em -h list=a
@@ -117,94 +124,152 @@ ifdef IEEE
   I3E=$(I3E_$(COMPILER))
 endif
 
+MPICXX_LIB=-lmpi_cxx
+
+LDLIBS+=-lOpenCL -lstdc++ $(MPICXX_LIB) $(BLAS)
+CXXFLAGS+=-D CL_USE_DEPRECATED_OPENCL_1_1_APIS -D __CL_ENABLE_EXCEPTIONS -D MPI_HDR
+
+VPATH+=kernel_files
+
+ifdef PHI_SOURCE_PROFILING
+CXXFLAGS+=-D _PWD_="\"$(shell pwd)/\"" -D PHI_SOURCE_PROFILING
+endif
+
+ifdef VERBOSE
+CXXFLAGS+=-D OCL_VERBOSE
+endif
+
 FLAGS=$(FLAGS_$(COMPILER)) $(OMP) $(I3E) $(OPTIONS)
 CFLAGS=$(CFLAGS_$(COMPILER)) $(OMP) $(I3E) $(C_OPTIONS) -c
 MPI_COMPILER=mpif90
 C_MPI_COMPILER=mpicc
+CXX_MPI_COMPILER=mpiCC
 
-clover_leaf: c_lover *.f90 Makefile
-	$(MPI_COMPILER) $(FLAGS)	\
-	data.f90			\
-	definitions.f90			\
-	pack_kernel.f90			\
-	clover.f90			\
-	report.f90			\
-	timer.f90			\
-	parse.f90			\
-	read_input.f90			\
-	initialise_chunk_kernel.f90	\
-	initialise_chunk.f90		\
-	build_field.f90			\
-	update_halo_kernel.f90		\
-	update_halo.f90			\
-	ideal_gas_kernel.f90		\
-	ideal_gas.f90			\
-	start.f90			\
-	generate_chunk_kernel.f90	\
-	generate_chunk.f90		\
-	initialise.f90			\
-	field_summary_kernel.f90	\
-	field_summary.f90		\
-	viscosity_kernel.f90		\
-	viscosity.f90			\
-	calc_dt_kernel.f90		\
-	calc_dt.f90			\
-	timestep.f90			\
-	accelerate_kernel.f90		\
-	accelerate.f90			\
-	revert_kernel.f90		\
-	revert.f90			\
-	PdV_kernel.f90			\
-	PdV.f90				\
-	flux_calc_kernel.f90		\
-	flux_calc.f90			\
-	advec_cell_kernel.f90		\
-	advec_cell_driver.f90		\
-	advec_mom_kernel.f90		\
-	advec_mom_driver.f90		\
-	advection.f90			\
-	reset_field_kernel.f90		\
-	reset_field.f90			\
-	hydro.f90			\
-	visit.f90			\
-	clover_leaf.f90			\
+CXXFLAGS+=$(CFLAGS)
+
+C_FILES=\
 	accelerate_kernel_c.o           \
+	pack_kernel_c.o \
 	PdV_kernel_c.o                  \
+	timer_c.o                  \
+	initialise_chunk_kernel_c.o                  \
+	calc_dt_kernel_c.o                  \
+	field_summary_kernel_c.o                  \
+	update_halo_kernel_c.o                  \
+	generate_chunk_kernel_c.o                  \
 	flux_calc_kernel_c.o            \
 	revert_kernel_c.o               \
 	reset_field_kernel_c.o          \
 	ideal_gas_kernel_c.o            \
 	viscosity_kernel_c.o            \
-	advec_mom_kernel_c.o            \
-	advec_cell_kernel_c.o           \
-	calc_dt_kernel_c.o		\
-	field_summary_kernel_c.o	\
-	update_halo_kernel_c.o		\
-	timer_c.o                       \
-	pack_kernel_c.o			\
-	generate_chunk_kernel_c.o	\
-	initialise_chunk_kernel_c.o	\
-	-o clover_leaf; echo $(MESSAGE)
+	advec_cell_kernel_c.o			\
+	advec_mom_kernel_c.o
 
-c_lover: *.c Makefile
-	$(C_MPI_COMPILER) $(CFLAGS)     \
-	accelerate_kernel_c.c           \
-	PdV_kernel_c.c                  \
-	flux_calc_kernel_c.c            \
-	revert_kernel_c.c               \
-	reset_field_kernel_c.c          \
-	ideal_gas_kernel_c.c            \
-	viscosity_kernel_c.c            \
-	advec_mom_kernel_c.c            \
-	advec_cell_kernel_c.c           \
-	calc_dt_kernel_c.c		\
-	field_summary_kernel_c.c	\
-	update_halo_kernel_c.c		\
-	pack_kernel_c.c			\
-	generate_chunk_kernel_c.c	\
-	initialise_chunk_kernel_c.c	\
-	timer_c.c
+FORTRAN_FILES=\
+	clover.o \
+	pack_kernel.o \
+	data.o			\
+	definitions.o			\
+	report.o			\
+	timer.o			\
+	parse.o			\
+	read_input.o			\
+	initialise_chunk_kernel.o	\
+	initialise_chunk.o		\
+	build_field.o			\
+	update_halo_kernel.o		\
+	update_halo.o			\
+	ideal_gas_kernel.o		\
+	ideal_gas.o			\
+	start.o			\
+	generate_chunk_kernel.o	\
+	generate_chunk.o		\
+	initialise.o			\
+	field_summary_kernel.o	\
+	field_summary.o		\
+	viscosity_kernel.o		\
+	viscosity.o			\
+	calc_dt_kernel.o		\
+	calc_dt.o			\
+	timestep.o			\
+	accelerate_kernel.o		\
+	accelerate.o			\
+	revert_kernel.o		\
+	revert.o			\
+	PdV_kernel.o			\
+	PdV.o				\
+	flux_calc_kernel.o		\
+	flux_calc.o			\
+	advec_cell_kernel.o		\
+	advec_cell_driver.o		\
+	advec_mom_kernel.o		\
+	advec_mom_driver.o		\
+	advection.o			\
+	reset_field_kernel.o		\
+	reset_field.o			\
+	hydro.o			\
+	visit.o \
+    clover.o
 
+OCL_FILES=\
+	ocl_pack.o \
+	ocl_init.o \
+	ocl_strings.o \
+	ocl_buffers.o \
+	ocl_errors.o \
+	ocl_reduction.o \
+	ocl_kernels.o \
+	_kernel_strings.o \
+	ideal_gas_kernel_ocl.o \
+	accelerate_kernel_ocl.o \
+	viscosity_kernel_ocl.o \
+	reset_field_kernel_ocl.o \
+	field_summary_kernel_ocl.o \
+	PdV_kernel_ocl.o \
+	generate_chunk_kernel_ocl.o \
+	advec_mom_kernel_ocl.o \
+	update_halo_kernel_ocl.o \
+	advec_cell_kernel_ocl.o \
+	calc_dt_kernel_ocl.o \
+	revert_kernel_ocl.o \
+	initialise_chunk_kernel_ocl.o \
+	flux_calc_kernel_ocl.o
+
+clover_leaf: Makefile $(FORTRAN_FILES) $(C_FILES) $(OCL_FILES)
+	$(MPI_COMPILER) $(FLAGS)	\
+	$(FORTRAN_FILES)	\
+	$(C_FILES)	\
+	$(OCL_FILES) \
+	$(LDFLAGS) \
+	$(LDLIBS) \
+	-o clover_leaf
+	@echo $(MESSAGE)
+
+include make.deps
+
+%.o: %.cpp Makefile make.deps
+	$(CXX_MPI_COMPILER) $(CXXFLAGS) -c $< -o $*.o
+%.mod %_module.mod %_leaf_module.mod: %.f90 %.o
+	@true
+%.o: %.f90 Makefile make.deps
+	$(MPI_COMPILER) $(FLAGS) -c $< -o $*.o
+%.o: %.c Makefile make.deps
+	$(C_MPI_COMPILER) $(CFLAGS) -c $< -o $*.o
+
+KERNEL_HDR_FILE=ocl_kernel_hdr.hpp
+$(KERNEL_HDR_FILE): _kernel_strings.o
+_kernel_strings.cpp: Makefile $(shell ls kernel_files/*.cl)
+	@echo "// automaticllly generated from makefile" > $(KERNEL_HDR_FILE)
+	@echo "#include <string>" > $(KERNEL_HDR_FILE); \
+	echo "#include \"$(KERNEL_HDR_FILE)\"" > _kernel_strings.cpp; \
+	for i in `ls kernel_files/*.cl`; do \
+		knl_name=`echo $$i | sed 's/\(\.\/\)\?kernel_files\///g' | sed 's/\.cl//g'`; \
+		echo "extern const std::string src_$$knl_name;" >> $(KERNEL_HDR_FILE); \
+		echo -n "const std::string src_$$knl_name(\"" >> _kernel_strings.cpp; \
+		cat $$i | sed 's/\\/\\\\/g' | sed 's/\([^\\]*\)$$/\1\\n\\/g' >> _kernel_strings.cpp; \
+		echo "\");" >> _kernel_strings.cpp; \
+	done
+	@echo "Remade kernel header"
 
 clean:
-	rm -f *.o *.mod *genmod* *cuda* *hmd* *.cu *.oo *.hmf *.lst *.cub *.ptx *.cl clover_leaf
+	rm -f *.o *.mod *genmod* *.lst *.cub *.ptx clover_leaf $(KERNEL_HDR_FILE) _kernel_strings.cpp

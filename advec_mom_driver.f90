@@ -30,7 +30,7 @@ SUBROUTINE advec_mom_driver(chunk,which_vel,direction,sweep_number)
 
   IMPLICIT NONE
 
-  INTEGER :: chunk,which_vel,direction,sweep_number
+  INTEGER :: chunk,which_vel,direction,sweep_number, advec_int
 
   IF(chunks(chunk)%task.EQ.parallel%task) THEN
 
@@ -67,7 +67,14 @@ SUBROUTINE advec_mom_driver(chunk,which_vel,direction,sweep_number)
                           sweep_number,                           &
                           direction                               )
     ELSEIF(use_opencl_kernels)THEN
-	CALL advec_mom_kernel_ocl(which_vel, sweep_number, direction)
+
+    if (advect_x .eq. .true.) then
+        advec_int = 1
+    else
+        advec_int = 0
+    ENDIF
+
+	CALL advec_mom_kernel_ocl(advec_int, which_vel, sweep_number, direction)
     ELSEIF(use_C_kernels)THEN
       CALL advec_mom_kernel_c(chunks(chunk)%field%x_min,          &
                           chunks(chunk)%field%x_max,              &
