@@ -9,14 +9,8 @@
 
 // 2 dimensional arrays - use a 2D tile for local group
 const static size_t LOCAL_X = 128;
-
-#ifdef ONED_KERNEL_LAUNCHES
-const static size_t LOCAL_Y = 1;
-const static cl::NDRange local_group_size(LOCAL_X);
-#else
 const static size_t LOCAL_Y = 1;
 const static cl::NDRange local_group_size(LOCAL_X, LOCAL_Y);
-#endif
 
 // used in update_halo and for copying back to host for mpi transfers
 #define FIELD_density0      1

@@ -332,41 +332,41 @@ void CloverChunk::initSizes
         launch_specs[#knl"_device"] = cur_specs;                                \
     }
 
-    FIND_PADDING_SIZE(ideal_gas, 0, 0, 0, 0); // works
-    FIND_PADDING_SIZE(accelerate, 0, 1, 0, 1); // works
-    FIND_PADDING_SIZE(flux_calc_x, 0, 0, 1, 0); // works
-    FIND_PADDING_SIZE(flux_calc_y, 0, 0, 0, 1); // works
-    FIND_PADDING_SIZE(viscosity, 0, 0, 0, 0); // works
-    FIND_PADDING_SIZE(revert, 0, 0, 0, 0); // works
-    FIND_PADDING_SIZE(reset_field, 0, 1, 0, 1); // works
-    FIND_PADDING_SIZE(set_field, 0, 1, 0, 1); // works
+    FIND_PADDING_SIZE(ideal_gas, 0, 0, 0, 0); 
+    FIND_PADDING_SIZE(accelerate, 0, 1, 0, 1); 
+    FIND_PADDING_SIZE(flux_calc_x, 0, 0, 1, 0); 
+    FIND_PADDING_SIZE(flux_calc_y, 0, 0, 0, 1); 
+    FIND_PADDING_SIZE(viscosity, 0, 0, 0, 0); 
+    FIND_PADDING_SIZE(revert, 0, 0, 0, 0); 
+    FIND_PADDING_SIZE(reset_field, 0, 1, 0, 1); 
+    FIND_PADDING_SIZE(set_field, 0, 1, 0, 1); 
     FIND_PADDING_SIZE(field_summary, 0, 0, 0, 0);
     FIND_PADDING_SIZE(calc_dt, 0, 0, 0, 0);
 
-    FIND_PADDING_SIZE(advec_mom_vol, -2, 2, -2, 2); // works
+    FIND_PADDING_SIZE(advec_mom_vol, -2, 2, -2, 2); 
 
-    FIND_PADDING_SIZE(advec_mom_node_flux_post_x_1, 0, 1, -2, 2); // works
-    FIND_PADDING_SIZE(advec_mom_node_flux_post_x_2, 0, 1, -1, 2); // works
-    FIND_PADDING_SIZE(advec_mom_node_pre_x, 0, 1, -1, 2); // works
-    FIND_PADDING_SIZE(advec_mom_flux_x, 0, 1, -1, 1); // works
-    FIND_PADDING_SIZE(advec_mom_xvel, 0, 1, 0, 1); // works
+    FIND_PADDING_SIZE(advec_mom_node_flux_post_x_1, 0, 1, -2, 2); 
+    FIND_PADDING_SIZE(advec_mom_node_flux_post_x_2, 0, 1, -1, 2); 
+    FIND_PADDING_SIZE(advec_mom_node_pre_x, 0, 1, -1, 2); 
+    FIND_PADDING_SIZE(advec_mom_flux_x, 0, 1, -1, 1); 
+    FIND_PADDING_SIZE(advec_mom_xvel, 0, 1, 0, 1); 
 
-    FIND_PADDING_SIZE(advec_mom_node_flux_post_y_1, -2, 2, 0, 1); // works
-    FIND_PADDING_SIZE(advec_mom_node_flux_post_y_2, -1, 2, 0, 1); // works
-    FIND_PADDING_SIZE(advec_mom_node_pre_y, -1, 2, 0, 1); // works
-    FIND_PADDING_SIZE(advec_mom_flux_y, -1, 1, 0, 1); // works
-    FIND_PADDING_SIZE(advec_mom_yvel, 0, 1, 0, 1); // works
+    FIND_PADDING_SIZE(advec_mom_node_flux_post_y_1, -2, 2, 0, 1); 
+    FIND_PADDING_SIZE(advec_mom_node_flux_post_y_2, -1, 2, 0, 1); 
+    FIND_PADDING_SIZE(advec_mom_node_pre_y, -1, 2, 0, 1); 
+    FIND_PADDING_SIZE(advec_mom_flux_y, -1, 1, 0, 1); 
+    FIND_PADDING_SIZE(advec_mom_yvel, 0, 1, 0, 1); 
 
-    FIND_PADDING_SIZE(advec_cell_pre_vol_x, -2, 2, -2, 2); // works
-    FIND_PADDING_SIZE(advec_cell_ener_flux_x, 0, 0, 0, 2); // works
-    FIND_PADDING_SIZE(advec_cell_x, 0, 0, 0, 0); // works
+    FIND_PADDING_SIZE(advec_cell_pre_vol_x, -2, 2, -2, 2); 
+    FIND_PADDING_SIZE(advec_cell_ener_flux_x, 0, 0, 0, 2); 
+    FIND_PADDING_SIZE(advec_cell_x, 0, 0, 0, 0); 
 
-    FIND_PADDING_SIZE(advec_cell_pre_vol_y, -2, 2, -2, 2); // works
-    FIND_PADDING_SIZE(advec_cell_ener_flux_y, 0, 2, 0, 0); // works
-    FIND_PADDING_SIZE(advec_cell_y, 0, 0, 0, 0); // works
+    FIND_PADDING_SIZE(advec_cell_pre_vol_y, -2, 2, -2, 2); 
+    FIND_PADDING_SIZE(advec_cell_ener_flux_y, 0, 2, 0, 0); 
+    FIND_PADDING_SIZE(advec_cell_y, 0, 0, 0, 0); 
 
-    FIND_PADDING_SIZE(PdV_predict, 0, 0, 0, 0); // works
-    FIND_PADDING_SIZE(PdV_not_predict, 0, 0, 0, 0); // works
+    FIND_PADDING_SIZE(PdV_predict, 0, 0, 0, 0); 
+    FIND_PADDING_SIZE(PdV_not_predict, 0, 0, 0, 0); 
 
     FIND_PADDING_SIZE(initialise_chunk_first, 0, 3, 0, 3);
     FIND_PADDING_SIZE(initialise_chunk_second, -2, 2, -2, 2);
