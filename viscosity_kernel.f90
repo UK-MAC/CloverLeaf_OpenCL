@@ -59,7 +59,8 @@ SUBROUTINE viscosity_kernel(x_min,x_max,y_min,y_max,z_min,z_max,    &
 
 !$OMP PARALLEL
 
-!$OMP DO PRIVATE(ugrad,vgrad,wgrad,div,strain2,pgradx,pgrady,pgradz,pgradx2,pgrady2,pgradz2,limiter,pgrad,xgrad,ygrad,zgrad,grad,grad2)
+!$OMP DO PRIVATE(ugrad,vgrad,wgrad,div,strain2,pgradx,pgrady, &
+!$OMP            pgradz,pgradx2,pgrady2,pgradz2,limiter,pgrad,xgrad,ygrad,zgrad,grad,grad2)
   DO l=z_min,z_max
     DO k=y_min,y_max
       DO j=x_min,x_max
