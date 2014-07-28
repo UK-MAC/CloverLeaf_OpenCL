@@ -77,7 +77,6 @@ MODULE definitions_module
    LOGICAL      :: use_opencl_kernels
    LOGICAL      :: use_fortran_kernels
    LOGICAL      :: use_C_kernels
-   LOGICAL      :: use_OA_kernels
 
    LOGICAL      :: profiler_on ! Internal code profiler to make comparisons across systems easier
 
@@ -94,7 +93,6 @@ MODULE definitions_module
                           ,reset           &
                           ,revert          &
                           ,flux            &
-                          ,set_field       &
                           ,halo_exchange
                      
    END TYPE profiler_type

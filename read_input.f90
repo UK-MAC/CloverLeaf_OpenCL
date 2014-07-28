@@ -60,16 +60,15 @@ SUBROUTINE read_input()
   dtinit=0.1_8
   dtmax=1.0_8
   dtmin=0.0000001_8
-  dtrise=1.5_8
-  dtc_safe=0.7_8
+  dtrise=1.05_8
+  dtc_safe=0.75_8
   dtu_safe=0.5_8
   dtv_safe=0.5_8
   dtw_safe=0.5_8
-  dtdiv_safe=0.7_8
+  dtdiv_safe=0.5_8
 
   use_fortran_kernels=.TRUE.
   use_C_kernels=.FALSE.
-  use_OA_kernels=.FALSE.
   profiler_on=.FALSE.
   profiler%timestep=0.0
   profiler%acceleration=0.0
@@ -178,20 +177,16 @@ SUBROUTINE read_input()
       CASE('use_fortran_kernels')
         use_fortran_kernels=.TRUE.
         use_C_kernels=.FALSE.
-        use_OA_kernels=.FALSE.
       CASE('use_c_kernels')
         use_fortran_kernels=.FALSE.
         use_C_kernels=.TRUE.
-        use_OA_kernels=.FALSE.
       CASE('use_opencl_kernels')
         use_fortran_kernels=.FALSE.
         use_C_kernels=.FALSE.
-        use_OA_kernels=.FALSE.
         use_opencl_kernels=.TRUE.
       CASE('use_oa_kernels')
         use_fortran_kernels=.FALSE.
         use_C_kernels=.FALSE.
-        use_OA_kernels=.TRUE.
       CASE('profiler_on')
         profiler_on=.TRUE.
         IF(parallel%boss)WRITE(g_out,"(1x,a25)")'Profiler on'
@@ -275,8 +270,6 @@ SUBROUTINE read_input()
       WRITE(g_out,"(1x,a25)")'Using Fortran Kernels'
     ELSEIF(use_c_kernels) THEN
       WRITE(g_out,"(1x,a25)")'Using C Kernels'
-    ELSEIF(use_oa_kernels) THEN
-      WRITE(g_out,"(1x,a25)")'Using OpenAcc Kernels'
     ELSEIF(use_opencl_kernels) THEN
       WRITE(g_out,"(1x,a25)")'Using OpenCL Kernels'
     ENDIF

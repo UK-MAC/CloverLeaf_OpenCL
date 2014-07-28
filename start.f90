@@ -67,7 +67,7 @@ SUBROUTINE start
   DO c=1,chunks_per_task
       
     ! Needs changing so there can be more than 1 chunk per task
-    chunks(c)%task = c-1
+    chunks(c)%task = parallel%task
 
     !chunk_task_responsible_for = parallel%task+1
 
