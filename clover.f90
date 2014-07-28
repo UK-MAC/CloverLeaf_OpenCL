@@ -283,6 +283,11 @@ SUBROUTINE clover_exchange(fields,depth)
     end_pack_index_left_right=0
     end_pack_index_bottom_top=0
     end_pack_index_back_front=0
+
+    back_front_offset = -1
+    left_right_offset = -1
+    bottom_top_offset = -1
+
     DO field=1,19
       IF(fields(field).EQ.1) THEN
         left_right_offset(field)=end_pack_index_left_right
@@ -423,6 +428,8 @@ SUBROUTINE clover_exchange(fields,depth)
       ! do back exchanges
       if (use_opencl_kernels) then
         write(*,*) "OPENCL PACK BACK"
+        call ocl_pack_all_buffers(fields, back_front_offset, depth, &
+            CHUNK_BACK, 1, chunks(chunk)%back_snd_buffer)
       else
         CALL clover_pack_back(chunk, fields, depth, back_front_offset)
       endif
@@ -440,6 +447,8 @@ SUBROUTINE clover_exchange(fields,depth)
       ! do top exchanges
       if (use_opencl_kernels) then
         write(*,*) "OPENCL PACK FRONT"
+        !call ocl_pack_all_buffers(fields, back_front_offset, depth, &
+        !    chunks(chunk)%back_snd_buffer)
       else
         CALL clover_pack_front(chunk, fields, depth, back_front_offset)
       endif
@@ -477,6 +486,8 @@ SUBROUTINE clover_exchange(fields,depth)
                                  back_front_offset)
       endif
     ENDIF
+        call clover_finalize
+        call exit
 
 END SUBROUTINE clover_exchange
 

@@ -432,17 +432,20 @@ public:
     // mpi packing
     #define PACK_ARGS                                       \
         int chunk_1, int chunk_2, int external_face,        \
-        int x_inc, int y_inc, int depth, int which_field,   \
+        int x_inc, int y_inc, int z_inc, int depth, int which_field,   \
         double *buffer_1, double *buffer_2
 
     void pack_left_right(PACK_ARGS);
     void unpack_left_right(PACK_ARGS);
     void pack_top_bottom(PACK_ARGS);
     void unpack_top_bottom(PACK_ARGS);
+    void pack_back_front(PACK_ARGS);
+    void unpack_back_front(PACK_ARGS);
 
     void packRect
-    (double* device_buffer, buffer_func_t buffer_func,
-     int x_inc, int y_inc, int edge, int dest,
+    (double* host_buffer, buffer_func_t buffer_func,
+     int x_inc, int y_inc, int z_inc,
+     int edge, int dest,
      int which_field, int depth);
 };
 

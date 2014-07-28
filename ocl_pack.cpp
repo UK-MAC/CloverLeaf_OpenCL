@@ -1,23 +1,23 @@
 #include "ocl_common.hpp"
 extern CloverChunk chunk;
 
-// define a generic interface for fortran
-#define C_PACK_INTERFACE(operation, dir)                            \
-extern "C" void operation##_##dir##_buffers_ocl_                    \
-(int *xmin, int *xmax, int *ymin, int *ymax,                        \
- int *chunk_1, int *chunk_2, int *external_face,                    \
- int *x_inc, int *y_inc, int *depth, int *which_field,              \
- double *field_ptr, double *buffer_1, double *buffer_2)             \
-{                                                                   \
-    chunk.operation##_##dir(*chunk_1, *chunk_2, *external_face,     \
-                            *x_inc, *y_inc, *depth,                 \
-                            *which_field, buffer_1, buffer_2);  \
+extern "C" void ocl_pack_unpack_all_buffers_
+(int fields[19], int offsets[19], int* depth,
+ int* face, int * pack, double * buffer)
+{
+    fprintf(stdout, "%d\n", *depth);
+    for (int ii = 0; ii < NUM_FIELDS; ii++)
+    {
+        fprintf(stdout, "%d - %d %d\n", ii, fields[ii], offsets[ii]);
+        if (fields[ii])
+        {
+            if (1 == *pack)
+            {
+                chunk.pack_back_front(
+            }
+        }
+    }
 }
-
-C_PACK_INTERFACE(pack, left_right)
-C_PACK_INTERFACE(unpack, left_right)
-C_PACK_INTERFACE(pack, top_bottom)
-C_PACK_INTERFACE(unpack, top_bottom)
 
 /*
  *  Takes the host buffer to be packed for sending over mpi and a callback to
@@ -30,7 +30,8 @@ C_PACK_INTERFACE(unpack, top_bottom)
  */
 void CloverChunk::packRect
 (double* host_buffer, buffer_func_t buffer_func,
- int x_inc, int y_inc, int edge, int dest,
+ int x_inc, int y_inc, int z_inc,
+ int edge, int dest,
  int which_field, int depth)
 {
     cl::Buffer *device_buf;
@@ -40,7 +41,7 @@ void CloverChunk::packRect
     cl::size_t<3> region;
 
     size_t b_row_pitch = sizeof(double)*(x_max + 4 + x_inc);
-    size_t b_slice_pitch = 0;
+    size_t b_slice_pitch = sizeof(double)*(y_max + 4 + y_inc);
     size_t h_row_pitch = 0;
     size_t h_slice_pitch = 0;
 
@@ -155,14 +156,14 @@ void CloverChunk::packRect
     {                                                                       \
         packRect(buffer_1,                                                  \
                  (buffer_func_t)&cl::CommandQueue::enqueue##op##BufferRect, \
-                 x_inc, y_inc, side1, dest1,                                \
+                 x_inc, y_inc, z_inc, side1, dest1,                         \
                  which_field, depth);                                       \
     }                                                                       \
     if (external_face != chunk_2)                                           \
     {                                                                       \
         packRect(buffer_2,                                                  \
                  (buffer_func_t)&cl::CommandQueue::enqueue##op##BufferRect, \
-                 x_inc, y_inc, side2, dest2,                                \
+                 x_inc, y_inc, z_inc, side2, dest2,                         \
                  which_field, depth);                                       \
     }                                                                       \
     if (external_face != chunk_1 || external_face != chunk_2)               \
@@ -206,4 +207,21 @@ void CloverChunk::unpack_top_bottom
                (y_max+1) + y_inc + 1)
 }
 
+void CloverChunk::pack_back_front
+(PACK_ARGS)
+{
+    CHECK_PACK(Read,
+               CHUNK_TOP, CHUNK_BOTTOM,
+               (y_min+1) + y_inc - 1 + depth,
+               (y_max+1) + 1 - depth);
+}
+
+void CloverChunk::unpack_back_front
+(PACK_ARGS)
+{
+    CHECK_PACK(Write,
+               CHUNK_TOP, CHUNK_BOTTOM,
+               (y_min+1) - depth,
+               (y_max+1) + y_inc + 1);
+}
 
