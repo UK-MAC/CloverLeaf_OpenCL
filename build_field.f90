@@ -30,7 +30,7 @@ SUBROUTINE build_field(chunk,x_cells,y_cells,z_cells)
 
    IMPLICIT NONE
 
-   INTEGER :: chunk,x_cells,y_cells,z_cells
+   INTEGER :: chunk,x_cells,y_cells,z_cells,profiler_int
 
    chunks(chunk)%field%x_min=1
    chunks(chunk)%field%y_min=1
@@ -39,6 +39,25 @@ SUBROUTINE build_field(chunk,x_cells,y_cells,z_cells)
    chunks(chunk)%field%x_max=x_cells
    chunks(chunk)%field%y_max=y_cells
    chunks(chunk)%field%z_max=z_cells
+
+   IF (use_opencl_kernels .eqv. .true.) THEN
+
+	IF(profiler_on) THEN
+		profiler_int=1
+	ELSE
+		profiler_int=0
+	ENDIF
+
+	call initialise_ocl(chunks(chunk)%field%x_min, &
+                         chunks(chunk)%field%x_max, &
+                         chunks(chunk)%field%y_min, &
+                         chunks(chunk)%field%y_max, &
+                         chunks(chunk)%field%z_min, &
+                         chunks(chunk)%field%z_max, &
+                         profiler_int)
+
+   ELSE
+
 
    ALLOCATE(chunks(chunk)%field%density0  (chunks(chunk)%field%x_min-2:chunks(chunk)%field%x_max+2, &
                    chunks(chunk)%field%y_min-2:chunks(chunk)%field%y_max+2,                         &
@@ -198,7 +217,7 @@ SUBROUTINE build_field(chunk,x_cells,y_cells,z_cells)
    chunks(chunk)%field%yarea=0.0
    chunks(chunk)%field%zarea=0.0
 !$OMP END PARALLEL
-  
+   ENDIF
 END SUBROUTINE build_field
 
 END MODULE build_field_module

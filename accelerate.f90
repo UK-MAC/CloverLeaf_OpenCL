@@ -62,7 +62,7 @@ SUBROUTINE accelerate()
                              chunks(c)%field%zvel1,                  &
                              chunks(c)%field%work_array1             )
       ELSEIF(use_opencl_kernels)THEN
-	CALL accelerate_kernel_ocl(dt)
+        CALL accelerate_kernel_ocl(dt)
 
       ELSEIF(use_C_kernels)THEN
         CALL accelerate_kernel_c(chunks(c)%field%x_min,              &

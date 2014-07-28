@@ -1,3 +1,4 @@
+#include "./kernel_files/macros_cl.cl"
 __kernel void generate_chunk
 (__global const double * __restrict const vertexx,
  __global const double * __restrict const vertexy,

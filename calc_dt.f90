@@ -46,7 +46,6 @@ SUBROUTINE calc_dt(chunk,local_dt,local_control,xl_pos,yl_pos,zl_pos,jldt,kldt,l
   small = 0
 
   IF(use_fortran_kernels)THEN
-
     CALL calc_dt_kernel(chunks(chunk)%field%x_min,     &
                         chunks(chunk)%field%x_max,     &
                         chunks(chunk)%field%y_min,     &
@@ -91,7 +90,6 @@ SUBROUTINE calc_dt(chunk,local_dt,local_control,xl_pos,yl_pos,zl_pos,jldt,kldt,l
                         small                          )
 
   ELSEIF(use_opencl_kernels)THEN
-
     CALL calc_dt_kernel_ocl(g_small, &
                             g_big, &
                             dtmin, &

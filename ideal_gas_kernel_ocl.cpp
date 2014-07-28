@@ -32,6 +32,7 @@ void CloverChunk::ideal_gas_kernel
     }
     else
     {
+
         ideal_gas_device.setArg(0, density0);
         ideal_gas_device.setArg(1, energy0);
 

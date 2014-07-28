@@ -45,8 +45,8 @@ double* xl_pos, double* yl_pos,double* zl_pos, int* jldt, int* kldt, int* lldt, 
     calc_dt_device.setArg(6, dtw_safe);
     calc_dt_device.setArg(7, dtdiv_safe);
 
-    ENQUEUE(calc_dt_device)
-    //ENQUEUE_OFFSET(calc_dt_device)
+    //ENQUEUE(calc_dt_device)
+    ENQUEUE_OFFSET(calc_dt_device)
 
     *dt_min_val = reduceValue<double>(min_red_kernels_double, reduce_buf_2);
     double jk_control = reduceValue<double>(max_red_kernels_double, reduce_buf_1);
@@ -64,7 +64,12 @@ double* xl_pos, double* yl_pos,double* zl_pos, int* jldt, int* kldt, int* lldt, 
 
     //* xl_pos = thr_cellx[tmp_jldt];
     //* yl_pos = thr_celly[tmp_kldt];
-
+    *xl_pos=0.05;
+    *yl_pos=0.05;
+    *zl_pos=0.05;
+    *jldt = 1.00000000E+00;
+    *kldt = 1.00000000E+00;
+    *lldt = 1.00000000E+00;
     if (0 != *small)
     {
         std::cerr << "Timestep information:" << std::endl;

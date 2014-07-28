@@ -183,6 +183,11 @@ SUBROUTINE read_input()
         use_fortran_kernels=.FALSE.
         use_C_kernels=.TRUE.
         use_OA_kernels=.FALSE.
+      CASE('use_opencl_kernels')
+        use_fortran_kernels=.FALSE.
+        use_C_kernels=.FALSE.
+        use_OA_kernels=.FALSE.
+        use_opencl_kernels=.TRUE.
       CASE('use_oa_kernels')
         use_fortran_kernels=.FALSE.
         use_C_kernels=.FALSE.
@@ -272,6 +277,8 @@ SUBROUTINE read_input()
       WRITE(g_out,"(1x,a25)")'Using C Kernels'
     ELSEIF(use_oa_kernels) THEN
       WRITE(g_out,"(1x,a25)")'Using OpenAcc Kernels'
+    ELSEIF(use_opencl_kernels) THEN
+      WRITE(g_out,"(1x,a25)")'Using OpenCL Kernels'
     ENDIF
     WRITE(g_out,*)
     WRITE(g_out,*) 'Input read finished.'

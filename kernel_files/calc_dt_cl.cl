@@ -1,3 +1,4 @@
+#include "./kernel_files/macros_cl.cl"
 __kernel void calc_dt
 (const double g_small,
  const double g_big,
@@ -29,28 +30,18 @@ __kernel void calc_dt
 
     double dsx, dsy,dsz;
     double cc;
-    double dtct;
     double div;
     double dv1;
     double dv2;
-    double dtut;
-    double dtvt;
-    double dtwt;
-    double dtdivt;
 
     //reduced
     double dt_min_val = g_big;
     double jk_control = 0.0;
 
-#if defined(NO_KERNEL_REDUCTIONS)
-    dt_min_out[gid] = dt_min_val;
-    jk_ctrl_out[gid] = jk_control;
-#else
     __local double dt_min_shared[BLOCK_SZ];
     __local double jk_ctrl_shared[BLOCK_SZ];
     dt_min_shared[lid] = dt_min_val;
     jk_ctrl_shared[lid] = jk_control;
-#endif
 
     if(row >= (y_min + 1) && row <= (y_max + 1)
     && column >= (x_min + 1) && column <= (x_max + 1)
@@ -64,18 +55,18 @@ __kernel void calc_dt
         cc += 2.0 * viscosity[THARR3D(0, 0, 0,0,0)] / density0[THARR3D(0, 0, 0,0,0)];
         cc = MAX(SQRT(cc), g_small);
 
-        dtct = dtc_safe * MIN(dsx, MIN(dsy,dsz))/cc;
+        const double dtct = dtc_safe * MIN(dsx, MIN(dsy,dsz))/cc;
 
         div = 0.0;
 
         //x
         dv1=(xvel0[THARR3D(0  ,0  ,0,1,1  )]+xvel0[THARR3D(0  ,1,0,1,1  )]+xvel0[THARR3D(0  ,0  ,1,1,1)]+xvel0[THARR3D(0  ,1,1,1,1)])*xarea[THARR3D(0  ,0  ,0,1,0  )];
 
-        dv2=(xvel0(1,0  ,0,1,1  )+xvel0(1,1,0,1,1  )+xvel0(1,0  ,1,1,1)+xvel0(1,1,1,1,1))*xarea(1,0  ,0,1,0  );
+        dv2=(xvel0[THARR3D(1,0  ,0,1,1  )]+xvel0[THARR3D(1,1,0,1,1  )]+xvel0[THARR3D(1,0  ,1,1,1)]+xvel0[THARR3D(1,1,1,1,1)])*xarea[THARR3D(1,0  ,0,1,0  )];
 
         div += dv2 - dv1;
 
-        dtut = dtu_safe * 2.0 * volume[THARR3D(0, 0, 0,0,0)]
+        const double dtut = dtu_safe * 2.0 * volume[THARR3D(0, 0, 0,0,0)]
             / MAX(g_small*volume[THARR3D(0, 0, 0,0,0)],
             MAX(fabs(dv1), fabs(dv2)));
 
@@ -86,7 +77,7 @@ __kernel void calc_dt
 
         div += dv2 - dv1;
 
-        dtvt = dtv_safe * 2.0 * volume[THARR3D(0, 0, 0,0,0)]
+        const double dtvt = dtv_safe * 2.0 * volume[THARR3D(0, 0, 0,0,0)]
             / MAX(g_small*volume[THARR3D(0, 0, 0,0,0)],
             MAX(fabs(dv1), fabs(dv2)));
 
@@ -97,7 +88,7 @@ __kernel void calc_dt
 
         div += dv2 - dv1;
 
-        dtwt = dtw_safe * 2.0 * volume[THARR3D(0, 0, 0,0,0)]
+        const double dtwt = dtw_safe * 2.0 * volume[THARR3D(0, 0, 0,0,0)]
             / MAX(g_small*volume[THARR3D(0, 0, 0,0,0)],
             MAX(fabs(dv1), fabs(dv2)));
 
@@ -105,21 +96,13 @@ __kernel void calc_dt
         //
         div /= (2.0 * volume[THARR3D(0, 0, 0,0,0)]);
 
-        dtdivt = (div < (-g_small)) ? dtdiv_safe * (-1.0/div) : g_big;
+        const double dtdivt = (div < (-g_small)) ? dtdiv_safe * (-1.0/div) : g_big;
 
-#if defined(NO_KERNEL_REDUCTIONS)
-        dt_min_out[gid] = MIN(dtdivt, MIN(dtvt, MIN(dtct, MIN(dtut,dtwt))));
-//THIS NEEDS FIXING
-        jk_ctrl_out[gid] = (column + (x_max * (row - 1))) + 0.4;
-#else
         dt_min_shared[lid] = MIN(dtdivt, MIN(dtvt, MIN(dtct, MIN(dtut,dtwt))));
 //THIS NEEDS FIXING
         jk_ctrl_shared[lid] = (column + (x_max * (row - 1))) + 0.4;
-#endif
     }
 
-#if !defined(NO_KERNEL_REDUCTIONS)
     REDUCTION(dt_min_shared, dt_min_out, MIN)
     REDUCTION(jk_ctrl_shared, jk_ctrl_out, MAX)
-#endif
 }

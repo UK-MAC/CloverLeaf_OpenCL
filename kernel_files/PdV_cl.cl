@@ -1,3 +1,4 @@
+#include "./kernel_files/macros_cl.cl"
 __kernel void PdV_predict
 (double dt,
  __global int * __restrict const error_condition,
@@ -20,12 +21,8 @@ __kernel void PdV_predict
 {
     __kernel_indexes;
 
-#if defined(NO_KERNEL_REDUCTIONS)
-    error_condition[gid] = 0;
-#else
     __local int err_cond_kernel[BLOCK_SZ];
     err_cond_kernel[lid] = 0;
-#endif
 
     double volume_change;
     double recip_volume, energy_change, min_cell_volume,
@@ -65,22 +62,12 @@ __kernel void PdV_predict
 	volume_change=volume[THARR3D(0,0,0,0,0)]/(volume[THARR3D(0,0,0,0,0)]+total_flux);
 
         //minimum of total, horizontal, and vertical flux
-	//Maybe this is wrong?
-	min_cell_volume=MIN(volume[THARR3D(0,0,0,0,0)]+right_flux-left_flux+top_flux-bottom_flux+front_flux-back_flux
-		,volume[THARR3D(0,0,0,0,0)]+right_flux-left_flux+top_flux-bottom_flux
-		,volume[THARR3D(0,0,0,0,0)]+right_flux-left_flux
-		,volume[THARR3D(0,0,0,0,0)]+top_flux-bottom_flux);
 
-#if defined(NO_KERNEL_REDUCTIONS)
-        if(volume_change <= 0.0)
-        {
-            error_condition[gid] = 1;
-        }
-        if(min_cell_volume <= 0.0)
-        {
-            error_condition[gid] = 2;
-        }
-#else
+	min_cell_volume=MIN(volume[THARR3D(0,0,0,0,0)]+right_flux-left_flux+top_flux-bottom_flux+front_flux-back_flux
+		,MIN(volume[THARR3D(0,0,0,0,0)]+right_flux-left_flux+top_flux-bottom_flux
+		,MIN(volume[THARR3D(0,0,0,0,0)]+right_flux-left_flux
+		,volume[THARR3D(0,0,0,0,0)]+top_flux-bottom_flux)));
+
         if(volume_change <= 0.0)
         {
             err_cond_kernel[lid] = 1;
@@ -89,20 +76,17 @@ __kernel void PdV_predict
         {
             err_cond_kernel[lid] = 2;
         }
-#endif
 
         recip_volume = 1.0/volume[THARR3D(0, 0, 0,0,0)];
 
-        energy_change = ((pressure[THARR3D(0, 0, 0,0,0)] / density0[THARR3D(0, 0, 0,0,0)])
-            + (viscosity[THARR3D(0, 0, 0,0,0)] / density0[THARR3D(0, 0, 0,0,0)]))
+        energy_change = (pressure[THARR3D(0, 0, 0,0,0)] / density0[THARR3D(0, 0, 0,0,0)]
+            + viscosity[THARR3D(0, 0, 0,0,0)] / density0[THARR3D(0, 0, 0,0,0)])
             * total_flux * recip_volume;
 
         energy1[THARR3D(0, 0, 0,0,0)] = energy0[THARR3D(0, 0, 0,0,0)] - energy_change;
         density1[THARR3D(0, 0, 0,0,0)] = density0[THARR3D(0, 0, 0,0,0)] * volume_change;
     }
-#if !defined(NO_KERNEL_REDUCTIONS)
     REDUCTION(err_cond_kernel, error_condition, MAX)
-#endif
 }
 
 __kernel void PdV_not_predict
@@ -127,12 +111,8 @@ __kernel void PdV_not_predict
 {
     __kernel_indexes;
 
-#if defined(NO_KERNEL_REDUCTIONS)
-    error_condition[gid] = 0;
-#else
     __local int err_cond_kernel[BLOCK_SZ];
     err_cond_kernel[lid] = 0;
-#endif
 
     double volume_change;
     double recip_volume, energy_change, min_cell_volume,
@@ -171,22 +151,12 @@ __kernel void PdV_not_predict
 	volume_change=volume[THARR3D(0,0,0,0,0)]/(volume[THARR3D(0,0,0,0,0)]+total_flux);
 
         //minimum of total, horizontal, and vertical flux
-	//Maybe this is wrong?
-	min_cell_volume=MIN(volume[THARR3D(0,0,0,0,0)]+right_flux-left_flux+top_flux-bottom_flux+front_flux-back_flux
-		,volume[THARR3D(0,0,0,0,0)]+right_flux-left_flux+top_flux-bottom_flux
-		,volume[THARR3D(0,0,0,0,0)]+right_flux-left_flux
-		,volume[THARR3D(0,0,0,0,0)]+top_flux-bottom_flux);
 
-#if defined(NO_KERNEL_REDUCTIONS)
-        if(volume_change <= 0.0)
-        {
-            error_condition[gid] = 1;
-        }
-        if(min_cell_volume <= 0.0)
-        {
-            error_condition[gid] = 2;
-        }
-#else
+	min_cell_volume=MIN(volume[THARR3D(0,0,0,0,0)]+right_flux-left_flux+top_flux-bottom_flux+front_flux-back_flux
+		,MIN(volume[THARR3D(0,0,0,0,0)]+right_flux-left_flux+top_flux-bottom_flux
+		,MIN(volume[THARR3D(0,0,0,0,0)]+right_flux-left_flux
+		,volume[THARR3D(0,0,0,0,0)]+top_flux-bottom_flux)));
+
         if(volume_change <= 0.0)
         {
             err_cond_kernel[lid] = 1;
@@ -195,12 +165,11 @@ __kernel void PdV_not_predict
         {
             err_cond_kernel[lid] = 2;
         }
-#endif
 
         recip_volume = 1.0/volume[THARR3D(0, 0, 0,0,0)];
 
-        energy_change = ((pressure[THARR3D(0, 0, 0,0,0)] / density0[THARR3D(0, 0, 0,0,0)])
-            + (viscosity[THARR3D(0, 0, 0,0,0)] / density0[THARR3D(0, 0, 0,0,0)]))
+        energy_change = (pressure[THARR3D(0, 0, 0,0,0)] / density0[THARR3D(0, 0, 0,0,0)]
+            + viscosity[THARR3D(0, 0, 0,0,0)] / density0[THARR3D(0, 0, 0,0,0)])
             * total_flux * recip_volume;
 
         energy1[THARR3D(0, 0, 0,0,0)] = energy0[THARR3D(0, 0, 0,0,0)] - energy_change;
@@ -208,7 +177,5 @@ __kernel void PdV_not_predict
 
     }
 
-#if !defined(NO_KERNEL_REDUCTIONS)
     REDUCTION(err_cond_kernel, error_condition, MAX)
-#endif
 }

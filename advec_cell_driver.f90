@@ -30,7 +30,7 @@ SUBROUTINE advec_cell_driver(chunk,sweep_number,dir)
 
   IMPLICIT NONE
 
-  INTEGER :: chunk,sweep_number,dir
+  INTEGER :: chunk,sweep_number,dir,advec_int
 
   IF(chunks(chunk)%task.EQ.parallel%task) THEN
 
@@ -64,7 +64,12 @@ SUBROUTINE advec_cell_driver(chunk,sweep_number,dir)
                            chunks(chunk)%field%work_array6,           &
                            chunks(chunk)%field%work_array7            )
     ELSEIF(use_opencl_kernels)THEN
-	CALL advec_cell_kernel_ocl(dir, sweep_number)
+        if (advect_x .eqv. .true.) then
+            advec_int = 1
+        else
+            advec_int = 0
+        ENDIF
+        CALL advec_cell_kernel_ocl(dir, sweep_number,advec_int)
     ELSEIF(use_C_kernels)THEN
       CALL advec_cell_kernel_c(chunks(chunk)%field%x_min,             &
                            chunks(chunk)%field%x_max,                 &

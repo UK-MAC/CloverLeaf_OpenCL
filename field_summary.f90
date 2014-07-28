@@ -78,7 +78,7 @@ SUBROUTINE field_summary()
       IF(chunks(c)%task.EQ.parallel%task) THEN
         CALL field_summary_kernel_ocl(vol,mass,ie,ke,press)
       ENDIF
-ENDDO
+    ENDDO
   ELSEIF(use_C_kernels)THEN
     DO c=1,chunks_per_task
       IF(chunks(c)%task.EQ.parallel%task) THEN
@@ -110,7 +110,7 @@ ENDDO
 
   IF(parallel%boss) THEN
 !$  IF(OMP_GET_THREAD_NUM().EQ.0) THEN
-      WRITE(g_out,'(a6,i7,7e16.4)')' step:',step,vol,mass,mass/vol,press/vol,ie,ke,ie+ke
+      WRITE(g_out,'(a6,i7,7e16.8)')' step:',step,vol,mass,mass/vol,press/vol,ie,ke,ie+ke
       WRITE(g_out,*)
 !$  ENDIF
    ENDIF

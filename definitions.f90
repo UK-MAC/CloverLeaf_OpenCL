@@ -74,6 +74,7 @@ MODULE definitions_module
    INTEGER      :: test_problem
    LOGICAL      :: complete
 
+   LOGICAL      :: use_opencl_kernels
    LOGICAL      :: use_fortran_kernels
    LOGICAL      :: use_C_kernels
    LOGICAL      :: use_OA_kernels
@@ -93,6 +94,7 @@ MODULE definitions_module
                           ,reset           &
                           ,revert          &
                           ,flux            &
+                          ,set_field       &
                           ,halo_exchange
                      
    END TYPE profiler_type
@@ -208,7 +210,7 @@ MODULE definitions_module
 
 
   TYPE(chunk_type),  ALLOCATABLE       :: chunks(:)
-  INTEGER                              :: number_of_chunks
+  INTEGER                              :: chunks_per_task
 
   TYPE(grid_type)                      :: grid
 

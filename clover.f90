@@ -33,10 +33,10 @@ MODULE clover_module
 
   USE data_module
   USE definitions_module
-  USE MPI
+  !USE MPI
 
   IMPLICIT NONE
-
+  include "mpif.h"
 CONTAINS
 
 SUBROUTINE clover_barrier
@@ -126,7 +126,7 @@ SUBROUTINE clover_decompose(x_cells,y_cells,z_cells,left,right,bottom,top,back,f
 
   current_x = 1
   current_y = 1
-  current_z = number_of_chunks
+  current_z = chunks_per_task
 
   ! Initialise metric
   surface = (((1.0*x_cells)/current_x)*((1.0*y_cells)/current_y)*2) &
@@ -138,22 +138,22 @@ SUBROUTINE clover_decompose(x_cells,y_cells,z_cells,left,right,bottom,top,back,f
   chunk_y=current_y
   chunk_z=current_z
 
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
 
     ! If doesn't evenly divide loop
-    IF(MOD(number_of_chunks,c).NE.0) CYCLE
+    IF(MOD(chunks_per_task,c).NE.0) CYCLE
 
     current_x=c
 
-    div1 = number_of_chunks/c
+    div1 = chunks_per_task/c
 
     DO j=1,div1
       IF(MOD(div1,j).NE.0) CYCLE
       current_y = j
 
-      IF(MOD(number_of_chunks,(c*j)).NE.0) CYCLE
+      IF(MOD(chunks_per_task,(c*j)).NE.0) CYCLE
 
-      current_z = number_of_chunks/(c*j)
+      current_z = chunks_per_task/(c*j)
 
       surface = (((1.0*x_cells)/current_x)*((1.0*y_cells)/current_y)*2) &
               + (((1.0*x_cells)/current_x)*((1.0*z_cells)/current_z)*2) &
