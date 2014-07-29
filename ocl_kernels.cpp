@@ -137,7 +137,7 @@ void CloverChunk::compileKernel
     std::string options(options_orig);
 #endif
 
-    if (built_programs.find(source_name) == built_programs.end())
+    if (built_programs.find(source_name + options) == built_programs.end())
     {
         try
         {
@@ -148,11 +148,12 @@ void CloverChunk::compileKernel
             DIE("Errors in compiling %s:\n%s\n", kernel_name, err.what());
         }
 
-        built_programs[source_name] = program;
+        built_programs[source_name + options] = program;
     }
     else
     {
-        program = built_programs.at(source_name);
+        // + options to stop reduction kernels using the wrong types
+        program = built_programs.at(source_name + options);
     }
 
     size_t max_wg_size;
