@@ -111,21 +111,25 @@ void CloverChunk::compileKernel
  const char* kernel_name,
  cl::Kernel& kernel)
 {
-    std::ifstream ifile(source_name.c_str());
-    const std::string source_str(
-        (std::istreambuf_iterator<char>(ifile)),
-        (std::istreambuf_iterator<char>()));
+    std::string source_str;
+
+    {
+        std::ifstream ifile(source_name.c_str());
+        source_str = std::string(
+            (std::istreambuf_iterator<char>(ifile)),
+            (std::istreambuf_iterator<char>()));
+    }
 
     fprintf(DBGOUT, "Compiling %s...", kernel_name);
     cl::Program program;
 
+#if defined(PHI_SOURCE_PROFILING)
     std::stringstream plusprof("");
 
-#if defined(PHI_SOURCE_PROFILING)
     if (desired_type == CL_DEVICE_TYPE_ACCELERATOR)
     {
         plusprof << " -profiling ";
-        plusprof << " -s \"" << _PWD_ << kernel_name << "_cl.cl\" ";
+        plusprof << " -s \"" << source_name << "\"";
     }
     plusprof << options_orig;
     std::string options(plusprof.str());
@@ -214,7 +218,7 @@ cl::Program CloverChunk::compileProgram
         }
         catch (cl::Error ie)
         {
-            DIE("Error in retrieving build info\n");
+            DIE("Error %d in retrieving build info\n", e.err());
         }
 
         std::string errs(errstream.str());

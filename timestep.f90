@@ -96,7 +96,7 @@ SUBROUTINE timestep()
     ENDIF
   END DO
 
-  dt = MIN(dt, (dtold * dtrise), dtmax)
+  dt = MIN(dt, MIN((dtold * dtrise), dtmax))
 
   CALL clover_min(dt)
   IF(profiler_on) profiler%timestep=profiler%timestep+(timer()-kernel_time)

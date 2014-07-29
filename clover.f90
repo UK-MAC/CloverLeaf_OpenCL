@@ -486,8 +486,8 @@ SUBROUTINE clover_exchange(fields,depth)
                                  back_front_offset)
       endif
     ENDIF
-        call clover_finalize
-        call exit
+        !call clover_finalize
+        !call exit
 
 END SUBROUTINE clover_exchange
 

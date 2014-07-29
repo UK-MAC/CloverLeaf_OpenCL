@@ -1,7 +1,7 @@
 #include "ocl_common.hpp"
 extern CloverChunk chunk;
 
-extern "C" void ocl_pack_unpack_all_buffers_
+extern "C" void ocl_pack_all_buffers_
 (int fields[19], int offsets[19], int* depth,
  int* face, int * pack, double * buffer)
 {
@@ -13,7 +13,7 @@ extern "C" void ocl_pack_unpack_all_buffers_
         {
             if (1 == *pack)
             {
-                chunk.pack_back_front(
+                //chunk.pack_back_front(
             }
         }
     }
