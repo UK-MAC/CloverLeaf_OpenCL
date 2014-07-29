@@ -89,7 +89,7 @@ void CloverChunk::packUnpackAllBuffers
                 switch (face)
                 {
                 case CHUNK_LEFT:
-                    dest = (x_min+1) + x_inc - 1 + 1; break;
+                    dest = (x_min+1) + x_inc - 1 + depth; break;
                 case CHUNK_RIGHT:
                     dest = (x_max+1) + 1 - depth; break;
                 case CHUNK_BOTTOM:
@@ -97,7 +97,7 @@ void CloverChunk::packUnpackAllBuffers
                 case CHUNK_TOP:
                     dest = (y_max+1) + 1 - depth; break;
                 case CHUNK_BACK:
-                    dest = (z_min+1) + z_inc - 1 + 1; break;
+                    dest = (z_min+1) + z_inc - 1 + depth; break;
                 case CHUNK_FRONT:
                     dest = (z_max+1) + 1 - depth; break;
                 default:
