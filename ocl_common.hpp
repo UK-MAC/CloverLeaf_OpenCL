@@ -442,12 +442,18 @@ public:
     void pack_back_front(PACK_ARGS);
     void unpack_back_front(PACK_ARGS);
 
+    void packUnpackAllBuffers
+    (int fields[19], int offsets[19], int depth,
+     int face, int pack, double * buffer);
+
     void packRect
     (double* host_buffer, buffer_func_t buffer_func,
      int x_inc, int y_inc, int z_inc,
      int edge, int dest,
      int which_field, int depth);
 };
+
+extern CloverChunk chunk;
 
 class KernelCompileError : std::exception
 {

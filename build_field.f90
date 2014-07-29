@@ -42,19 +42,19 @@ SUBROUTINE build_field(chunk,x_cells,y_cells,z_cells)
 
    IF (use_opencl_kernels .eqv. .true.) THEN
 
-	IF(profiler_on) THEN
-		profiler_int=1
-	ELSE
-		profiler_int=0
-	ENDIF
+     IF(profiler_on) THEN
+         profiler_int=1
+     ELSE
+         profiler_int=0
+     ENDIF
 
-	call initialise_ocl(chunks(chunk)%field%x_min, &
-                         chunks(chunk)%field%x_max, &
-                         chunks(chunk)%field%y_min, &
-                         chunks(chunk)%field%y_max, &
-                         chunks(chunk)%field%z_min, &
-                         chunks(chunk)%field%z_max, &
-                         profiler_int)
+     call initialise_ocl(chunks(chunk)%field%x_min, &
+                          chunks(chunk)%field%x_max, &
+                          chunks(chunk)%field%y_min, &
+                          chunks(chunk)%field%y_max, &
+                          chunks(chunk)%field%z_min, &
+                          chunks(chunk)%field%z_max, &
+                          profiler_int)
 
    ELSE
 

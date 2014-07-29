@@ -1,5 +1,4 @@
 #include "ocl_common.hpp"
-extern CloverChunk chunk;
 
 extern "C" void accelerate_kernel_ocl_
 (double *dbyt)

@@ -1,5 +1,4 @@
 #include "ocl_common.hpp"
-extern CloverChunk chunk;
 
 extern "C" void ideal_gas_kernel_nopredict_ocl_
 (void)

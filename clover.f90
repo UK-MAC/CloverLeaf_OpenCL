@@ -126,7 +126,7 @@ SUBROUTINE clover_decompose(x_cells,y_cells,z_cells,left,right,bottom,top,back,f
 
   current_x = 1
   current_y = 1
-  current_z = chunks_per_task
+  current_z = number_of_chunks
 
   ! Initialise metric
   surface = (((1.0*x_cells)/current_x)*((1.0*y_cells)/current_y)*2) &
@@ -138,22 +138,22 @@ SUBROUTINE clover_decompose(x_cells,y_cells,z_cells,left,right,bottom,top,back,f
   chunk_y=current_y
   chunk_z=current_z
 
-  DO c=1,chunks_per_task
+  DO c=1,number_of_chunks
 
     ! If doesn't evenly divide loop
-    IF(MOD(chunks_per_task,c).NE.0) CYCLE
+    IF(MOD(number_of_chunks,c).NE.0) CYCLE
 
     current_x=c
 
-    div1 = chunks_per_task/c
+    div1 = number_of_chunks/c
 
     DO j=1,div1
       IF(MOD(div1,j).NE.0) CYCLE
       current_y = j
 
-      IF(MOD(chunks_per_task,(c*j)).NE.0) CYCLE
+      IF(MOD(number_of_chunks,(c*j)).NE.0) CYCLE
 
-      current_z = chunks_per_task/(c*j)
+      current_z = number_of_chunks/(c*j)
 
       surface = (((1.0*x_cells)/current_x)*((1.0*y_cells)/current_y)*2) &
               + (((1.0*x_cells)/current_x)*((1.0*z_cells)/current_z)*2) &
@@ -428,8 +428,8 @@ SUBROUTINE clover_exchange(fields,depth)
       ! do back exchanges
       if (use_opencl_kernels) then
         write(*,*) "OPENCL PACK BACK"
-        call ocl_pack_all_buffers(fields, back_front_offset, depth, &
-            CHUNK_BACK, 1, chunks(chunk)%back_snd_buffer)
+        call ocl_pack_buffers(fields, back_front_offset, depth, &
+            CHUNK_BACK, chunks(chunk)%back_snd_buffer)
       else
         CALL clover_pack_back(chunk, fields, depth, back_front_offset)
       endif
@@ -447,8 +447,8 @@ SUBROUTINE clover_exchange(fields,depth)
       ! do top exchanges
       if (use_opencl_kernels) then
         write(*,*) "OPENCL PACK FRONT"
-        !call ocl_pack_all_buffers(fields, back_front_offset, depth, &
-        !    chunks(chunk)%back_snd_buffer)
+        call ocl_pack_buffers(fields, back_front_offset, depth, &
+            CHUNK_FRONT, chunks(chunk)%back_snd_buffer)
       else
         CALL clover_pack_front(chunk, fields, depth, back_front_offset)
       endif
@@ -469,6 +469,8 @@ SUBROUTINE clover_exchange(fields,depth)
     IF( chunks(chunk)%chunk_neighbours(chunk_front).NE.external_face ) THEN
       if (use_opencl_kernels) then
         write(*,*) "OPENCL UNPACK FRONT"
+        call ocl_unpack_buffers(fields, back_front_offset, depth, &
+            CHUNK_FRONT, chunks(chunk)%back_snd_buffer)
       else
         CALL clover_unpack_front(fields, chunk, depth,                       &
                                chunks(chunk)%front_rcv_buffer,               &
@@ -480,14 +482,14 @@ SUBROUTINE clover_exchange(fields,depth)
     IF(chunks(chunk)%chunk_neighbours(chunk_back).NE.external_face) THEN
       if (use_opencl_kernels) then
         write(*,*) "OPENCL UNPACK BACK"
+        call ocl_unpack_buffers(fields, back_front_offset, depth, &
+            CHUNK_BACK, chunks(chunk)%back_snd_buffer)
       else
         CALL clover_unpack_back(fields, chunk, depth,                   &
                                  chunks(chunk)%back_rcv_buffer,         &
                                  back_front_offset)
       endif
     ENDIF
-        !call clover_finalize
-        !call exit
 
 END SUBROUTINE clover_exchange
 
