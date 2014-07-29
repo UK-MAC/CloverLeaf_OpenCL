@@ -111,15 +111,15 @@ void CloverChunk::packUnpackAllBuffers
                 case CHUNK_LEFT:
                     dest = (x_min+1) - depth; break;
                 case CHUNK_RIGHT:
-                    dest = (x_max+1) + x_inc + 1; break;
+                    dest = (x_max+1) + x_inc + depth; break;
                 case CHUNK_BOTTOM:
                     dest = (y_min+1) - depth; break;
                 case CHUNK_TOP:
-                    dest = (y_max+1) + y_inc + 1; break;
+                    dest = (y_max+1) + y_inc + depth; break;
                 case CHUNK_BACK:
                     dest = (z_min+1) - depth; break;
                 case CHUNK_FRONT:
-                    dest = (z_max+1) + z_inc + 1; break;
+                    dest = (z_max+1) + z_inc + depth; break;
                 default:
                     DIE("Invalid face identified %d passed to unpack\n", face);
                 }
