@@ -128,6 +128,16 @@ private:
     cl::Kernel update_halo_left_device;
     cl::Kernel update_halo_right_device;
 
+    // mpi packing
+    cl::Kernel pack_left_buffer_device;
+    cl::Kernel unpack_left_buffer_device;
+    cl::Kernel pack_right_buffer_device;
+    cl::Kernel unpack_right_buffer_device;
+    cl::Kernel pack_bottom_buffer_device;
+    cl::Kernel unpack_bottom_buffer_device;
+    cl::Kernel pack_top_buffer_device;
+    cl::Kernel unpack_top_buffer_device;
+
     // calculate rx/ry to pass back to fortran
     void calcrxry
     (double dt, double * rx, double * ry);

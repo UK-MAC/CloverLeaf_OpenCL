@@ -86,6 +86,8 @@ void CloverChunk::initProgram
     compileKernel(options_str, "./kernel_files/advec_cell_cl.cl", "advec_cell_ener_flux_y", advec_cell_ener_flux_y_device);
     compileKernel(options_str, "./kernel_files/advec_cell_cl.cl", "advec_cell_y", advec_cell_y_device);
 
+    compileKernel(options_str, "./kernel_files/pack_kernel_cl.cl", "pack_left_buffer", pack_left_buffer_device);
+
     fprintf(stdout, "done.\n");
     fprintf(DBGOUT, "All kernels compiled\n");
 }
