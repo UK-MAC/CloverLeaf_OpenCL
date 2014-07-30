@@ -302,7 +302,8 @@ SUBROUTINE clover_exchange(fields,depth)
     IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
       ! do left exchanges
       if (use_opencl_kernels) then
-        write(*,*) "OPENCL PACK LEFT"
+        call ocl_pack_buffers(fields, left_right_offset, depth, &
+            CHUNK_LEFT, chunks(chunk)%left_snd_buffer)
       else
         CALL clover_pack_left(chunk, fields, depth, left_right_offset)
       endif
@@ -319,7 +320,8 @@ SUBROUTINE clover_exchange(fields,depth)
     IF(chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face) THEN
       ! do right exchanges
       if (use_opencl_kernels) then
-        write(*,*) "OPENCL PACK RIGHT"
+        call ocl_pack_buffers(fields, left_right_offset, depth, &
+            CHUNK_RIGHT, chunks(chunk)%right_snd_buffer)
       else
         CALL clover_pack_right(chunk, fields, depth, left_right_offset)
       endif
@@ -339,7 +341,8 @@ SUBROUTINE clover_exchange(fields,depth)
     !unpack in left direction
     IF(chunks(chunk)%chunk_neighbours(chunk_left).NE.external_face) THEN
       if (use_opencl_kernels) then
-        write(*,*) "OPENCL UNPACK LEFT"
+        call ocl_unpack_buffers(fields, left_right_offset, depth, &
+            CHUNK_LEFT, chunks(chunk)%left_rcv_buffer)
       else
         CALL clover_unpack_left(fields, chunk, depth,                      &
                                 chunks(chunk)%left_rcv_buffer,             &
@@ -351,7 +354,8 @@ SUBROUTINE clover_exchange(fields,depth)
     !unpack in right direction
     IF(chunks(chunk)%chunk_neighbours(chunk_right).NE.external_face) THEN
       if (use_opencl_kernels) then
-        write(*,*) "OPENCL UNPACK RIGHT"
+        call ocl_unpack_buffers(fields, left_right_offset, depth, &
+            CHUNK_RIGHT, chunks(chunk)%right_rcv_buffer)
       else
         CALL clover_unpack_right(fields, chunk, depth,                     &
                                  chunks(chunk)%right_rcv_buffer,           &
@@ -365,7 +369,8 @@ SUBROUTINE clover_exchange(fields,depth)
     IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
       ! do bottom exchanges
       if (use_opencl_kernels) then
-        write(*,*) "OPENCL PACK BOTTOM"
+        call ocl_pack_buffers(fields, bottom_top_offset, depth, &
+            CHUNK_BOTTOM, chunks(chunk)%bottom_snd_buffer)
       else
         CALL clover_pack_bottom(chunk, fields, depth, bottom_top_offset)
       endif
@@ -382,7 +387,8 @@ SUBROUTINE clover_exchange(fields,depth)
     IF(chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face) THEN
       ! do top exchanges
       if (use_opencl_kernels) then
-        write(*,*) "OPENCL PACK TOP"
+        call ocl_pack_buffers(fields, bottom_top_offset, depth, &
+            CHUNK_TOP, chunks(chunk)%top_snd_buffer)
       else
         CALL clover_pack_top(chunk, fields, depth, bottom_top_offset)
       endif
@@ -402,7 +408,8 @@ SUBROUTINE clover_exchange(fields,depth)
     !unpack in top direction
     IF( chunks(chunk)%chunk_neighbours(chunk_top).NE.external_face ) THEN
       if (use_opencl_kernels) then
-        write(*,*) "OPENCL UNPACK TOP"
+        call ocl_unpack_buffers(fields, bottom_top_offset, depth, &
+            CHUNK_TOP, chunks(chunk)%top_rcv_buffer)
       else
         CALL clover_unpack_top(fields, chunk, depth,                       &
                                chunks(chunk)%top_rcv_buffer,               &
@@ -413,7 +420,8 @@ SUBROUTINE clover_exchange(fields,depth)
     !unpack in bottom direction
     IF(chunks(chunk)%chunk_neighbours(chunk_bottom).NE.external_face) THEN
       if (use_opencl_kernels) then
-        write(*,*) "OPENCL UNPACK BOTTOM"
+        call ocl_unpack_buffers(fields, bottom_top_offset, depth, &
+            CHUNK_BOTTOM, chunks(chunk)%bottom_rcv_buffer)
       else
         CALL clover_unpack_bottom(fields, chunk, depth,                   &
                                  chunks(chunk)%bottom_rcv_buffer,         &

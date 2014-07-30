@@ -245,6 +245,7 @@ void CloverChunk::packRect
         region[1] = y_max + y_inc + (2*depth);
         region[2] = depth;
         break;
+
     default:
         DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
     }
