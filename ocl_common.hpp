@@ -257,23 +257,6 @@ private:
     // Where to send debug output
     FILE* DBGOUT;
 
-    // type of callback for buffer packing
-    typedef cl_int (cl::CommandQueue::*buffer_func_t)
-    (
-        const cl::Buffer&,
-        cl_bool,
-        const cl::size_t<3>&,
-        const cl::size_t<3>&,
-        const cl::size_t<3>&,
-        size_t,
-        size_t,
-        size_t,
-        size_t,
-        void *,
-        const std::vector<cl::Event> *,
-        cl::Event
-    ) const;
-
     // compile a file and the contained kernels, and check for errors
     void compileKernel
     (const std::string& options,

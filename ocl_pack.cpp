@@ -31,6 +31,35 @@ void CloverChunk::packUnpackAllBuffers
     // which subbuffer to use - incrmement by 1 for each buffer packed
     int current_subbuf = 0;
 
+    if (!pack)
+    {
+        switch (face)
+        {
+        case CHUNK_LEFT:
+            queue.enqueueWriteBuffer(left_buffer, CL_TRUE, 0,
+                NUM_FIELDS*2*sizeof(double)*(y_max + 5),
+                buffer);
+            break;
+        case CHUNK_RIGHT:
+            queue.enqueueWriteBuffer(right_buffer, CL_TRUE, 0,
+                NUM_FIELDS*2*sizeof(double)*(y_max + 5),
+                buffer);
+            break;
+        case CHUNK_BOTTOM:
+            queue.enqueueWriteBuffer(bottom_buffer, CL_TRUE, 0,
+                NUM_FIELDS*2*sizeof(double)*(x_max + 5),
+                buffer);
+            break;
+        case CHUNK_TOP:
+            queue.enqueueWriteBuffer(top_buffer, CL_TRUE, 0,
+                NUM_FIELDS*2*sizeof(double)*(x_max + 5),
+                buffer);
+            break;
+        default:
+            DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
+        }
+    }
+
     for (int ii = 0; ii < NUM_FIELDS; ii++)
     {
         int which_field = ii+1;
@@ -219,7 +248,36 @@ void CloverChunk::packUnpackAllBuffers
         }
     }
 
-    // make sure mem copies are finished
-    queue.finish();
+    if (pack)
+    {
+        // make sure kernels are finished
+        queue.finish();
+
+        switch (face)
+        {
+        case CHUNK_LEFT:
+            queue.enqueueReadBuffer(left_buffer, CL_TRUE, 0,
+                NUM_FIELDS*2*sizeof(double)*(y_max + 5),
+                buffer);
+            break;
+        case CHUNK_RIGHT:
+            queue.enqueueReadBuffer(right_buffer, CL_TRUE, 0,
+                NUM_FIELDS*2*sizeof(double)*(y_max + 5),
+                buffer);
+            break;
+        case CHUNK_BOTTOM:
+            queue.enqueueReadBuffer(bottom_buffer, CL_TRUE, 0,
+                NUM_FIELDS*2*sizeof(double)*(x_max + 5),
+                buffer);
+            break;
+        case CHUNK_TOP:
+            queue.enqueueReadBuffer(top_buffer, CL_TRUE, 0,
+                NUM_FIELDS*2*sizeof(double)*(x_max + 5),
+                buffer);
+            break;
+        default:
+            DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
+        }
+    }
 }
 
