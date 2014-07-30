@@ -131,6 +131,8 @@ CFLAGS=$(CFLAGS_$(COMPILER)) $(OMP) $(I3E) $(C_OPTIONS) -c
 MPI_COMPILER=mpif90
 C_MPI_COMPILER=mpicc
 
+CXXFLAGS+=$(CFLAGS)
+
 C_FILES=\
 	accelerate_kernel_c.o           \
 	pack_kernel_c.o \
@@ -144,7 +146,6 @@ C_FILES=\
 	flux_calc_kernel_c.o            \
 	revert_kernel_c.o               \
 	reset_field_kernel_c.o          \
-	set_field_kernel_c.o          \
 	ideal_gas_kernel_c.o            \
 	viscosity_kernel_c.o            \
 	advec_cell_kernel_c.o			\
@@ -191,9 +192,7 @@ FORTRAN_FILES=\
 	advec_mom_driver.o		\
 	advection.o			\
 	reset_field_kernel.o		\
-	set_field_kernel.o		\
 	reset_field.o			\
-	set_field.o			\
 	hydro.o			\
 	visit.o			\
 	clover_leaf.o
@@ -206,11 +205,9 @@ OCL_FILES=\
 	ocl_errors.o \
 	ocl_reduction.o \
 	ocl_kernels.o \
-	_kernel_strings.o \
 	ideal_gas_kernel_ocl.o \
 	accelerate_kernel_ocl.o \
 	viscosity_kernel_ocl.o \
-	set_field_kernel_ocl.o \
 	reset_field_kernel_ocl.o \
 	field_summary_kernel_ocl.o \
 	PdV_kernel_ocl.o \
@@ -244,21 +241,5 @@ include make.deps
 %.o: %.c Makefile
 	$(C_MPI_COMPILER) $(CFLAGS) -c $< -o $*.o
 
-KERNEL_HDR_FILE=ocl_kernel_hdr.hpp
-$(KERNEL_HDR_FILE): _kernel_strings.o
-_kernel_strings.cpp: Makefile $(shell ls kernel_files/*.cl)
-	@echo "// automaticllly generated from makefile" > $(KERNEL_HDR_FILE)
-	@echo "#include <string>" > $(KERNEL_HDR_FILE); \
-	echo "#include \"$(KERNEL_HDR_FILE)\"" > _kernel_strings.cpp; \
-	for i in `ls kernel_files/*.cl`; do \
-		knl_name=`echo $$i | sed 's/\(\.\/\)\?kernel_files\///g' | sed 's/\.cl//g'`; \
-		echo "extern const std::string src_$$knl_name;" >> $(KERNEL_HDR_FILE); \
-		echo -n "const std::string src_$$knl_name(\"" >> _kernel_strings.cpp; \
-		echo "#include <kernel_files/macros_cl.cl> \\\n\\" >> _kernel_strings.cpp;\
-		cat $$i | sed 's/\\/\\\\/g' | sed 's/\([^\\]*\)$$/\1\\n\\/g' >> _kernel_strings.cpp; \
-		echo "\");" >> _kernel_strings.cpp; \
-	done
-	@echo "Remade kernel header"
-
 clean:
-	rm -f *.o *.mod *genmod* *.lst *.cub *.ptx clover_leaf $(KERNEL_HDR_FILE) _kernel_strings.cpp
+	rm -f *.o *.mod *genmod* *.lst *.cub *.ptx clover_leaf

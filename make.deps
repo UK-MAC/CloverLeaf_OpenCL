@@ -32,8 +32,7 @@ generate_chunk_kernel.o generate_chunk_kernel_module.mod: \
  generate_chunk_kernel.f90
 hydro.o: hydro.f90 clover_module.mod timestep_module.mod \
  viscosity_module.mod pdv_module.mod accelerate_module.mod \
- flux_calc_module.mod advection_module.mod reset_field_module.mod \
- set_field_module.mod
+ flux_calc_module.mod advection_module.mod reset_field_module.mod
 ideal_gas.o ideal_gas_module.mod: ideal_gas.f90 clover_module.mod \
  ideal_gas_kernel_module.mod
 ideal_gas_kernel.o ideal_gas_kernel_module.mod: ideal_gas_kernel.f90
@@ -61,9 +60,6 @@ reset_field_kernel.o reset_field_kernel_module.mod: \
 revert.o revert_module.mod: revert.f90 clover_module.mod \
  revert_kernel_module.mod
 revert_kernel.o revert_kernel_module.mod: revert_kernel.f90
-set_field.o set_field_module.mod: set_field.f90 clover_module.mod \
- set_field_kernel_module.mod
-set_field_kernel.o set_field_kernel_module.mod: set_field_kernel.f90
 start.o: start.f90 clover_module.mod parse_module.mod \
  update_halo_module.mod ideal_gas_module.mod
 timer.o: timer.f90
@@ -92,7 +88,6 @@ pack_kernel_c.o: pack_kernel_c.c ftocmacros.h
 PdV_kernel_c.o: PdV_kernel_c.c ftocmacros.h
 reset_field_kernel_c.o: reset_field_kernel_c.c ftocmacros.h
 revert_kernel_c.o: revert_kernel_c.c ftocmacros.h
-set_field_kernel_c.o: set_field_kernel_c.c ftocmacros.h
 timer_c.o: timer_c.c
 update_halo_kernel_c.o: update_halo_kernel_c.c ftocmacros.h
 viscosity_kernel_c.o: viscosity_kernel_c.c ftocmacros.h
@@ -118,6 +113,5 @@ ocl_strings.o: ocl_strings.cpp ocl_strings.hpp ocl_common.hpp
 PdV_kernel_ocl.o: PdV_kernel_ocl.cpp ocl_common.hpp ocl_reduction.hpp
 reset_field_kernel_ocl.o: reset_field_kernel_ocl.cpp ocl_common.hpp
 revert_kernel_ocl.o: revert_kernel_ocl.cpp ocl_common.hpp
-set_field_kernel_ocl.o: set_field_kernel_ocl.cpp ocl_common.hpp
 update_halo_kernel_ocl.o: update_halo_kernel_ocl.cpp ocl_common.hpp
 viscosity_kernel_ocl.o: viscosity_kernel_ocl.cpp ocl_common.hpp

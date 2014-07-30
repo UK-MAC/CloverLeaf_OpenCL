@@ -1,5 +1,4 @@
 #include "ocl_common.hpp"
-#include "ocl_kernel_hdr.hpp"
 
 #include <cstdio>
 #include <sstream>
@@ -38,17 +37,6 @@ void CloverChunk::initReduction
         // different kernels for different types and operations
         cl::Kernel sum_double, min_double, max_double;
         cl::Kernel max_int;
-        cl::Program program;
-
-        std::stringstream ss;
-
-        #define ADD_SOURCE(src_str) \
-            ss << src_##src_str##_cl << std::endl;
-
-        ADD_SOURCE(macros);
-        ADD_SOURCE(reduction);
-
-        #undef ADD_SOURCE
 
         // make options again
         std::stringstream options("");
@@ -142,45 +130,41 @@ void CloverChunk::initReduction
         fprintf(DBGOUT, "\n");
 
         // name of reduction kernel, data type, what the reduction does
-        #define MAKE_REDUCE_KNL(name, data_type, init_val)              \
-        {                                                               \
-            std::string red_options = options.str()                     \
-                + "-D red_"+#name+" "                                   \
-                + "-D reduce_t="#data_type+" "                          \
-                + "-D INIT_RED_VAL="+#init_val+" ";                     \
-            fprintf(DBGOUT, "Making reduction kernel '%s' ", #name);    \
-            fprintf(DBGOUT, "with options string:\n%s\n",               \
-                    red_options.c_str());                               \
-            try                                                         \
-            {                                                           \
-                program = compileProgram(ss.str(), red_options);        \
-            }                                                           \
-            catch (KernelCompileError err)                              \
-            {                                                           \
-                DIE("Errors in compiling reduction %s_%s:\n%s\n",       \
-                    #name, #data_type, err.what());                     \
-            }                                                           \
-            try                                                         \
-            {                                                           \
-                name##_##data_type = cl::Kernel(program, "reduction");  \
-            }                                                           \
-            catch (cl::Error e){                                        \
-                DIE("Error in creating %s kernel %d\n",                 \
-                        #name, e.err());                                \
-            }                                                           \
-            fprintf(DBGOUT, "Kernel '%s_%s' successfully built\n",      \
-                    #name, #data_type);                                 \
-            reduce_kernel_info_t info;                                  \
-            info.kernel = name##_##data_type;                           \
-            info.global_size = cl::NDRange(reduction_global_size);      \
-            info.local_size = cl::NDRange(reduction_local_size);        \
-            name##_red_kernels_##data_type.push_back(info);             \
-            fprintf(DBGOUT, "\n");                                      \
+        #define MAKE_REDUCE_KNL(name, data_type, init_val)          \
+        {                                                           \
+            std::string red_options = options.str()                 \
+                + "-D red_"+#name+" "                               \
+                + "-D reduce_t="#data_type+" "                      \
+                + "-D INIT_RED_VAL="+#init_val+" ";                 \
+            fprintf(DBGOUT, "Making reduction kernel '%s_%s' ",     \
+                    #name, #data_type);                             \
+            fprintf(DBGOUT, "with options string:\n%s\n",           \
+                    red_options.c_str());                           \
+            try                                                     \
+            {                                                       \
+                compileKernel(red_options,                          \
+                    "./kernel_files/reduction_cl.cl",               \
+                    "reduction",                                    \
+                    name##_##data_type);                            \
+            }                                                       \
+            catch (KernelCompileError err)                          \
+            {                                                       \
+                DIE("Errors in compiling reduction %s_%s:\n%s\n",   \
+                    #name, #data_type, err.what());                 \
+            }                                                       \
+            fprintf(DBGOUT, "Kernel '%s_%s' successfully built\n",  \
+                    #name, #data_type);                             \
+            reduce_kernel_info_t info;                              \
+            info.kernel = name##_##data_type;                       \
+            info.global_size = cl::NDRange(reduction_global_size);  \
+            info.local_size = cl::NDRange(reduction_local_size);    \
+            name##_red_kernels_##data_type.push_back(info);         \
+            fprintf(DBGOUT, "\n");                                  \
         }
 
         MAKE_REDUCE_KNL(sum, double, 0.0);
         MAKE_REDUCE_KNL(max, double, 0.0);
-        MAKE_REDUCE_KNL(min, double, 100000000.0);
+        MAKE_REDUCE_KNL(min, double, DBL_MAX);
         MAKE_REDUCE_KNL(max, int, 0);
 
         fprintf(DBGOUT, "%zu/", reduction_global_size);

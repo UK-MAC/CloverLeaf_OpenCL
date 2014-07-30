@@ -30,7 +30,6 @@ SUBROUTINE hydro
   USE flux_calc_module
   USE advection_module
   USE reset_field_module
-  USE set_field_module
 
   IMPLICIT NONE
 

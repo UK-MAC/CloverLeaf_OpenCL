@@ -1,6 +1,6 @@
 #include "ocl_common.hpp"
-#include "ocl_kernel_hdr.hpp"
 #include <sstream>
+#include <fstream>
 
 void CloverChunk::initProgram
 (void)
@@ -8,19 +8,10 @@ void CloverChunk::initProgram
     // options
     std::stringstream options("");
 
-    // FIXME check to make sure its nvidia
-    if (desired_type == CL_DEVICE_TYPE_GPU)
-    {
-        // for nvidia architecture
-        //options << "-cl-nv-arch " << NV_ARCH << " ";
-        //options << "-cl-nv-maxrregcount=20 ";
-    }
-
 #ifdef __arm__
     // on ARM, don't use built in functions as they don't exist
     options << "-DCLOVER_NO_BUILTINS ";
 #endif
-
 
     // pass in these values so you don't have to pass them in to every kernel
     options << "-Dx_min=" << x_min << " ";
@@ -51,50 +42,49 @@ void CloverChunk::initProgram
     fprintf(stdout, "Compiling kernels (may take some time)...");
     fflush(stdout);
 
-    compileKernel(options_str, src_ideal_gas_cl, "ideal_gas", ideal_gas_device);
-    compileKernel(options_str, src_accelerate_cl, "accelerate", accelerate_device);
-    compileKernel(options_str, src_flux_calc_cl, "flux_calc_x", flux_calc_x_device);
-    compileKernel(options_str, src_flux_calc_cl, "flux_calc_y", flux_calc_y_device);
-    compileKernel(options_str, src_viscosity_cl, "viscosity", viscosity_device);
-    compileKernel(options_str, src_revert_cl, "revert", revert_device);
+    compileKernel(options_str, "./kernel_files/ideal_gas_cl.cl", "ideal_gas", ideal_gas_device);
+    compileKernel(options_str, "./kernel_files/accelerate_cl.cl", "accelerate", accelerate_device);
+    compileKernel(options_str, "./kernel_files/flux_calc_cl.cl", "flux_calc_x", flux_calc_x_device);
+    compileKernel(options_str, "./kernel_files/flux_calc_cl.cl", "flux_calc_y", flux_calc_y_device);
+    compileKernel(options_str, "./kernel_files/viscosity_cl.cl", "viscosity", viscosity_device);
+    compileKernel(options_str, "./kernel_files/revert_cl.cl", "revert", revert_device);
 
-    compileKernel(options_str, src_initialise_chunk_cl, "initialise_chunk_first", initialise_chunk_first_device);
-    compileKernel(options_str, src_initialise_chunk_cl, "initialise_chunk_second", initialise_chunk_second_device);
-    compileKernel(options_str, src_generate_chunk_cl, "generate_chunk_init", generate_chunk_init_device);
-    compileKernel(options_str, src_generate_chunk_cl, "generate_chunk", generate_chunk_device);
+    compileKernel(options_str, "./kernel_files/initialise_chunk_cl.cl", "initialise_chunk_first", initialise_chunk_first_device);
+    compileKernel(options_str, "./kernel_files/initialise_chunk_cl.cl", "initialise_chunk_second", initialise_chunk_second_device);
+    compileKernel(options_str, "./kernel_files/generate_chunk_cl.cl", "generate_chunk_init", generate_chunk_init_device);
+    compileKernel(options_str, "./kernel_files/generate_chunk_cl.cl", "generate_chunk", generate_chunk_device);
 
-    compileKernel(options_str, src_reset_field_cl, "reset_field", reset_field_device);
-    compileKernel(options_str, src_set_field_cl, "set_field", set_field_device);
+    compileKernel(options_str, "./kernel_files/reset_field_cl.cl", "reset_field", reset_field_device);
 
-    compileKernel(options_str, src_PdV_cl, "PdV_predict", PdV_predict_device);
-    compileKernel(options_str, src_PdV_cl, "PdV_not_predict", PdV_not_predict_device);
+    compileKernel(options_str, "./kernel_files/PdV_cl.cl", "PdV_predict", PdV_predict_device);
+    compileKernel(options_str, "./kernel_files/PdV_cl.cl", "PdV_not_predict", PdV_not_predict_device);
 
-    compileKernel(options_str, src_field_summary_cl, "field_summary", field_summary_device);
-    compileKernel(options_str, src_calc_dt_cl, "calc_dt", calc_dt_device);
+    compileKernel(options_str, "./kernel_files/field_summary_cl.cl", "field_summary", field_summary_device);
+    compileKernel(options_str, "./kernel_files/calc_dt_cl.cl", "calc_dt", calc_dt_device);
 
-    compileKernel(options_str, src_update_halo_cl, "update_halo_top", update_halo_top_device);
-    compileKernel(options_str, src_update_halo_cl, "update_halo_bottom", update_halo_bottom_device);
-    compileKernel(options_str, src_update_halo_cl, "update_halo_left", update_halo_left_device);
-    compileKernel(options_str, src_update_halo_cl, "update_halo_right", update_halo_right_device);
+    compileKernel(options_str, "./kernel_files/update_halo_cl.cl", "update_halo_top", update_halo_top_device);
+    compileKernel(options_str, "./kernel_files/update_halo_cl.cl", "update_halo_bottom", update_halo_bottom_device);
+    compileKernel(options_str, "./kernel_files/update_halo_cl.cl", "update_halo_left", update_halo_left_device);
+    compileKernel(options_str, "./kernel_files/update_halo_cl.cl", "update_halo_right", update_halo_right_device);
 
-    compileKernel(options_str, src_advec_mom_cl, "advec_mom_vol", advec_mom_vol_device);
-    compileKernel(options_str, src_advec_mom_cl, "advec_mom_node_flux_post_x_1", advec_mom_node_flux_post_x_1_device);
-    compileKernel(options_str, src_advec_mom_cl, "advec_mom_node_flux_post_x_2", advec_mom_node_flux_post_x_2_device);
-    compileKernel(options_str, src_advec_mom_cl, "advec_mom_node_pre_x", advec_mom_node_pre_x_device);
-    compileKernel(options_str, src_advec_mom_cl, "advec_mom_flux_x", advec_mom_flux_x_device);
-    compileKernel(options_str, src_advec_mom_cl, "advec_mom_xvel", advec_mom_xvel_device);
-    compileKernel(options_str, src_advec_mom_cl, "advec_mom_node_flux_post_y_1", advec_mom_node_flux_post_y_1_device);
-    compileKernel(options_str, src_advec_mom_cl, "advec_mom_node_flux_post_y_2", advec_mom_node_flux_post_y_2_device);
-    compileKernel(options_str, src_advec_mom_cl, "advec_mom_node_pre_y", advec_mom_node_pre_y_device);
-    compileKernel(options_str, src_advec_mom_cl, "advec_mom_flux_y", advec_mom_flux_y_device);
-    compileKernel(options_str, src_advec_mom_cl, "advec_mom_yvel", advec_mom_yvel_device);
+    compileKernel(options_str, "./kernel_files/advec_mom_cl.cl", "advec_mom_vol", advec_mom_vol_device);
+    compileKernel(options_str, "./kernel_files/advec_mom_cl.cl", "advec_mom_node_flux_post_x_1", advec_mom_node_flux_post_x_1_device);
+    compileKernel(options_str, "./kernel_files/advec_mom_cl.cl", "advec_mom_node_flux_post_x_2", advec_mom_node_flux_post_x_2_device);
+    compileKernel(options_str, "./kernel_files/advec_mom_cl.cl", "advec_mom_node_pre_x", advec_mom_node_pre_x_device);
+    compileKernel(options_str, "./kernel_files/advec_mom_cl.cl", "advec_mom_flux_x", advec_mom_flux_x_device);
+    compileKernel(options_str, "./kernel_files/advec_mom_cl.cl", "advec_mom_xvel", advec_mom_xvel_device);
+    compileKernel(options_str, "./kernel_files/advec_mom_cl.cl", "advec_mom_node_flux_post_y_1", advec_mom_node_flux_post_y_1_device);
+    compileKernel(options_str, "./kernel_files/advec_mom_cl.cl", "advec_mom_node_flux_post_y_2", advec_mom_node_flux_post_y_2_device);
+    compileKernel(options_str, "./kernel_files/advec_mom_cl.cl", "advec_mom_node_pre_y", advec_mom_node_pre_y_device);
+    compileKernel(options_str, "./kernel_files/advec_mom_cl.cl", "advec_mom_flux_y", advec_mom_flux_y_device);
+    compileKernel(options_str, "./kernel_files/advec_mom_cl.cl", "advec_mom_yvel", advec_mom_yvel_device);
 
-    compileKernel(options_str, src_advec_cell_cl, "advec_cell_pre_vol_x", advec_cell_pre_vol_x_device);
-    compileKernel(options_str, src_advec_cell_cl, "advec_cell_ener_flux_x", advec_cell_ener_flux_x_device);
-    compileKernel(options_str, src_advec_cell_cl, "advec_cell_x", advec_cell_x_device);
-    compileKernel(options_str, src_advec_cell_cl, "advec_cell_pre_vol_y", advec_cell_pre_vol_y_device);
-    compileKernel(options_str, src_advec_cell_cl, "advec_cell_ener_flux_y", advec_cell_ener_flux_y_device);
-    compileKernel(options_str, src_advec_cell_cl, "advec_cell_y", advec_cell_y_device);
+    compileKernel(options_str, "./kernel_files/advec_cell_cl.cl", "advec_cell_pre_vol_x", advec_cell_pre_vol_x_device);
+    compileKernel(options_str, "./kernel_files/advec_cell_cl.cl", "advec_cell_ener_flux_x", advec_cell_ener_flux_x_device);
+    compileKernel(options_str, "./kernel_files/advec_cell_cl.cl", "advec_cell_x", advec_cell_x_device);
+    compileKernel(options_str, "./kernel_files/advec_cell_cl.cl", "advec_cell_pre_vol_y", advec_cell_pre_vol_y_device);
+    compileKernel(options_str, "./kernel_files/advec_cell_cl.cl", "advec_cell_ener_flux_y", advec_cell_ener_flux_y_device);
+    compileKernel(options_str, "./kernel_files/advec_cell_cl.cl", "advec_cell_y", advec_cell_y_device);
 
     fprintf(stdout, "done.\n");
     fprintf(DBGOUT, "All kernels compiled\n");
@@ -106,17 +96,25 @@ void CloverChunk::compileKernel
  const char* kernel_name,
  cl::Kernel& kernel)
 {
-    const std::string source_str(source_name);
+    std::string source_str;
+
+    {
+        std::ifstream ifile(source_name.c_str());
+        source_str = std::string(
+            (std::istreambuf_iterator<char>(ifile)),
+            (std::istreambuf_iterator<char>()));
+    }
+
     fprintf(DBGOUT, "Compiling %s...", kernel_name);
     cl::Program program;
 
+#if defined(PHI_SOURCE_PROFILING)
     std::stringstream plusprof("");
 
-#if defined(PHI_SOURCE_PROFILING)
     if (desired_type == CL_DEVICE_TYPE_ACCELERATOR)
     {
         plusprof << " -profiling ";
-        plusprof << " -s \"" << _PWD_ << kernel_name << "_cl.cl\" ";
+        plusprof << " -s \"" << source_name << "\"";
     }
     plusprof << options_orig;
     std::string options(plusprof.str());
@@ -124,7 +122,7 @@ void CloverChunk::compileKernel
     std::string options(options_orig);
 #endif
 
-    if (built_programs.find(source_name) == built_programs.end())
+    if (built_programs.find(source_name + options) == built_programs.end())
     {
         try
         {
@@ -135,11 +133,12 @@ void CloverChunk::compileKernel
             DIE("Errors in compiling %s:\n%s\n", kernel_name, err.what());
         }
 
-        built_programs[source_name] = program;
+        built_programs[source_name + options] = program;
     }
     else
     {
-        program = built_programs.at(source_name);
+        // + options to stop reduction kernels using the wrong types
+        program = built_programs.at(source_name + options);
     }
 
     size_t max_wg_size;
@@ -563,12 +562,6 @@ void CloverChunk::initArgs
     reset_field_device.setArg(5, xvel1);
     reset_field_device.setArg(6, yvel0);
     reset_field_device.setArg(7, yvel1);
-
-    // set field
-    set_field_device.setArg(0, density0);
-    set_field_device.setArg(1, density1);
-    set_field_device.setArg(2, energy0);
-    set_field_device.setArg(3, energy1);
 
     // generate chunk
     generate_chunk_init_device.setArg(0, density0);
