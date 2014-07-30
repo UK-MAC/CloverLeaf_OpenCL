@@ -120,7 +120,7 @@ endif
 
 MPICXX_LIB=-lmpi_cxx
 
-LDLIBS+=-lOpenCL -lstdc++ -lmpi_cxx
+LDLIBS+=-lOpenCL -lstdc++ $(MPICXX_LIB)
 CXXFLAGS+=-D CL_USE_DEPRECATED_OPENCL_1_1_APIS -D __CL_ENABLE_EXCEPTIONS -DMPI_HDR
 
 ifdef VERBOSE
