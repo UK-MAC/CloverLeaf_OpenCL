@@ -25,8 +25,9 @@ extern "C" void ocl_unpack_buffers_
 }
 
 void CloverChunk::packUnpackAllBuffers
-(int fields[NUM_FIELDS], int offsets[NUM_FIELDS], int depth,
- int face, int pack, double * buffer)
+(int fields[NUM_FIELDS], int offsets[NUM_FIELDS],
+ const int depth, const int face, const int pack,
+ double * buffer)
 {
     buffer_func_t pack_func;
     int dest;
@@ -103,15 +104,15 @@ void CloverChunk::packUnpackAllBuffers
                 switch (face)
                 {
                 case CHUNK_LEFT:
-                    dest = (x_min+1) + x_inc - 1 + depth; break;
+                    dest = (x_min+1) + x_inc - 1 + 1; break;
                 case CHUNK_RIGHT:
                     dest = (x_max+1) + 1 - depth; break;
                 case CHUNK_BOTTOM:
-                    dest = (y_min+1) + y_inc - 1 + depth; break;
+                    dest = (y_min+1) + y_inc - 1 + 1; break;
                 case CHUNK_TOP:
                     dest = (y_max+1) + 1 - depth; break;
                 case CHUNK_BACK:
-                    dest = (z_min+1) + z_inc - 1 + depth; break;
+                    dest = (z_min+1) + z_inc - 1 + 1; break;
                 case CHUNK_FRONT:
                     dest = (z_max+1) + 1 - depth; break;
                 default:
@@ -125,15 +126,15 @@ void CloverChunk::packUnpackAllBuffers
                 case CHUNK_LEFT:
                     dest = (x_min+1) - depth; break;
                 case CHUNK_RIGHT:
-                    dest = (x_max+1) + x_inc + depth; break;
+                    dest = (x_max+1) + x_inc + 1; break;
                 case CHUNK_BOTTOM:
                     dest = (y_min+1) - depth; break;
                 case CHUNK_TOP:
-                    dest = (y_max+1) + y_inc + depth; break;
+                    dest = (y_max+1) + y_inc + 1; break;
                 case CHUNK_BACK:
                     dest = (z_min+1) - depth; break;
                 case CHUNK_FRONT:
-                    dest = (z_max+1) + z_inc + depth; break;
+                    dest = (z_max+1) + z_inc + 1; break;
                 default:
                     DIE("Invalid face identifier %d passed to unpack\n", face);
                 }
@@ -160,15 +161,10 @@ void CloverChunk::packUnpackAllBuffers
  */
 void CloverChunk::packRect
 (double* host_buffer, buffer_func_t buffer_func,
- int x_inc, int y_inc, int z_inc,
- int face, int dest,
- int which_field, int depth)
+ const int x_inc, const int y_inc, const int z_inc,
+ const int face, const int dest, const int which_field, const int depth)
 {
     cl::Buffer *device_buf;
-
-    cl::size_t<3> b_origin;
-    cl::size_t<3> h_origin;
-    cl::size_t<3> region;
 
     #define CASE_BUF(which_array)   \
     case FIELD_##which_array:       \
@@ -202,8 +198,12 @@ void CloverChunk::packRect
         DIE("Invalid face %d passed to left/right pack buffer\n", which_field);
     }
 
+    cl::size_t<3> b_origin;
+    cl::size_t<3> h_origin;
+    cl::size_t<3> region;
+
     size_t b_row_pitch = sizeof(double)*(x_max + 4 + x_inc);
-    size_t b_slice_pitch = sizeof(double)*(y_max + 4 + y_inc);
+    size_t b_slice_pitch = (y_max + 4 + y_inc)*b_row_pitch;
     size_t h_row_pitch = 0;
     size_t h_slice_pitch = 0;
 

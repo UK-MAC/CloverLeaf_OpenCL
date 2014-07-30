@@ -16,7 +16,7 @@
 
  x_cells=25
  y_cells=25
- z_cells=25
+ z_cells=35
  end_time=100.0
  end_step=100
 
