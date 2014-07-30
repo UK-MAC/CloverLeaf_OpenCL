@@ -1,19 +1,19 @@
 !Crown Copyright 2014 AWE.
 !
-! This file is part of TeaLeaf.
+! This file is part of CloverLeaf.
 !
-! TeaLeaf is free software: you can redistribute it and/or modify it under 
+! CloverLeaf is free software: you can redistribute it and/or modify it under 
 ! the terms of the GNU General Public License as published by the 
 ! Free Software Foundation, either version 3 of the License, or (at your option) 
 ! any later version.
 !
-! TeaLeaf is distributed in the hope that it will be useful, but 
+! CloverLeaf is distributed in the hope that it will be useful, but 
 ! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
 ! FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 ! details.
 !
 ! You should have received a copy of the GNU General Public License along with 
-! TeaLeaf. If not, see http://www.gnu.org/licenses/.
+! CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Controls the main hydro/conduction cycle.
 !>  @author David Beckingsale, Wayne Gaudin
@@ -91,7 +91,7 @@ SUBROUTINE hydro
       IF ( parallel%boss ) THEN
         WRITE(g_out,*)
         WRITE(g_out,*) 'Calculation complete'
-        WRITE(g_out,*) 'Tea is finishing'
+        WRITE(g_out,*) 'Clover is finishing'
         WRITE(g_out,*) 'Wall clock ', wall_clock
         WRITE(g_out,*) 'First step overhead', first_step-second_step
         WRITE(    0,*) 'Wall clock ', wall_clock
