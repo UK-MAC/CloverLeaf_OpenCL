@@ -443,10 +443,10 @@ SUBROUTINE clover_exchange(fields,depth)
     ENDIF
 
     IF(chunks(chunk)%chunk_neighbours(chunk_front).NE.external_face) THEN
-      ! do top exchanges
+      ! do front exchanges
       if (use_opencl_kernels) then
         call ocl_pack_buffers(fields, back_front_offset, depth, &
-            CHUNK_FRONT, chunks(chunk)%back_snd_buffer)
+            CHUNK_FRONT, chunks(chunk)%front_snd_buffer)
       else
         CALL clover_pack_front(chunk, fields, depth, back_front_offset)
       endif
@@ -467,7 +467,7 @@ SUBROUTINE clover_exchange(fields,depth)
     IF( chunks(chunk)%chunk_neighbours(chunk_front).NE.external_face ) THEN
       if (use_opencl_kernels) then
         call ocl_unpack_buffers(fields, back_front_offset, depth, &
-            CHUNK_FRONT, chunks(chunk)%back_snd_buffer)
+            CHUNK_FRONT, chunks(chunk)%front_rcv_buffer)
       else
         CALL clover_unpack_front(fields, chunk, depth,                       &
                                chunks(chunk)%front_rcv_buffer,               &
@@ -479,7 +479,7 @@ SUBROUTINE clover_exchange(fields,depth)
     IF(chunks(chunk)%chunk_neighbours(chunk_back).NE.external_face) THEN
       if (use_opencl_kernels) then
         call ocl_unpack_buffers(fields, back_front_offset, depth, &
-            CHUNK_BACK, chunks(chunk)%back_snd_buffer)
+            CHUNK_BACK, chunks(chunk)%back_rcv_buffer)
       else
         CALL clover_unpack_back(fields, chunk, depth,                   &
                                  chunks(chunk)%back_rcv_buffer,         &

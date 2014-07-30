@@ -55,6 +55,7 @@ int depth)
     CHECK_LAUNCH(bottom, ud)
     CHECK_LAUNCH(back, fb)
     CHECK_LAUNCH(front, fb)
+
 }
 
 void CloverChunk::update_halo_kernel
@@ -62,12 +63,11 @@ void CloverChunk::update_halo_kernel
 const int depth,
 const int* chunk_neighbours)
 {
-double test;
-#define HALO_UPDATE_RESIDENT(arr, type) \
-if(fields[FIELD_ ## arr - 1] == 1) \
-{ \
-update_array(arr, type, chunk_neighbours, depth); \
-}
+    #define HALO_UPDATE_RESIDENT(arr, type)                 \
+    if(fields[FIELD_ ## arr - 1] == 1)                      \
+    {                                                       \
+        update_array(arr, type, chunk_neighbours, depth);   \
+    }
 
     HALO_UPDATE_RESIDENT(density0, CELL);
     HALO_UPDATE_RESIDENT(density1, CELL);
