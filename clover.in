@@ -14,9 +14,9 @@
  !visit_frequency 1
  !summary_frequency 1
 
- x_cells=25
- y_cells=25
- z_cells=35
+ x_cells=60
+ y_cells=60
+ z_cells=60
  end_time=100.0
  end_step=100
 

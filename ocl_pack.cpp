@@ -155,7 +155,7 @@ void CloverChunk::packUnpackAllBuffers
  *  the relevant opencl function to either read or write from the device to pack
  *  or unpack it for sending over mpi.
  *
- *  'dest' is the origin of the rectangle to be copied (either row or column) -
+ *  'dest' is the dimension specific origin of the rectangle to be copied,
  *  needed because the packing and unpacking goes into different places in the
  *  grid.
  */
