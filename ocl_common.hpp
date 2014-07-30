@@ -403,44 +403,19 @@ public:
      const std::vector< cl::Event > * const events=NULL,
      cl::Event * const event=NULL) ;
 
-#if 0
-    #define ENQUEUE_OFFSET(knl) ENQUEUE(knl)
-#else
     #define ENQUEUE_OFFSET(knl)                                     \
         CloverChunk::enqueueKernel(knl, __LINE__, __FILE__,         \
                                    launch_specs.at(#knl).offset,    \
                                    launch_specs.at(#knl).global,    \
                                    local_group_size);
-#endif
 
-#if 0
-    #define ENQUEUE(knl)                                    \
-        CloverChunk::enqueueKernel(knl, __LINE__, __FILE__, \
-                                   cl::NullRange,           \
-                                   global_size,             \
-                                   local_group_size);
-#else
     #define ENQUEUE(knl) ENQUEUE_OFFSET(knl)
-#endif
 
     // reduction
     template <typename T>
     T reduceValue
     (reduce_info_vec_t& red_kernels,
      const cl::Buffer& results_buf);
-
-    // mpi packing
-    #define PACK_ARGS                                       \
-        int chunk_1, int chunk_2, int external_face,        \
-        int x_inc, int y_inc, int z_inc, int depth, int which_field,   \
-        double *buffer_1, double *buffer_2
-
-    void pack_left_right(PACK_ARGS);
-    void unpack_left_right(PACK_ARGS);
-    void pack_top_bottom(PACK_ARGS);
-    void unpack_top_bottom(PACK_ARGS);
-    void pack_back_front(PACK_ARGS);
-    void unpack_back_front(PACK_ARGS);
 
     void packUnpackAllBuffers
     (int fields[19], int offsets[19], int depth,

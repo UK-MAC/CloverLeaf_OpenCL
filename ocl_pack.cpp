@@ -71,16 +71,30 @@ void CloverChunk::packUnpackAllBuffers
             case FIELD_xvel1:
             case FIELD_yvel1:
             case FIELD_zvel1:
-                x_inc = y_inc = z_inc = 1; break;
+                x_inc = y_inc = z_inc = 1;
+                break;
             case FIELD_mass_flux_x:
             case FIELD_vol_flux_x:
-                x_inc = 1; break;
+                x_inc = 1;
+                break;
             case FIELD_mass_flux_y:
             case FIELD_vol_flux_y:
-                y_inc = 1; break;
+                y_inc = 1;
+                break;
             case FIELD_mass_flux_z:
             case FIELD_vol_flux_z:
-                z_inc = 1; break;
+                z_inc = 1;
+                break;
+            case FIELD_density0:
+            case FIELD_density1:
+            case FIELD_energy0:
+            case FIELD_energy1:
+            case FIELD_pressure:
+            case FIELD_viscosity:
+            case FIELD_soundspeed:
+                break;
+            default:
+                DIE("Invalid field number %d in choosing _inc values\n", which_field);
             }
 
             // set the destination
@@ -101,7 +115,7 @@ void CloverChunk::packUnpackAllBuffers
                 case CHUNK_FRONT:
                     dest = (z_max+1) + 1 - depth; break;
                 default:
-                    DIE("Invalid face identified %d passed to pack\n", face);
+                    DIE("Invalid face identifier %d passed to pack\n", face);
                 }
             }
             else
@@ -121,7 +135,7 @@ void CloverChunk::packUnpackAllBuffers
                 case CHUNK_FRONT:
                     dest = (z_max+1) + z_inc + depth; break;
                 default:
-                    DIE("Invalid face identified %d passed to unpack\n", face);
+                    DIE("Invalid face identifier %d passed to unpack\n", face);
                 }
             }
 

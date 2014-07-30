@@ -51,11 +51,10 @@ int depth)
 
     CHECK_LAUNCH(left, lr)
     CHECK_LAUNCH(right, lr)
-    CHECK_LAUNCH(top, ud)
     CHECK_LAUNCH(bottom, ud)
+    CHECK_LAUNCH(top, ud)
     CHECK_LAUNCH(back, fb)
     CHECK_LAUNCH(front, fb)
-
 }
 
 void CloverChunk::update_halo_kernel
