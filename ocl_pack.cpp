@@ -1,12 +1,36 @@
 #include "ocl_common.hpp"
 extern CloverChunk chunk;
 
+#include <numeric>
+
 /*****
  *  TODO
  *  - copy over the 1.1 halo exchanges
  *      1 set depth at beginning of packing all
  *      2 set x_extra/y_extra/array/subbuffer at beginning of packing each array
  */
+
+extern "C" void ocl_pack_buffers_
+(int fields[NUM_FIELDS], int offsets[NUM_FIELDS], int * depth,
+ int * face, double * buffer)
+{
+    if (std::accumulate(fields, fields + (NUM_FIELDS-1), 0) > 0)
+    {
+        // only call if there's actually something to pack
+        //chunk.packUnpackAllBuffers(fields, offsets, *depth, *face, 1, buffer);
+    }
+}
+
+extern "C" void ocl_unpack_buffers_
+(int fields[NUM_FIELDS], int offsets[NUM_FIELDS], int * depth,
+ int * face, double * buffer)
+{
+    if (std::accumulate(fields, fields + (NUM_FIELDS-1), 0) > 0)
+    {
+        // only call if there's actually something to unpack
+        //chunk.packUnpackAllBuffers(fields, offsets, *depth, *face, 0, buffer);
+    }
+}
 
 // define a generic interface for fortran
 #define C_PACK_INTERFACE(operation, dir)                            \

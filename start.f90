@@ -62,10 +62,12 @@ SUBROUTINE start
 
   CALL clover_decompose(grid%x_cells,grid%y_cells,left,right,bottom,top)
 
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
       
     ! Needs changing so there can be more than 1 chunk per task
-    chunks(c)%task = c-1
+    chunks(c)%task = parallel%task
+
+    !chunk_task_responsible_for = parallel%task+1
 
     x_cells = right(c) -left(c)  +1
     y_cells = top(c)   -bottom(c)+1
@@ -95,13 +97,13 @@ SUBROUTINE start
 
   CALL clover_barrier
 
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
     IF(chunks(c)%task.EQ.parallel%task)THEN
       CALL clover_allocate_buffers(c)
     ENDIF
   ENDDO
 
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
     IF(chunks(c)%task.EQ.parallel%task)THEN
       CALL initialise_chunk(c)
     ENDIF
@@ -111,7 +113,7 @@ SUBROUTINE start
      WRITE(g_out,*) 'Generating chunks'
   ENDIF
 
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
     IF(chunks(c)%task.EQ.parallel%task)THEN
       CALL generate_chunk(c)
     ENDIF
@@ -126,7 +128,7 @@ SUBROUTINE start
   profiler_off=profiler_on
   profiler_on=.FALSE.
 
-  DO c = 1, number_of_chunks
+  DO c = 1, chunks_per_task
     CALL ideal_gas(c,.FALSE.)
   END DO
 

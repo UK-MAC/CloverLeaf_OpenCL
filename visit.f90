@@ -61,7 +61,7 @@ SUBROUTINE visit
   ENDIF
 
   IF(profiler_on) kernel_time=timer()
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
     CALL ideal_gas(c,.FALSE.)
   ENDDO
   IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
@@ -84,7 +84,7 @@ SUBROUTINE visit
     u=get_unit(dummy)
     OPEN(UNIT=u,FILE=filename,STATUS='UNKNOWN',POSITION='APPEND',IOSTAT=err)
 
-    DO c = 1, number_of_chunks
+    DO c = 1, chunks_per_task
       WRITE(chunk_name, '(i6)') c+100000
       chunk_name(1:1) = "."
       WRITE(step_name, '(i6)') step+100000
@@ -97,7 +97,7 @@ SUBROUTINE visit
   ENDIF
 
   IF(profiler_on) kernel_time=timer()
-  DO c = 1, number_of_chunks
+  DO c = 1, chunks_per_task
     IF(chunks(c)%task.EQ.parallel%task) THEN
       nxc=chunks(c)%field%x_max-chunks(c)%field%x_min+1
       nyc=chunks(c)%field%y_max-chunks(c)%field%y_min+1
