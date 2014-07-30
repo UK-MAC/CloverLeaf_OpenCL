@@ -1,6 +1,5 @@
 #include "ocl_common.hpp"
 #include "ocl_reduction.hpp"
-extern CloverChunk chunk;
 
 extern "C" void pdv_kernel_ocl_
 (int *errorcondition, int *prdct, double *dtbyt)

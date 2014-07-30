@@ -1,14 +1,5 @@
 #include "ocl_common.hpp"
-extern CloverChunk chunk;
-
 #include <numeric>
-
-/*****
- *  TODO
- *  - copy over the 1.1 halo exchanges
- *      1 set depth at beginning of packing all
- *      2 set x_extra/y_extra/array/subbuffer at beginning of packing each array
- */
 
 extern "C" void ocl_pack_buffers_
 (int fields[NUM_FIELDS], int offsets[NUM_FIELDS], int * depth,
@@ -17,7 +8,7 @@ extern "C" void ocl_pack_buffers_
     if (std::accumulate(fields, fields + (NUM_FIELDS-1), 0) > 0)
     {
         // only call if there's actually something to pack
-        //chunk.packUnpackAllBuffers(fields, offsets, *depth, *face, 1, buffer);
+        chunk.packUnpackAllBuffers(fields, offsets, *depth, *face, 1, buffer);
     }
 }
 
@@ -28,27 +19,105 @@ extern "C" void ocl_unpack_buffers_
     if (std::accumulate(fields, fields + (NUM_FIELDS-1), 0) > 0)
     {
         // only call if there's actually something to unpack
-        //chunk.packUnpackAllBuffers(fields, offsets, *depth, *face, 0, buffer);
+        chunk.packUnpackAllBuffers(fields, offsets, *depth, *face, 0, buffer);
     }
 }
 
-// define a generic interface for fortran
-#define C_PACK_INTERFACE(operation, dir)                            \
-extern "C" void operation##_##dir##_buffers_ocl_                    \
-(int *xmin, int *xmax, int *ymin, int *ymax,                        \
- int *chunk_1, int *chunk_2, int *external_face,                    \
- int *x_inc, int *y_inc, int *depth, int *which_field,              \
- double *field_ptr, double *buffer_1, double *buffer_2)             \
-{                                                                   \
-    chunk.operation##_##dir(*chunk_1, *chunk_2, *external_face,     \
-                            *x_inc, *y_inc, *depth,                 \
-                            *which_field, buffer_1, buffer_2);  \
+void CloverChunk::packUnpackAllBuffers
+(int fields[NUM_FIELDS], int offsets[NUM_FIELDS],
+ const int depth, const int face, const int pack,
+ double * buffer)
+{
+    int dest;
+    int x_inc, y_inc;
+
+    for (int ii = 0; ii < NUM_FIELDS; ii++)
+    {
+        int which_field = ii+1;
+
+        if (fields[ii])
+        {
+            if (offsets[ii] < 0)
+            {
+                DIE("Tried to pack/unpack field %d but invalid offset %d given\n",
+                    ii, offsets[ii]);
+            }
+
+            x_inc = y_inc = 0;
+
+            // set x/y/z inc for array
+            switch (which_field)
+            {
+            case FIELD_xvel0:
+            case FIELD_yvel0:
+            case FIELD_xvel1:
+            case FIELD_yvel1:
+                x_inc = y_inc = 1;
+                break;
+            case FIELD_mass_flux_x:
+            case FIELD_vol_flux_x:
+                x_inc = 1;
+                break;
+            case FIELD_mass_flux_y:
+            case FIELD_vol_flux_y:
+                y_inc = 1;
+                break;
+            case FIELD_density0:
+            case FIELD_density1:
+            case FIELD_energy0:
+            case FIELD_energy1:
+            case FIELD_pressure:
+            case FIELD_viscosity:
+            case FIELD_soundspeed:
+                break;
+            default:
+                DIE("Invalid field number %d in choosing _inc values\n", which_field);
+            }
+
+            // set the destination
+            if (pack)
+            {
+                switch (face)
+                {
+                case CHUNK_LEFT:
+                    dest = (x_min+1) + x_inc - 1 + 1; break;
+                case CHUNK_RIGHT:
+                    dest = (x_max+1) + 1 - depth; break;
+                case CHUNK_BOTTOM:
+                    dest = (y_min+1) + y_inc - 1 + 1; break;
+                case CHUNK_TOP:
+                    dest = (y_max+1) + 1 - depth; break;
+                default:
+                    DIE("Invalid face identifier %d passed to pack\n", face);
+                }
+            }
+            else
+            {
+                switch (face)
+                {
+                case CHUNK_LEFT:
+                    dest = (x_min+1) - depth; break;
+                case CHUNK_RIGHT:
+                    dest = (x_max+1) + x_inc + 1; break;
+                case CHUNK_BOTTOM:
+                    dest = (y_min+1) - depth; break;
+                case CHUNK_TOP:
+                    dest = (y_max+1) + y_inc + 1; break;
+                default:
+                    DIE("Invalid face identifier %d passed to unpack\n", face);
+                }
+            }
+
+            packRect(buffer + offsets[ii],
+                x_inc, y_inc,
+                face, dest, which_field, depth);
+        }
+    }
+
+    // make sure mem copies are finished
+    queue.finish();
 }
 
-C_PACK_INTERFACE(pack, left_right)
-C_PACK_INTERFACE(unpack, left_right)
-C_PACK_INTERFACE(pack, top_bottom)
-C_PACK_INTERFACE(unpack, top_bottom)
 
 /*
  *  Takes the host buffer to be packed for sending over mpi and a callback to
@@ -60,7 +129,7 @@ C_PACK_INTERFACE(unpack, top_bottom)
  *  grid.
  */
 void CloverChunk::packRect
-(double* host_buffer, buffer_func_t buffer_func,
+(double* host_buffer,
  int x_inc, int y_inc, int edge, int dest,
  int which_field, int depth)
 {
@@ -144,18 +213,6 @@ void CloverChunk::packRect
 
     try
     {
-        (queue.*buffer_func)(*device_buf,
-                             CL_FALSE,
-                             b_origin,
-                             h_origin,
-                             region,
-                             b_row_pitch,
-                             b_slice_pitch,
-                             h_row_pitch,
-                             h_slice_pitch,
-                             host_buffer,
-                             NULL,
-                             dummy);
     }
     catch (cl::Error e)
     {
@@ -163,33 +220,7 @@ void CloverChunk::packRect
     }
 }
 
-/*
- *  Call the buffer packing/unpacking function with the relevant arguments for
- *  the operation being done and the side its being done on
- */
-#define CHECK_PACK(op, side1, side2, dest1, dest2)                          \
-    if (external_face != chunk_1 || external_face != chunk_2)               \
-    {                                                                       \
-        queue.finish();                                                     \
-    }                                                                       \
-    if (external_face != chunk_1)                                           \
-    {                                                                       \
-        packRect(buffer_1,                                                  \
-                 (buffer_func_t)&cl::CommandQueue::enqueue##op##BufferRect, \
-                 x_inc, y_inc, side1, dest1,                                \
-                 which_field, depth);                                       \
-    }                                                                       \
-    if (external_face != chunk_2)                                           \
-    {                                                                       \
-        packRect(buffer_2,                                                  \
-                 (buffer_func_t)&cl::CommandQueue::enqueue##op##BufferRect, \
-                 x_inc, y_inc, side2, dest2,                                \
-                 which_field, depth);                                       \
-    }                                                                       \
-    if (external_face != chunk_1 || external_face != chunk_2)               \
-    {                                                                       \
-        queue.finish();                                                     \
-    }
+#if 0
 
 void CloverChunk::pack_left_right
 (PACK_ARGS)
@@ -226,4 +257,6 @@ void CloverChunk::unpack_top_bottom
                (y_min+1) - depth,
                (y_max+1) + y_inc + 1)
 }
+
+#endif
 

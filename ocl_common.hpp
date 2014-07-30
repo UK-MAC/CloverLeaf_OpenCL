@@ -385,15 +385,11 @@ public:
      const std::vector< cl::Event > * const events=NULL,
      cl::Event * const event=NULL) ;
 
-#if 0
-    #define ENQUEUE_OFFSET(knl) ENQUEUE(knl)
-#else
     #define ENQUEUE_OFFSET(knl)                                     \
         CloverChunk::enqueueKernel(knl, __LINE__, __FILE__,         \
                                    launch_specs.at(#knl).offset,    \
                                    launch_specs.at(#knl).global,    \
                                    local_group_size);
-#endif
 
     #define ENQUEUE(knl)                                    \
         CloverChunk::enqueueKernel(knl, __LINE__, __FILE__, \
@@ -413,16 +409,17 @@ public:
         int x_inc, int y_inc, int depth, int which_field,   \
         double *buffer_1, double *buffer_2
 
-    void pack_left_right(PACK_ARGS);
-    void unpack_left_right(PACK_ARGS);
-    void pack_top_bottom(PACK_ARGS);
-    void unpack_top_bottom(PACK_ARGS);
+    void packUnpackAllBuffers
+    (int fields[NUM_FIELDS], int offsets[NUM_FIELDS], int depth,
+     int face, int pack, double * buffer);
 
     void packRect
-    (double* device_buffer, buffer_func_t buffer_func,
+    (double* host_buffer,
      int x_inc, int y_inc, int edge, int dest,
      int which_field, int depth);
 };
+
+extern CloverChunk chunk;
 
 class KernelCompileError : std::exception
 {

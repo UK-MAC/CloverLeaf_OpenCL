@@ -1,5 +1,4 @@
 #include "ocl_common.hpp"
-extern CloverChunk chunk;
 
 extern "C" void advec_mom_kernel_ocl_
 (int *whch_vl, int *swp_nmbr, int *drctn)

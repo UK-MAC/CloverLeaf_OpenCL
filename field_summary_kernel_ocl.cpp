@@ -1,6 +1,5 @@
 #include "ocl_common.hpp"
 #include "ocl_reduction.hpp"
-extern CloverChunk chunk;
 
 extern "C" void field_summary_kernel_ocl_
 (double* vol, double* mass, double* ie, double* ke, double* press)

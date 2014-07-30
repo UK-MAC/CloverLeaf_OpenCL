@@ -1,5 +1,4 @@
 #include "ocl_common.hpp"
-extern CloverChunk chunk;
 
 extern "C" void generate_chunk_kernel_ocl_
 (const int* number_of_states,

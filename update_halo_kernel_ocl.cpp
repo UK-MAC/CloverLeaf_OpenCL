@@ -1,5 +1,4 @@
 #include "ocl_common.hpp"
-extern CloverChunk chunk;
 
 // types of array data
 const static cell_info_t CELL(    0, 0,  1,  1, 0, 0, CELL_DATA);

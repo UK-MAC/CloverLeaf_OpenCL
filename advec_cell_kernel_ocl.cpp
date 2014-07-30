@@ -1,5 +1,4 @@
 #include "ocl_common.hpp"
-extern CloverChunk chunk;
 
 extern "C" void advec_cell_kernel_ocl_
 (const int* dr, const int* swp_nmbr)

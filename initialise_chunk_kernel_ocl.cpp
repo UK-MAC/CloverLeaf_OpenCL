@@ -1,5 +1,4 @@
 #include "ocl_common.hpp"
-extern CloverChunk chunk;
 
 extern "C" void initialise_chunk_kernel_ocl_
 (double* d_xmin, double* d_ymin, double* d_dx, double* d_dy)
