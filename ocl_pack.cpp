@@ -1,6 +1,15 @@
 #include "ocl_common.hpp"
 extern CloverChunk chunk;
 
+/*****
+ *  TODO
+ *  - copy over the 1.1 halo exchanges
+ *  - make buffers for packing bigger
+ *  - make sub buffers for each offset
+ *      1 set depth at beginning of packing all
+ *      2 set x_extra/y_extra/array/subbuffer at beginning of packing each array
+ */
+
 // define a generic interface for fortran
 #define C_PACK_INTERFACE(operation, dir)                            \
 extern "C" void operation##_##dir##_buffers_ocl_                    \

@@ -138,6 +138,16 @@ private:
     cl::Kernel pack_top_buffer_device;
     cl::Kernel unpack_top_buffer_device;
 
+    // main buffers, with sub buffers for each offset
+    cl::Buffer left_buffer;
+    cl::Buffer right_buffer;
+    cl::Buffer bottom_buffer;
+    cl::Buffer top_buffer;
+    std::vector<cl::Buffer> left_subbuffers[2];
+    std::vector<cl::Buffer> right_subbuffers[2];
+    std::vector<cl::Buffer> bottom_subbuffers[2];
+    std::vector<cl::Buffer> top_subbuffers[2];
+
     // calculate rx/ry to pass back to fortran
     void calcrxry
     (double dt, double * rx, double * ry);
