@@ -81,13 +81,6 @@ void CloverChunk::packRect
     {
     // depth*y_max+... region - 1 or 2 columns
     case CHUNK_LEFT:
-        b_origin[0] = dest;
-        b_origin[1] = (y_min+1) - depth;
-        b_origin[2] = 0;
-        region[0] = depth;
-        region[1] = y_max + y_inc + (2*depth);
-        region[2] = 1;
-        break;
     case CHUNK_RIGHT:
         b_origin[0] = dest;
         b_origin[1] = (y_min+1) - depth;
@@ -99,13 +92,6 @@ void CloverChunk::packRect
 
     // depth*x_max+... region - 1 or 2 rows
     case CHUNK_BOTTOM:
-        b_origin[0] = (x_min+1) - depth;
-        b_origin[1] = dest;
-        b_origin[2] = 0;
-        region[0] = x_max + x_inc + (2*depth);
-        region[1] = depth;
-        region[2] = 1;
-        break;
     case CHUNK_TOP:
         b_origin[0] = (x_min+1) - depth;
         b_origin[1] = dest;
@@ -151,6 +137,10 @@ void CloverChunk::packRect
  *  the operation being done and the side its being done on
  */
 #define CHECK_PACK(op, side1, side2, dest1, dest2)                          \
+    if (external_face != chunk_1 || external_face != chunk_2)               \
+    {                                                                       \
+        queue.finish();                                                     \
+    }                                                                       \
     if (external_face != chunk_1)                                           \
     {                                                                       \
         packRect(buffer_1,                                                  \
