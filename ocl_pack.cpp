@@ -31,9 +31,6 @@ void CloverChunk::packUnpackAllBuffers
     // which subbuffer to use - incrmement by 1 for each buffer packed
     int current_subbuf = 0;
 
-    // FIXME
-    // kernels, need send and receive buffers...
-
     if (!pack)
     {
         cl::Buffer * side_buffer = NULL;
