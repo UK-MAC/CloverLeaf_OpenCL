@@ -182,7 +182,7 @@ void CloverChunk::packUnpackAllBuffers
                 }
             }
 
-            // choose the right subbuffer
+            // choose the right subbuffer and global/local size
             // this might cause slowdown with clretainmemoryobject?
             cl::Buffer packing_subbuf;
 
@@ -204,49 +204,41 @@ void CloverChunk::packUnpackAllBuffers
                 DIE("Invalid face identifier %d passed to subbuf choice\n", face);
             }
 
-            pack_kernel.setArg(0, x_inc);
-            pack_kernel.setArg(1, y_inc);
-            pack_kernel.setArg(2, *device_array);
-            pack_kernel.setArg(3, packing_subbuf);
-            pack_kernel.setArg(4, depth);
-
-            cl::size_t<3> b_origin;
-            cl::size_t<3> h_origin;
-            cl::size_t<3> region;
+            // reuse the halo update kernels sizes to launch packing kernels
+            cl::NDRange pack_global, pack_local;
 
             switch (face)
             {
             // depth*y_max+... region - 1 or 2 columns
             case CHUNK_LEFT:
             case CHUNK_RIGHT:
-                b_origin[0] = dest;
-                b_origin[1] = (y_min+1) - depth;
-                b_origin[2] = 0;
-                region[0] = depth;
-                region[1] = y_max + y_inc + (2*depth);
-                region[2] = 1;
+                pack_global = update_lr_global_size[depth-1];
+                pack_local = update_lr_local_size[depth-1];
                 break;
 
             // depth*x_max+... region - 1 or 2 rows
             case CHUNK_BOTTOM:
             case CHUNK_TOP:
-                b_origin[0] = (x_min+1) - depth;
-                b_origin[1] = dest;
-                b_origin[2] = 0;
-                region[0] = x_max + x_inc + (2*depth);
-                region[1] = depth;
-                region[2] = 1;
+                pack_global = update_ud_global_size[depth-1];
+                pack_local = update_ud_local_size[depth-1];
                 break;
             default:
                 DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
             }
 
-            enqueueKernel(pack_kernel, __LINE__, __FILE__,
-                          cl::NDRange(b_origin[0], b_origin[1], b_origin[2]),
-                          cl::NDRange(region[0], region[1], region[2]),
-                          cl::NullRange);
+            // set args + launch kernel
+            pack_kernel.setArg(0, x_inc);
+            pack_kernel.setArg(1, y_inc);
+            pack_kernel.setArg(2, *device_array);
+            pack_kernel.setArg(3, packing_subbuf);
+            pack_kernel.setArg(4, depth);
 
-            // next subbuffer
+            enqueueKernel(pack_kernel, __LINE__, __FILE__,
+                          cl::NullRange,
+                          pack_global,
+                          pack_local);
+
+            // use next subbuffer for next kernel launch
             current_subbuf += 1;
         }
     }
