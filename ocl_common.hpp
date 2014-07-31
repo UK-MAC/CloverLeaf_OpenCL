@@ -418,7 +418,7 @@ public:
      const cl::Buffer& results_buf);
 
     void packUnpackAllBuffers
-    (int fields[19], int offsets[19], int depth,
+    (int fields[NUM_FIELDS], int offsets[NUM_FIELDS], int depth,
      int face, int pack, double * buffer);
 
     void packRect
