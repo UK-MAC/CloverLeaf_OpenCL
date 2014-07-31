@@ -44,19 +44,19 @@ void CloverChunk::packUnpackAllBuffers
         {
         case CHUNK_LEFT:
             side_buffer = &left_buffer;
-            side_size = x_max;
+            side_size = y_max;
             break;
         case CHUNK_RIGHT:
             side_buffer = &right_buffer;
-            side_size = x_max;
+            side_size = y_max;
             break;
         case CHUNK_BOTTOM:
             side_buffer = &bottom_buffer;
-            side_size = y_max;
+            side_size = x_max;
             break;
         case CHUNK_TOP:
             side_buffer = &top_buffer;
-            side_size = y_max;
+            side_size = x_max;
             break;
         default:
             DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
@@ -257,19 +257,19 @@ void CloverChunk::packUnpackAllBuffers
         {
         case CHUNK_LEFT:
             side_buffer = &left_buffer;
-            side_size = x_max;
+            side_size = y_max;
             break;
         case CHUNK_RIGHT:
             side_buffer = &right_buffer;
-            side_size = x_max;
+            side_size = y_max;
             break;
         case CHUNK_BOTTOM:
             side_buffer = &bottom_buffer;
-            side_size = y_max;
+            side_size = x_max;
             break;
         case CHUNK_TOP:
             side_buffer = &top_buffer;
-            side_size = y_max;
+            side_size = x_max;
             break;
         default:
             DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
