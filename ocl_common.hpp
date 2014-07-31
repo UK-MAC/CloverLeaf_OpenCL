@@ -417,6 +417,4 @@ public:
     const char* what() const throw() {return this->_err.c_str();}
 };
 
-extern "C" void tqli_(double *d, double *e, int *np, double **z, int* info);
-
 #endif
