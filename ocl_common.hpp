@@ -151,10 +151,6 @@ private:
     std::vector<cl::Buffer> bottom_subbuffers[2];
     std::vector<cl::Buffer> top_subbuffers[2];
 
-    // calculate rx/ry to pass back to fortran
-    void calcrxry
-    (double dt, double * rx, double * ry);
-
     // specific sizes and launch offsets for different kernels
     typedef struct {
         cl::NDRange global;
@@ -389,19 +385,14 @@ public:
     (reduce_info_vec_t& red_kernels,
      const cl::Buffer& results_buf);
 
-    // mpi packing
-    #define PACK_ARGS                                       \
-        int chunk_1, int chunk_2, int external_face,        \
-        int x_inc, int y_inc, int depth, int which_field,   \
-        double *buffer_1, double *buffer_2
-
     void packUnpackAllBuffers
     (int fields[NUM_FIELDS], int offsets[NUM_FIELDS], int depth,
      int face, int pack, const int n_exchanged, double * buffer);
 
     void packRect
     (double* host_buffer,
-     int x_inc, int y_inc, int edge, int dest,
+     int x_inc, int y_inc,
+     int edge, int dest,
      int which_field, int depth);
 };
 
