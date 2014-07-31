@@ -30,6 +30,9 @@ const static cl::NDRange local_group_size(LOCAL_X, LOCAL_Y);
 #define FIELD_mass_flux_y   15
 #define NUM_FIELDS          15
 
+// only 10 is used in fortran
+#define NUM_BUFFERED_FIELDS 10
+
 // which side to pack - keep the same as in fortran file
 #define CHUNK_LEFT 1
 #define CHUNK_left 1

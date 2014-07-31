@@ -83,10 +83,10 @@ void CloverChunk::initBuffers
     BUF_ALLOC(PdV_reduce_buf, 1.5*((sizeof(int)*reduced_cells)/(LOCAL_X*LOCAL_Y)));
 
     // enough for 1 for each array - overkill, but not that much extra space
-    BUF_ALLOC(left_buffer, NUM_FIELDS*2*sizeof(double)*(y_max + 5));
-    BUF_ALLOC(right_buffer, NUM_FIELDS*2*sizeof(double)*(y_max + 5));
-    BUF_ALLOC(bottom_buffer, NUM_FIELDS*2*sizeof(double)*(x_max + 5));
-    BUF_ALLOC(top_buffer, NUM_FIELDS*2*sizeof(double)*(x_max + 5));
+    BUF_ALLOC(left_buffer, NUM_BUFFERED_FIELDS*2*sizeof(double)*(y_max + 5));
+    BUF_ALLOC(right_buffer, NUM_BUFFERED_FIELDS*2*sizeof(double)*(y_max + 5));
+    BUF_ALLOC(bottom_buffer, NUM_BUFFERED_FIELDS*2*sizeof(double)*(x_max + 5));
+    BUF_ALLOC(top_buffer, NUM_BUFFERED_FIELDS*2*sizeof(double)*(x_max + 5));
 
     // needs to be 2 sets, one for each depth
     // fortran expects it to be (sort of) contiguous depending on depth
@@ -97,7 +97,7 @@ void CloverChunk::initBuffers
         cl_buffer_region bottom_top_region = {0, depth*sizeof(double)*(x_max+5)};
 
         // for every offset, create the sub buffer then increment the origin
-        for (int ii = 0; ii < NUM_FIELDS; ii++)
+        for (int ii = 0; ii < NUM_BUFFERED_FIELDS; ii++)
         {
             left_subbuffers[depth-1].push_back(
                 left_buffer.createSubBuffer(CL_MEM_READ_WRITE,

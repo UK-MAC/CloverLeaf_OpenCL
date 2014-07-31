@@ -34,9 +34,6 @@ void CloverChunk::packUnpackAllBuffers
     // FIXME
     // kernels, need send and receive buffers...
 
-    // only 10 is used in fortran
-    #define NUM_BUFFERED_FIELDS 10
-
     if (!pack)
     {
         cl::Buffer * side_buffer = NULL;
