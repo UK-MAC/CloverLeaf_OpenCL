@@ -1,15 +1,16 @@
 #include "ocl_common.hpp"
-
 #include <numeric>
 
 extern "C" void ocl_pack_buffers_
 (int fields[NUM_FIELDS], int offsets[NUM_FIELDS], int * depth,
  int * face, double * buffer)
 {
-    if (std::accumulate(fields, fields + (NUM_FIELDS-1), 0) > 0)
+    int n_exchanged = std::accumulate(fields, fields + (NUM_FIELDS-1), 0);
+
+    if (n_exchanged > 0)
     {
         // only call if there's actually something to pack
-        chunk.packUnpackAllBuffers(fields, offsets, *depth, *face, 1, buffer);
+        chunk.packUnpackAllBuffers(fields, offsets, *depth, *face, 1, n_exchanged, buffer);
     }
 }
 
@@ -17,37 +18,62 @@ extern "C" void ocl_unpack_buffers_
 (int fields[NUM_FIELDS], int offsets[NUM_FIELDS], int * depth,
  int * face, double * buffer)
 {
-    if (std::accumulate(fields, fields + (NUM_FIELDS-1), 0) > 0)
+    int n_exchanged = std::accumulate(fields, fields + (NUM_FIELDS-1), 0);
+
+    if (n_exchanged > 0)
     {
         // only call if there's actually something to unpack
-        chunk.packUnpackAllBuffers(fields, offsets, *depth, *face, 0, buffer);
+        chunk.packUnpackAllBuffers(fields, offsets, *depth, *face, 0, n_exchanged, buffer);
     }
 }
 
 void CloverChunk::packUnpackAllBuffers
 (int fields[NUM_FIELDS], int offsets[NUM_FIELDS],
- const int depth, const int face, const int pack,
+ const int depth, const int face, const int pack, const int n_exchanged,
  double * buffer)
 {
-    buffer_func_t pack_func;
-    int dest;
-    int x_inc, y_inc, z_inc;
+    // which subbuffer to use - incrmement by 1 for each buffer packed
+    int current_subbuf = 0;
 
-    /*
-     *  First of all, figure out which opencl function to use based on whether
-     *  we're packing or unpacking
-     */
-    if (pack)
+    if (!pack)
     {
-        pack_func = (buffer_func_t)&cl::CommandQueue::enqueueReadBufferRect;
-    }
-    else
-    {
-        pack_func = (buffer_func_t)&cl::CommandQueue::enqueueWriteBufferRect;
-    }
+        cl::Buffer * side_buffer = NULL;
+        int side_size = 0;
 
-    // make sure jobs are finished
-    queue.finish();
+        switch (face)
+        {
+        case CHUNK_LEFT:
+            side_buffer = &left_buffer;
+            side_size = (y_max + 5)*(z_max + 5);
+            break;
+        case CHUNK_RIGHT:
+            side_buffer = &right_buffer;
+            side_size = (y_max + 5)*(z_max + 5);
+            break;
+        case CHUNK_BOTTOM:
+            side_buffer = &bottom_buffer;
+            side_size = (x_max + 5)*(z_max + 5);
+            break;
+        case CHUNK_TOP:
+            side_buffer = &top_buffer;
+            side_size = (x_max + 5)*(z_max + 5);
+            break;
+        case CHUNK_BACK:
+            side_buffer = &back_buffer;
+            side_size = (x_max + 5)*(y_max + 5);
+            break;
+        case CHUNK_FRONT:
+            side_buffer = &front_buffer;
+            side_size = (x_max + 5)*(y_max + 5);
+            break;
+        default:
+            DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
+        }
+
+        queue.enqueueWriteBuffer(*side_buffer, CL_TRUE, 0,
+            n_exchanged*2*sizeof(double)*(side_size),
+            buffer);
+    }
 
     for (int ii = 0; ii < NUM_FIELDS; ii++)
     {
@@ -61,7 +87,7 @@ void CloverChunk::packUnpackAllBuffers
                     ii, offsets[ii]);
             }
 
-            x_inc = y_inc = z_inc = 0;
+            int x_inc = 0, y_inc = 0, z_inc = 0;
 
             // set x/y/z inc for array
             switch (which_field)
@@ -84,7 +110,7 @@ void CloverChunk::packUnpackAllBuffers
                 break;
             case FIELD_mass_flux_z:
             case FIELD_vol_flux_z:
-                z_inc = 1;
+                y_inc = 1;
                 break;
             case FIELD_density0:
             case FIELD_density1:
@@ -98,23 +124,65 @@ void CloverChunk::packUnpackAllBuffers
                 DIE("Invalid field number %d in choosing _inc values\n", which_field);
             }
 
-            // set the destination
+            #define CASE_BUF(which_array)   \
+            case FIELD_##which_array:       \
+            {                               \
+                device_array = &which_array;\
+            }
+
+            cl::Buffer * device_array;
+
+            switch (which_field)
+            {
+            CASE_BUF(density0); break;
+            CASE_BUF(density1); break;
+            CASE_BUF(energy0); break;
+            CASE_BUF(energy1); break;
+            CASE_BUF(pressure); break;
+            CASE_BUF(viscosity); break;
+            CASE_BUF(soundspeed); break;
+            CASE_BUF(xvel0); break;
+            CASE_BUF(xvel1); break;
+            CASE_BUF(yvel0); break;
+            CASE_BUF(yvel1); break;
+            CASE_BUF(zvel0); break;
+            CASE_BUF(zvel1); break;
+            CASE_BUF(vol_flux_x); break;
+            CASE_BUF(vol_flux_y); break;
+            CASE_BUF(vol_flux_z); break;
+            CASE_BUF(mass_flux_x); break;
+            CASE_BUF(mass_flux_y); break;
+            CASE_BUF(mass_flux_z); break;
+            default:
+                device_array = NULL;
+                DIE("Invalid face %d passed to left/right pack buffer\n", which_field);
+            }
+
+            cl::Kernel pack_kernel;
+
+            // set which kernel to call
             if (pack)
             {
                 switch (face)
                 {
                 case CHUNK_LEFT:
-                    dest = (x_min+1) + x_inc - 1 + 1; break;
+                    pack_kernel = pack_left_buffer_device;
+                    break;
                 case CHUNK_RIGHT:
-                    dest = (x_max+1) + 1 - depth; break;
+                    pack_kernel = pack_right_buffer_device;
+                    break;
                 case CHUNK_BOTTOM:
-                    dest = (y_min+1) + y_inc - 1 + 1; break;
+                    pack_kernel = pack_bottom_buffer_device;
+                    break;
                 case CHUNK_TOP:
-                    dest = (y_max+1) + 1 - depth; break;
+                    pack_kernel = pack_top_buffer_device;
+                    break;
                 case CHUNK_BACK:
-                    dest = (z_min+1) + z_inc - 1 + 1; break;
+                    pack_kernel = pack_back_buffer_device;
+                    break;
                 case CHUNK_FRONT:
-                    dest = (z_max+1) + 1 - depth; break;
+                    pack_kernel = pack_front_buffer_device;
+                    break;
                 default:
                     DIE("Invalid face identifier %d passed to pack\n", face);
                 }
@@ -124,157 +192,141 @@ void CloverChunk::packUnpackAllBuffers
                 switch (face)
                 {
                 case CHUNK_LEFT:
-                    dest = (x_min+1) - depth; break;
+                    pack_kernel = unpack_left_buffer_device;
+                    break;
                 case CHUNK_RIGHT:
-                    dest = (x_max+1) + x_inc + 1; break;
+                    pack_kernel = unpack_right_buffer_device;
+                    break;
                 case CHUNK_BOTTOM:
-                    dest = (y_min+1) - depth; break;
+                    pack_kernel = unpack_bottom_buffer_device;
+                    break;
                 case CHUNK_TOP:
-                    dest = (y_max+1) + y_inc + 1; break;
+                    pack_kernel = unpack_top_buffer_device;
+                    break;
                 case CHUNK_BACK:
-                    dest = (z_min+1) - depth; break;
+                    pack_kernel = unpack_back_buffer_device;
+                    break;
                 case CHUNK_FRONT:
-                    dest = (z_max+1) + z_inc + 1; break;
+                    pack_kernel = unpack_front_buffer_device;
+                    break;
                 default:
                     DIE("Invalid face identifier %d passed to unpack\n", face);
                 }
             }
 
-            packRect(buffer + offsets[ii], pack_func,
-                x_inc, y_inc, z_inc,
-                face, dest, which_field, depth);
+            // choose the right subbuffer and global/local size
+            // this might cause slowdown with clretainmemoryobject?
+            cl::Buffer packing_subbuf;
+
+            switch (face)
+            {
+            case CHUNK_LEFT:
+                packing_subbuf = left_subbuffers[depth-1].at(current_subbuf);
+                break;
+            case CHUNK_RIGHT:
+                packing_subbuf = right_subbuffers[depth-1].at(current_subbuf);
+                break;
+            case CHUNK_BOTTOM:
+                packing_subbuf = bottom_subbuffers[depth-1].at(current_subbuf);
+                break;
+            case CHUNK_TOP:
+                packing_subbuf = top_subbuffers[depth-1].at(current_subbuf);
+                break;
+            case CHUNK_BACK:
+                packing_subbuf = back_subbuffers[depth-1].at(current_subbuf);
+                break;
+            case CHUNK_FRONT:
+                packing_subbuf = front_subbuffers[depth-1].at(current_subbuf);
+                break;
+            default:
+                DIE("Invalid face identifier %d passed to subbuf choice\n", face);
+            }
+
+            // reuse the halo update kernels sizes to launch packing kernels
+            cl::NDRange pack_global, pack_local;
+
+            switch (face)
+            {
+            // depth*y_max+... region - 1 or 2 columns
+            case CHUNK_LEFT:
+            case CHUNK_RIGHT:
+                pack_global = update_lr_global_size[depth-1];
+                pack_local = update_lr_local_size[depth-1];
+                break;
+
+            // depth*x_max+... region - 1 or 2 rows
+            case CHUNK_BOTTOM:
+            case CHUNK_TOP:
+                pack_global = update_ud_global_size[depth-1];
+                pack_local = update_ud_local_size[depth-1];
+                break;
+
+            case CHUNK_BACK:
+            case CHUNK_FRONT:
+                pack_global = update_fb_global_size[depth-1];
+                pack_local = update_fb_local_size[depth-1];
+                break;
+
+            default:
+                DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
+            }
+
+            // set args + launch kernel
+            pack_kernel.setArg(0, x_inc);
+            pack_kernel.setArg(1, y_inc);
+            pack_kernel.setArg(2, z_inc);
+            pack_kernel.setArg(3, *device_array);
+            pack_kernel.setArg(4, packing_subbuf);
+            pack_kernel.setArg(5, depth);
+
+            enqueueKernel(pack_kernel, __LINE__, __FILE__,
+                          cl::NullRange,
+                          pack_global,
+                          pack_local);
+
+            // use next subbuffer for next kernel launch
+            current_subbuf += 1;
         }
     }
 
-    // make sure mem copies are finished
-    queue.finish();
-}
-
-/*
- *  Takes the host buffer to be packed for sending over mpi and a callback to
- *  the relevant opencl function to either read or write from the device to pack
- *  or unpack it for sending over mpi.
- *
- *  'dest' is the dimension specific origin of the rectangle to be copied,
- *  needed because the packing and unpacking goes into different places in the
- *  grid.
- */
-void CloverChunk::packRect
-(double* host_buffer, buffer_func_t buffer_func,
- const int x_inc, const int y_inc, const int z_inc,
- const int face, const int dest, const int which_field, const int depth)
-{
-    cl::Buffer *device_buf;
-
-    #define CASE_BUF(which_array)   \
-    case FIELD_##which_array:       \
-    {                               \
-        device_buf = &which_array;  \
-    }
-
-    switch (which_field)
+    if (pack)
     {
-    CASE_BUF(density0); break;
-    CASE_BUF(density1); break;
-    CASE_BUF(energy0); break;
-    CASE_BUF(energy1); break;
-    CASE_BUF(pressure); break;
-    CASE_BUF(viscosity); break;
-    CASE_BUF(soundspeed); break;
-    CASE_BUF(xvel0); break;
-    CASE_BUF(yvel0); break;
-    CASE_BUF(zvel0); break;
-    CASE_BUF(xvel1); break;
-    CASE_BUF(yvel1); break;
-    CASE_BUF(zvel1); break;
-    CASE_BUF(vol_flux_x); break;
-    CASE_BUF(vol_flux_y); break;
-    CASE_BUF(vol_flux_z); break;
-    CASE_BUF(mass_flux_x); break;
-    CASE_BUF(mass_flux_y); break;
-    CASE_BUF(mass_flux_z); break;
-    default:
-        device_buf = NULL;
-        DIE("Invalid face %d passed to left/right pack buffer\n", which_field);
-    }
+        cl::Buffer * side_buffer = NULL;
+        int side_size = 0;
 
-    cl::size_t<3> b_origin;
-    cl::size_t<3> h_origin;
-    cl::size_t<3> region;
+        switch (face)
+        {
+        case CHUNK_LEFT:
+            side_buffer = &left_buffer;
+            side_size = (y_max + 5)*(z_max + 5);
+            break;
+        case CHUNK_RIGHT:
+            side_buffer = &right_buffer;
+            side_size = (y_max + 5)*(z_max + 5);
+            break;
+        case CHUNK_BOTTOM:
+            side_buffer = &bottom_buffer;
+            side_size = (x_max + 5)*(z_max + 5);
+            break;
+        case CHUNK_TOP:
+            side_buffer = &top_buffer;
+            side_size = (x_max + 5)*(z_max + 5);
+            break;
+        case CHUNK_BACK:
+            side_buffer = &back_buffer;
+            side_size = (x_max + 5)*(y_max + 5);
+            break;
+        case CHUNK_FRONT:
+            side_buffer = &front_buffer;
+            side_size = (x_max + 5)*(y_max + 5);
+            break;
+        default:
+            DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
+        }
 
-    size_t b_row_pitch = sizeof(double)*(x_max + 4 + x_inc);
-    size_t b_slice_pitch = (y_max + 4 + y_inc)*b_row_pitch;
-    size_t h_row_pitch = 0;
-    size_t h_slice_pitch = 0;
-
-    h_origin[0] = 0;
-    h_origin[1] = 0;
-    h_origin[2] = 0;
-
-    switch (face)
-    {
-    // depth*y_max+... region - 1 or 2 columns
-    case CHUNK_LEFT:
-    case CHUNK_RIGHT:
-        b_origin[0] = dest;
-        b_origin[1] = (y_min+1) - depth;
-        b_origin[2] = (z_min+1) - depth;
-        region[0] = depth;
-        region[1] = y_max + y_inc + (2*depth);
-        region[2] = z_max + z_inc + (2*depth);
-        break;
-
-    // depth*x_max+... region - 1 or 2 rows
-    case CHUNK_BOTTOM:
-    case CHUNK_TOP:
-        b_origin[0] = (x_min+1) - depth;
-        b_origin[1] = dest;
-        b_origin[2] = (z_min+1) - depth;
-        region[0] = x_max + x_inc + (2*depth);
-        region[1] = depth;
-        region[2] = z_max + z_inc + (2*depth);
-        break;
-
-    // depth*z_max+... region - 1 or 2 slices
-    case CHUNK_BACK:
-    case CHUNK_FRONT:
-        b_origin[0] = (x_min+1) - depth;
-        b_origin[1] = (y_min+1) - depth;
-        b_origin[2] = dest;
-        region[0] = x_max + x_inc + (2*depth);
-        region[1] = y_max + y_inc + (2*depth);
-        region[2] = depth;
-        break;
-
-    default:
-        DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
-    }
-
-    // [0] is in bytes
-    b_origin[0] *= sizeof(double);
-    region[0] *= sizeof(double);
-
-    // not actually using events for this
-    static cl::Event dummy;
-
-    try
-    {
-        (queue.*buffer_func)(*device_buf,
-                             CL_FALSE,
-                             b_origin,
-                             h_origin,
-                             region,
-                             b_row_pitch,
-                             b_slice_pitch,
-                             h_row_pitch,
-                             h_slice_pitch,
-                             host_buffer,
-                             NULL,
-                             dummy);
-    }
-    catch (cl::Error e)
-    {
-        DIE("Error in copying rect (%s), error %d\n", e.what(), e.err());
+        queue.enqueueReadBuffer(*side_buffer, CL_TRUE, 0,
+            n_exchanged*2*sizeof(double)*(side_size),
+            buffer);
     }
 }
 

@@ -36,6 +36,9 @@ const static cl::NDRange local_group_size(LOCAL_X, LOCAL_Y,LOCAL_Z);
 #define FIELD_mass_flux_z   19
 #define NUM_FIELDS          19
 
+// only 10 is used in fortran
+#define NUM_BUFFERED_FIELDS 13
+
 // which side to pack - keep the same as in fortran file
 #define CHUNK_LEFT 1
 #define CHUNK_left 1
@@ -153,6 +156,33 @@ private:
     cl::Kernel update_halo_back_device;
     cl::Kernel update_halo_front_device;
 
+    // mpi packing
+    cl::Kernel pack_left_buffer_device;
+    cl::Kernel unpack_left_buffer_device;
+    cl::Kernel pack_right_buffer_device;
+    cl::Kernel unpack_right_buffer_device;
+    cl::Kernel pack_bottom_buffer_device;
+    cl::Kernel unpack_bottom_buffer_device;
+    cl::Kernel pack_top_buffer_device;
+    cl::Kernel unpack_top_buffer_device;
+    cl::Kernel pack_back_buffer_device;
+    cl::Kernel unpack_back_buffer_device;
+    cl::Kernel pack_front_buffer_device;
+    cl::Kernel unpack_front_buffer_device;
+
+    // main buffers, with sub buffers for each offset
+    cl::Buffer left_buffer;
+    cl::Buffer right_buffer;
+    cl::Buffer bottom_buffer;
+    cl::Buffer top_buffer;
+    cl::Buffer back_buffer;
+    cl::Buffer front_buffer;
+    std::vector<cl::Buffer> left_subbuffers[2];
+    std::vector<cl::Buffer> right_subbuffers[2];
+    std::vector<cl::Buffer> bottom_subbuffers[2];
+    std::vector<cl::Buffer> top_subbuffers[2];
+    std::vector<cl::Buffer> back_subbuffers[2];
+    std::vector<cl::Buffer> front_subbuffers[2];
 
     // specific sizes and launch offsets for different kernels
     typedef struct {
@@ -419,10 +449,10 @@ public:
 
     void packUnpackAllBuffers
     (int fields[NUM_FIELDS], int offsets[NUM_FIELDS], int depth,
-     int face, int pack, double * buffer);
+     int face, int pack, const int n_exchanged, double * buffer);
 
     void packRect
-    (double* host_buffer, buffer_func_t buffer_func,
+    (double* host_buffer,
      int x_inc, int y_inc, int z_inc,
      int edge, int dest,
      int which_field, int depth);
