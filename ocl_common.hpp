@@ -397,7 +397,7 @@ public:
 
     void packUnpackAllBuffers
     (int fields[NUM_FIELDS], int offsets[NUM_FIELDS], int depth,
-     int face, int pack, double * buffer);
+     int face, int pack, const int n_exchanged, double * buffer);
 
     void packRect
     (double* host_buffer,
