@@ -21,4 +21,6 @@
  opencl_vendor=nvidia
  opencl_type=gPU
 
+ !profileR_on=1
+
 *endclover

@@ -31,33 +31,42 @@ void CloverChunk::packUnpackAllBuffers
     // which subbuffer to use - incrmement by 1 for each buffer packed
     int current_subbuf = 0;
 
+    // FIXME
+    // kernels, need send and receive buffers...
+
+    // only 10 is used in fortran
+    #define NUM_BUFFERED_FIELDS 10
+
     if (!pack)
     {
+        cl::Buffer * side_buffer = NULL;
+        int side_size = 0;
+
         switch (face)
         {
         case CHUNK_LEFT:
-            queue.enqueueWriteBuffer(left_buffer, CL_TRUE, 0,
-                NUM_FIELDS*2*sizeof(double)*(y_max + 5),
-                buffer);
+            side_buffer = &left_buffer;
+            side_size = x_max;
             break;
         case CHUNK_RIGHT:
-            queue.enqueueWriteBuffer(right_buffer, CL_TRUE, 0,
-                NUM_FIELDS*2*sizeof(double)*(y_max + 5),
-                buffer);
+            side_buffer = &right_buffer;
+            side_size = x_max;
             break;
         case CHUNK_BOTTOM:
-            queue.enqueueWriteBuffer(bottom_buffer, CL_TRUE, 0,
-                NUM_FIELDS*2*sizeof(double)*(x_max + 5),
-                buffer);
+            side_buffer = &bottom_buffer;
+            side_size = y_max;
             break;
         case CHUNK_TOP:
-            queue.enqueueWriteBuffer(top_buffer, CL_TRUE, 0,
-                NUM_FIELDS*2*sizeof(double)*(x_max + 5),
-                buffer);
+            side_buffer = &top_buffer;
+            side_size = y_max;
             break;
         default:
             DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
         }
+
+        queue.enqueueWriteBuffer(*side_buffer, CL_TRUE, 0,
+            NUM_BUFFERED_FIELDS*2*sizeof(double)*(side_size + 5),
+            buffer);
     }
 
     for (int ii = 0; ii < NUM_FIELDS; ii++)
@@ -253,31 +262,34 @@ void CloverChunk::packUnpackAllBuffers
         // make sure kernels are finished
         queue.finish();
 
+        cl::Buffer * side_buffer = NULL;
+        int side_size = 0;
+
         switch (face)
         {
         case CHUNK_LEFT:
-            queue.enqueueReadBuffer(left_buffer, CL_TRUE, 0,
-                NUM_FIELDS*2*sizeof(double)*(y_max + 5),
-                buffer);
+            side_buffer = &left_buffer;
+            side_size = x_max;
             break;
         case CHUNK_RIGHT:
-            queue.enqueueReadBuffer(right_buffer, CL_TRUE, 0,
-                NUM_FIELDS*2*sizeof(double)*(y_max + 5),
-                buffer);
+            side_buffer = &right_buffer;
+            side_size = x_max;
             break;
         case CHUNK_BOTTOM:
-            queue.enqueueReadBuffer(bottom_buffer, CL_TRUE, 0,
-                NUM_FIELDS*2*sizeof(double)*(x_max + 5),
-                buffer);
+            side_buffer = &bottom_buffer;
+            side_size = y_max;
             break;
         case CHUNK_TOP:
-            queue.enqueueReadBuffer(top_buffer, CL_TRUE, 0,
-                NUM_FIELDS*2*sizeof(double)*(x_max + 5),
-                buffer);
+            side_buffer = &top_buffer;
+            side_size = y_max;
             break;
         default:
             DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
         }
+
+        queue.enqueueReadBuffer(*side_buffer, CL_TRUE, 0,
+            NUM_BUFFERED_FIELDS*2*sizeof(double)*(side_size + 5),
+            buffer);
     }
 }
 
