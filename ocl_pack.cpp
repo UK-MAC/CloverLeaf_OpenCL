@@ -261,6 +261,7 @@ void CloverChunk::packUnpackAllBuffers
                 pack_local = update_ud_local_size[depth-1];
                 break;
 
+            // FIXME these sizes seem not very good - eg multiples of 10, should be multiples of 32 etc
             case CHUNK_BACK:
             case CHUNK_FRONT:
                 pack_global = update_fb_global_size[depth-1];
