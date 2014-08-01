@@ -115,7 +115,7 @@ void CloverChunk::initBuffers
         // start off with 0 offset, big enough for 1 exchange buffer
         cl_buffer_region left_right_region = {0, depth*sizeof(double)*(y_max+5)*(z_max + 5)};
         cl_buffer_region bottom_top_region = {0, depth*sizeof(double)*(x_max+5)*(z_max + 5)};
-        cl_buffer_region back_front_region = {0, depth*sizeof(double)*(x_max+5)*(z_max + 5)};
+        cl_buffer_region back_front_region = {0, depth*sizeof(double)*(x_max+5)*(y_max + 5)};
 
         // for every offset, create the sub buffer then increment the origin
         for (int ii = 0; ii < NUM_BUFFERED_FIELDS; ii++)
@@ -131,12 +131,12 @@ void CloverChunk::initBuffers
             left_right_region.origin += left_right_region.size;
 
             bottom_subbuffers[depth-1].push_back(SUBBUFF_CREATE(bottom_buffer, bottom_top_region));
-            top_subbuffers[depth-1].push_back(SUBBUFF_CREATE(bottom_buffer, bottom_top_region));
+            top_subbuffers[depth-1].push_back(SUBBUFF_CREATE(top_buffer, bottom_top_region));
             
             bottom_top_region.origin += bottom_top_region.size;
 
             back_subbuffers[depth-1].push_back(SUBBUFF_CREATE(back_buffer, back_front_region));
-            front_subbuffers[depth-1].push_back(SUBBUFF_CREATE(back_buffer, back_front_region));
+            front_subbuffers[depth-1].push_back(SUBBUFF_CREATE(front_buffer, back_front_region));
             
             back_front_region.origin += back_front_region.size;
         }

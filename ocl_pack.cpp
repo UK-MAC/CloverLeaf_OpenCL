@@ -71,7 +71,7 @@ void CloverChunk::packUnpackAllBuffers
         }
 
         queue.enqueueWriteBuffer(*side_buffer, CL_TRUE, 0,
-            n_exchanged*2*sizeof(double)*(side_size),
+            n_exchanged*depth*sizeof(double)*(side_size),
             buffer);
     }
 
@@ -325,7 +325,7 @@ void CloverChunk::packUnpackAllBuffers
         }
 
         queue.enqueueReadBuffer(*side_buffer, CL_TRUE, 0,
-            n_exchanged*2*sizeof(double)*(side_size),
+            n_exchanged*depth*sizeof(double)*(side_size),
             buffer);
     }
 }

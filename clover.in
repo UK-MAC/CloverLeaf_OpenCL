@@ -15,7 +15,7 @@
  !summary_frequency 1
 
  x_cells=60
- y_cells=60
+ y_cells=61
  z_cells=60
  end_time=100.0
  end_step=100
