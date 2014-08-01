@@ -10,7 +10,7 @@
     const size_t lid = loc_slice*LOCAL_X*LOCAL_Y + loc_row*LOCAL_X + loc_column;    \
     const size_t gid = slice*get_global_size(1)*get_global_size(0) + row*get_global_size(0) + column;
 
-#define THARR2D(x_offset, y_offset, big_row)        \
+#define _THARR2D(x_offset, y_offset, big_row)        \
     (                                               \
       column                      /* horizontal  */ \
     + row*(x_max + 4)             /* vertical    */ \
@@ -21,7 +21,7 @@
 
 #define THARR3D(x_offset, y_offset, z_offset, big_row, big_col)   \
     ((slice+z_offset)*(x_max+4+big_row)*(y_max+4+big_col)       \
-    + THARR2D(x_offset, y_offset, big_row))
+    + _THARR2D(x_offset, y_offset, big_row))
 
 #ifdef CLOVER_NO_BUILTINS
     #define MAX(a,b) (a<b?a:b)
