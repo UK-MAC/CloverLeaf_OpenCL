@@ -14,7 +14,7 @@
  !visit_frequency 1
  !summary_frequency 1
 
- x_cells=60
+ x_cells=100
  y_cells=60
  z_cells=60
  end_time=100.0

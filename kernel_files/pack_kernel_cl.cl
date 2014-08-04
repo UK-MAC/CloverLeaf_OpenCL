@@ -34,17 +34,22 @@
 
 /********************/
 
-// for left/right
-#define VERT_IDX(add) ((add) + (row + depth - 1)*depth - 2)
+// left/right
+#define VERT_IDX                                                                    \
+    (slice  + depth - 1 +                                                           \
+    (row    + depth - 1)* (x_max + x_extra + 2*depth) +                             \
+    (column         - 1)*((z_max + z_extra + 2*depth)*(y_max + y_extra + 2*depth)))
 
-// for top/bottom
-#define HORZ_IDX(add) (column + depth + \
-    ((add + 1) - 1)*((x_max + 1) + x_extra + (2 * depth)) - 2)
+// bottom/top
+#define HORZ_IDX                                                                    \
+    (column + depth - 1 +                                                           \
+    (slice  + depth - 1)* (x_max + x_extra + 2*depth) +                             \
+    (row            - 1)*((x_max + x_extra + 2*depth)*(z_max + z_extra + 2*depth)))
 
 // back/front
 #define DEPTH_IDX                                                                   \
-    (column + depth - 1 +                                                           \
-    (row    + depth - 1)* (x_max + x_extra + 2*depth) +                             \
+    (row    + depth - 1 +                                                           \
+    (column + depth - 1)* (x_max + x_extra + 2*depth) +                             \
     (slice          - 1)*((x_max + x_extra + 2*depth)*(y_max + y_extra + 2*depth)))
 
 __kernel void pack_left_buffer
@@ -62,7 +67,7 @@ const int depth)
         const int row_begin = row * (x_max + 4 + x_extra) +
             (slice)*(x_max + 4 + x_extra)*(y_max + 4 + y_extra);
 
-        left_buffer[VERT_IDX(column)] = array[row_begin + (x_min + 1) + x_extra - 1 + (1 + column)];
+        left_buffer[VERT_IDX] = array[row_begin + (x_min + 1) + x_extra - 1 + (1 + column)];
     }
 }
 
@@ -81,7 +86,7 @@ const int depth)
         const int row_begin = row * (x_max + 4 + x_extra) +
             (slice)*(x_max + 4 + x_extra)*(y_max + 4 + y_extra);
 
-        array[row_begin + (x_min + 1) - (1 + column)] = left_buffer[VERT_IDX(column)];
+        array[row_begin + (x_min + 1) - (1 + column)] = left_buffer[VERT_IDX];
     }
 }
 
@@ -102,7 +107,7 @@ const int depth)
         const int row_begin = row * (x_max + 4 + x_extra) +
             (slice)*(x_max + 4 + x_extra)*(y_max + 4 + y_extra);
 
-        right_buffer[VERT_IDX(column)] = array[row_begin + (x_max + 1) + 1 - (1 + column)];
+        right_buffer[VERT_IDX] = array[row_begin + (x_max + 1) + 1 - (1 + column)];
     }
 }
 
@@ -121,7 +126,7 @@ const int depth)
         const int row_begin = row * (x_max + 4 + x_extra) +
             (slice)*(x_max + 4 + x_extra)*(y_max + 4 + y_extra);
 
-        array[row_begin + (x_max + 1) + x_extra + 1 + column] = right_buffer[VERT_IDX(column)];
+        array[row_begin + (x_max + 1) + x_extra + 1 + column] = right_buffer[VERT_IDX];
     }
 }
 
@@ -139,7 +144,7 @@ const int depth)
     if (row < depth)
     if (column >= (x_min + 1) - depth && column <= (x_max + 1) + x_extra + depth)
     {
-        bottom_buffer[HORZ_IDX(row)] = array[THARR3D(0, (y_min + 1) + y_extra - 1 + row + 1, 0, x_extra, y_extra)];
+        bottom_buffer[HORZ_IDX] = array[THARR3D(0, (y_min + 1) + y_extra - 1 + row + 1, 0, x_extra, y_extra)];
     }
 }
 
@@ -155,7 +160,7 @@ const int depth)
     if (row < depth)
     if (column >= (x_min + 1) - depth && column <= (x_max + 1) + x_extra + depth)
     {
-        array[THARR3D(0, (y_min + 1) - (1 + 2*row), 0, x_extra, y_extra)] = bottom_buffer[HORZ_IDX(row)];
+        array[THARR3D(0, (y_min + 1) - (1 + 2*row), 0, x_extra, y_extra)] = bottom_buffer[HORZ_IDX];
     }
 }
 
@@ -173,7 +178,7 @@ const int depth)
     if (row < depth)
     if (column >= (x_min + 1) - depth && column <= (x_max + 1) + x_extra + depth)
     {
-        top_buffer[HORZ_IDX(row)] = array[THARR3D(0, (y_max + 1) + 1 - (1 + 2*row), 0, x_extra, y_extra)];
+        top_buffer[HORZ_IDX] = array[THARR3D(0, (y_max + 1) + 1 - (1 + 2*row), 0, x_extra, y_extra)];
     }
 }
 
@@ -189,7 +194,7 @@ const int depth)
     if (row < depth)
     if (column >= (x_min + 1) - depth && column <= (x_max + 1) + x_extra + depth)
     {
-        array[THARR3D(0, (y_max + 1) + y_extra + row + 1, 0, x_extra, y_extra)] = top_buffer[HORZ_IDX(row)];
+        array[THARR3D(0, (y_max + 1) + y_extra + row + 1, 0, x_extra, y_extra)] = top_buffer[HORZ_IDX];
     }
 }
 
