@@ -14,15 +14,16 @@
  !visit_frequency 1
  !summary_frequency 1
 
- x_cells=60
- y_cells=50
- z_cells=50
+ x_cells=20
+ y_cells=20
+ z_cells=20
  end_time=100.0
  end_step=100
 
  use_opencl_kernels
  opencl_vendor=Nvidia
  opencl_type=GPU
+ opencl_device=1
 
  !NO_KERNEL_REDUCTIONS
  !profiler_on=1
