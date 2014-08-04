@@ -74,7 +74,10 @@ SUBROUTINE clover_pack_message_left(x_min,x_max,y_min,y_max,z_min,z_max,field,  
   DO l=z_min-depth,z_max+z_inc+depth
     DO k=y_min-depth,y_max+y_inc+depth
       DO j=1,depth
-        index=buffer_offset + (j+(k+depth-1)*depth) + ((l+depth-1)*(y_max+y_inc+2*depth)*depth)
+        index=buffer_offset + &
+            j + &
+            (k+depth-1)*depth + &
+            (l+depth-1)*(y_max+y_inc+2*depth)*depth
         left_snd_buffer(index)=field(x_min+x_inc-1+j,k,l)
       ENDDO
     ENDDO

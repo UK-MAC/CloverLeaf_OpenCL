@@ -130,7 +130,7 @@ void CloverChunk::packUnpackAllBuffers
                 device_array = &which_array;\
             }
 
-            cl::Buffer * device_array;
+            cl::Buffer * device_array = NULL;
 
             switch (which_field)
             {
@@ -154,7 +154,6 @@ void CloverChunk::packUnpackAllBuffers
             CASE_BUF(mass_flux_y); break;
             CASE_BUF(mass_flux_z); break;
             default:
-                device_array = NULL;
                 DIE("Invalid face %d passed to left/right pack buffer\n", which_field);
             }
 

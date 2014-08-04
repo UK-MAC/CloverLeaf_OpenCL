@@ -1,44 +1,17 @@
 #include "./kernel_files/macros_cl.cl"
 
-/********************/
-
-// j is column
-// k is row
-
-// could put this check in, prob doesnt need it
-// if (row > 1 - depth && row < y_max + 2 + depth + y_extra)
-
-// left/right buffer
-// index=j+(k+depth-1)*depth
-
-// left index 
-// left_snd_buffer(index)=field(chunks(chunk)%field%x_min+x_extra-1+j,k)
-// field(chunks(chunk)%field%x_min-j,k)=left_rcv_buffer(index)
-
-// right index
-// right_snd_buffer(index)=field(chunks(chunk)%field%x_max+1-j,k)
-// field(chunks(chunk)%field%x_max+x_extra+j,k)=right_rcv_buffer(index)
-
-/********************/
-
-// top/bottom buffer
-// index=j+depth+(k-1)*(chunks(chunk)%field%x_max+x_extra+(2*depth))
-
-// bottom index
-// bottom_snd_buffer(index)=field(j,chunks(chunk)%field%y_min+y_extra-1+k)
-// field(j,chunks(chunk)%field%y_min-k)=bottom_rcv_buffer(index)
-
-// top index
-// top_snd_buffer(index)=field(j,chunks(chunk)%field%y_max+1-k)
-// field(j,chunks(chunk)%field%y_max+y_extra+k)=top_rcv_buffer(index)
-
-/********************/
-
 // left/right
-#define VERT_IDX                                                                    \
+#if 1
+#define VERT_IDX                                            \
+    (column         - 2 +                                   \
+    (row    + depth - 1)*depth +                            \
+    (slice  + depth - 2)*(y_max + y_extra + 2*depth)*depth)
+#else
+#define VERT_IDX                                            \
     (slice  + depth - 1 +                                                           \
     (row    + depth - 1)* (x_max + x_extra + 2*depth) +                             \
     (column         - 1)*((z_max + z_extra + 2*depth)*(y_max + y_extra + 2*depth)))
+#endif
 
 // bottom/top
 #define HORZ_IDX                                                                    \
@@ -64,10 +37,17 @@ const int depth)
     if (row >= (y_min + 1) - depth && row <= (y_max + 1) + y_extra + depth)
     if (column < depth)
     {
+#if 0
         const int row_begin = row * (x_max + 4 + x_extra) +
             (slice)*(x_max + 4 + x_extra)*(y_max + 4 + y_extra);
 
-        left_buffer[VERT_IDX] = array[row_begin + (x_min + 1) + x_extra - 1 + (1 + column)];
+        left_buffer[VERT_IDX] =
+            array[row_begin + (x_min + 1) + x_extra - 1 + (1 + column)];
+#else
+        left_buffer[VERT_IDX] =
+            array[THARR3D((x_min + 1) + x_extra - 1 + (1 + column),
+            0, 0, x_extra, y_extra)];
+#endif
     }
 }
 
@@ -83,10 +63,15 @@ const int depth)
     if (row >= (y_min + 1) - depth && row <= (y_max + 1) + y_extra + depth)
     if (column < depth)
     {
+#if 0
         const int row_begin = row * (x_max + 4 + x_extra) +
             (slice)*(x_max + 4 + x_extra)*(y_max + 4 + y_extra);
 
         array[row_begin + (x_min + 1) - (1 + column)] = left_buffer[VERT_IDX];
+#else
+        array[THARR3D((x_min + 1) - (1 + column), 0, 0, x_extra, y_extra)] =
+            left_buffer[VERT_IDX];
+#endif
     }
 }
 
@@ -104,10 +89,15 @@ const int depth)
     if (row >= (y_min + 1) - depth && row <= (y_max + 1) + y_extra + depth)
     if (column < depth)
     {
+#if 0
         const int row_begin = row * (x_max + 4 + x_extra) +
             (slice)*(x_max + 4 + x_extra)*(y_max + 4 + y_extra);
 
         right_buffer[VERT_IDX] = array[row_begin + (x_max + 1) + 1 - (1 + column)];
+#else
+        right_buffer[VERT_IDX] =
+            array[THARR3D((x_max + 1) + 1 - (1 + column), 0, 0, x_extra, y_extra)];
+#endif
     }
 }
 
@@ -123,10 +113,15 @@ const int depth)
     if (row >= (y_min + 1) - depth && row <= (y_max + 1) + y_extra + depth)
     if (column < depth)
     {
+#if 0
         const int row_begin = row * (x_max + 4 + x_extra) +
             (slice)*(x_max + 4 + x_extra)*(y_max + 4 + y_extra);
 
-        array[row_begin + (x_max + 1) + x_extra + 1 + column] = right_buffer[VERT_IDX];
+        array[row_begin + (x_max + 1) + x_extra + (1 + column)] = right_buffer[VERT_IDX];
+#else
+        array[THARR3D((x_max + 1) + x_extra + (1 + column), 0, 0, x_extra, y_extra)] =
+            right_buffer[VERT_IDX];
+#endif
     }
 }
 
