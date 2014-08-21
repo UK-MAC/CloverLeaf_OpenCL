@@ -637,7 +637,7 @@ void CloverChunk::initArgs
     calc_dt_device.setArg(13, viscosity);
     calc_dt_device.setArg(14, soundspeed);
     calc_dt_device.setArg(15, xvel0);
-    calc_dt_device.setArg(16, xvel0);
+    calc_dt_device.setArg(16, yvel0);
     calc_dt_device.setArg(17, reduce_buf_1);
     calc_dt_device.setArg(18, reduce_buf_2);
 
