@@ -1,5 +1,4 @@
 #include "ocl_common.hpp"
-extern CloverChunk chunk;
 
 extern "C" void accelerate_kernel_ocl_
 (double *dbyt)
@@ -15,4 +14,3 @@ void CloverChunk::accelerate_kernel
     //ENQUEUE(accelerate_device)
     ENQUEUE_OFFSET(accelerate_device)
 }
-

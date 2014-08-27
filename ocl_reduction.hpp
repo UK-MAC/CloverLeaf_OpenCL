@@ -21,8 +21,15 @@ T CloverChunk::reduceValue
 
     T result;
 
+    try
+    {
     // make sure final reduction has finished
     queue.finish();
+    }
+    catch (cl::Error e)
+    {
+    DIE("%s - %d\n", e.what(), e.err());
+    }
 
     // copy back the result and return
     queue.enqueueReadBuffer(results_buf,
@@ -35,4 +42,5 @@ T CloverChunk::reduceValue
 }
 
 #endif
+
 

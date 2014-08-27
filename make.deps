@@ -115,3 +115,4 @@ reset_field_kernel_ocl.o: reset_field_kernel_ocl.cpp ocl_common.hpp
 revert_kernel_ocl.o: revert_kernel_ocl.cpp ocl_common.hpp
 update_halo_kernel_ocl.o: update_halo_kernel_ocl.cpp ocl_common.hpp
 viscosity_kernel_ocl.o: viscosity_kernel_ocl.cpp ocl_common.hpp
+

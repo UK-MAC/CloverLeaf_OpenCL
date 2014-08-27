@@ -1,89 +1,137 @@
-!Crown Copyright 2014 AWE.
+!Crown Copyright 2012 AWE.
 !
-! This file is part of TeaLeaf.
+! This file is part of CloverLeaf.
 !
-! TeaLeaf is free software: you can redistribute it and/or modify it under 
+! CloverLeaf is free software: you can redistribute it and/or modify it under 
 ! the terms of the GNU General Public License as published by the 
 ! Free Software Foundation, either version 3 of the License, or (at your option) 
 ! any later version.
 !
-! TeaLeaf is distributed in the hope that it will be useful, but 
+! CloverLeaf is distributed in the hope that it will be useful, but 
 ! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
 ! FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 ! details.
 !
 ! You should have received a copy of the GNU General Public License along with 
-! TeaLeaf. If not, see http://www.gnu.org/licenses/.
+! CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Fortran viscosity kernel.
-!>  @author David Beckingsale, Wayne Gaudin
+!>  @author Wayne Gaudin
 !>  @details Calculates an artificial viscosity using the Wilkin's method to
 !>  smooth out shock front and prevent oscillations around discontinuities.
 !>  Only cells in compression will have a non-zero value.
+
+! NOTES
+! The gradients needs checking for 3d
+! Strain needs checking
 
 MODULE viscosity_kernel_module
 
 CONTAINS
 
-SUBROUTINE viscosity_kernel(x_min,x_max,y_min,y_max,    &
-                            celldx,celldy,              &
-                            density0,                   &
-                            pressure,                   &
-                            viscosity,                  &
-                            xvel0,                      &
-                            yvel0                       )
+SUBROUTINE viscosity_kernel(x_min,x_max,y_min,y_max,z_min,z_max,    &
+                            xarea,yarea,zarea,                      &
+                            celldx,celldy,celldz,                   &
+                            density0,                               &
+                            pressure,                               &
+                            viscosity,                              &
+                            xvel0,                                  &
+                            yvel0,                                  &
+                            zvel0                                   )
 
   IMPLICIT NONE
 
-  INTEGER     :: x_min,x_max,y_min,y_max
-  REAL(KIND=8), DIMENSION(x_min-2:x_max+2)                     :: celldx
-  REAL(KIND=8), DIMENSION(y_min-2:y_max+2)                     :: celldy
-  REAL(KIND=8), DIMENSION(x_min-2:x_max+2,y_min-2:y_max+2)     :: density0
-  REAL(KIND=8), DIMENSION(x_min-2:x_max+2,y_min-2:y_max+2)     :: pressure
-  REAL(KIND=8), DIMENSION(x_min-2:x_max+2,y_min-2:y_max+2)     :: viscosity
-  REAL(KIND=8), DIMENSION(x_min-2:x_max+3,y_min-2:y_max+3)     :: xvel0,yvel0
+  INTEGER     :: x_min,x_max,y_min,y_max,z_min,z_max
+  REAL(KIND=8), DIMENSION(x_min-2:x_max+3,y_min-2:y_max+2 ,z_min-2:z_max+2)    :: xarea
+  REAL(KIND=8), DIMENSION(x_min-2:x_max+2,y_min-2:y_max+3 ,z_min-2:z_max+2)    :: yarea
+  REAL(KIND=8), DIMENSION(x_min-2:x_max+2,y_min-2:y_max+2 ,z_min-2:z_max+3)    :: zarea
+  REAL(KIND=8), DIMENSION(x_min-2:x_max+2)                                     :: celldx
+  REAL(KIND=8), DIMENSION(y_min-2:y_max+2)                                     :: celldy
+  REAL(KIND=8), DIMENSION(z_min-2:z_max+2)                                     :: celldz
+  REAL(KIND=8), DIMENSION(x_min-2:x_max+2,y_min-2:y_max+2,z_min-2:z_max+2)     :: density0
+  REAL(KIND=8), DIMENSION(x_min-2:x_max+2,y_min-2:y_max+2,z_min-2:z_max+2)     :: pressure
+  REAL(KIND=8), DIMENSION(x_min-2:x_max+2,y_min-2:y_max+2,z_min-2:z_max+2)     :: viscosity
+  REAL(KIND=8), DIMENSION(x_min-2:x_max+3,y_min-2:y_max+3,z_min-2:z_max+3)     :: xvel0,yvel0,zvel0
 
-  INTEGER       :: j,k
-  REAL(KIND=8)  :: ugrad,vgrad,grad2,pgradx,pgrady,pgradx2,pgrady2,grad     &
-                  ,ygrad,pgrad,xgrad,div,strain2,limiter
+  INTEGER       :: j,k,l
+  REAL(KIND=8)  :: ugradx1,ugradx2,vgrady1,vgrady2,wgradz1,wgradz2
+  REAL(KIND=8)  :: ugrady1,ugrady2,vgradx1,vgradx2,wgradx1,wgradx2
+  REAL(KIND=8)  :: ugradz1,ugradz2,vgradz1,vgradz2,wgrady1,wgrady2
+  REAL(KIND=8)  :: xx,yy,zz,xy,xz,yz
+  REAL(KIND=8)  :: grad2,pgradx,pgrady,pgradz,pgradx2,pgrady2,pgradz2,grad     &
+                  ,ygrad,pgrad,xgrad,zgrad,div,limiter
 
 !$OMP PARALLEL
 
-!$OMP DO PRIVATE(ugrad,vgrad,div,strain2,pgradx,pgrady,pgradx2,pgrady2,limiter,pgrad,xgrad,ygrad,grad,grad2)
-  DO k=y_min,y_max
-    DO j=x_min,x_max
-      ugrad=(xvel0(j+1,k  )+xvel0(j+1,k+1))-(xvel0(j  ,k  )+xvel0(j  ,k+1))
+!$OMP DO PRIVATE(ugradx1,ugradx2,vgrady1,vgrady2,wgradz1,wgradz2,div,                     &
+!$OMP            ugrady1,ugrady2,vgradx1,vgradx2,wgradx1,wgradx2,                         &
+!$OMP            ugradz1,ugradz2,vgradz1,vgradz2,wgrady1,wgrady2,                         &
+!$OMP            pgradx,pgrady,pgradz,pgradx2,pgrady2,pgradz2,limiter,                    &
+!$OMP            pgrad,xgrad,ygrad,zgrad,grad,grad2,xx,yy,zz,xy,xz,yz)
+  DO l=z_min,z_max
+    DO k=y_min,y_max
+      DO j=x_min,x_max
+        ugradx1=xvel0(j  ,k  ,l  )+xvel0(j  ,k+1,l  )+xvel0(j  ,k  ,l+1)+xvel0(j  ,k+1,l+1)
+        ugradx2=xvel0(j+1,k  ,l  )+xvel0(j+1,k+1,l  )+xvel0(j+1,k  ,l+1)+xvel0(j+1,k+1,l+1)
+        ugrady1=xvel0(j  ,k  ,l  )+xvel0(j+1,k  ,l  )+xvel0(j  ,k  ,l+1)+xvel0(j+1,k  ,l+1)
+        ugrady2=xvel0(j  ,k+1,l  )+xvel0(j+1,k+1,l  )+xvel0(j  ,k+1,l+1)+xvel0(j+1,k+1,l+1)
+        ugradz1=xvel0(j  ,k  ,l  )+xvel0(j+1,k  ,l  )+xvel0(j  ,k+1,l  )+xvel0(j+1,k+1,l  )
+        ugradz2=xvel0(j  ,k  ,l+1)+xvel0(j+1,k  ,l+1)+xvel0(j  ,k+1,l+1)+xvel0(j+1,k+1,l+1)
 
-      vgrad=(yvel0(j  ,k+1)+yvel0(j+1,k+1))-(yvel0(j  ,k  )+yvel0(j+1,k  ))
+        vgradx1=yvel0(j  ,k  ,l  )+yvel0(j  ,k+1,l  )+yvel0(j  ,k  ,l+1)+yvel0(j  ,k+1,l+1)
+        vgradx2=yvel0(j+1,k  ,l  )+yvel0(j+1,k+1,l  )+yvel0(j+1,k  ,l+1)+yvel0(j+1,k+1,l+1)
+        vgrady1=yvel0(j  ,k  ,l  )+yvel0(j+1,k  ,l  )+yvel0(j  ,k  ,l+1)+yvel0(j+1,k  ,l+1)
+        vgrady2=yvel0(j  ,k+1,l  )+yvel0(j+1,k+1,l  )+yvel0(j  ,k+1,l+1)+yvel0(j+1,k+1,l+1)
+        vgradz1=yvel0(j  ,k  ,l  )+yvel0(j+1,k  ,l  )+yvel0(j  ,k+1,l  )+yvel0(j+1,k+1,l  )
+        vgradz2=yvel0(j  ,k  ,l+1)+yvel0(j+1,k  ,l+1)+yvel0(j  ,k+1,l+1)+yvel0(j+1,k+1,l+1)
 
-      div = (celldx(j)*(ugrad)+  celldy(k)*(vgrad))
+        wgradx1=zvel0(j  ,k  ,l  )+zvel0(j  ,k+1,l  )+zvel0(j  ,k  ,l+1)+zvel0(j  ,k+1,l+1)
+        wgradx2=zvel0(j+1,k  ,l  )+zvel0(j+1,k+1,l  )+zvel0(j+1,k  ,l+1)+zvel0(j+1,k+1,l+1)
+        wgrady1=zvel0(j  ,k  ,l  )+zvel0(j+1,k  ,l  )+zvel0(j  ,k  ,l+1)+zvel0(j+1,k  ,l+1)
+        wgrady2=zvel0(j  ,k+1,l  )+zvel0(j+1,k+1,l  )+zvel0(j  ,k+1,l+1)+zvel0(j+1,k+1,l+1)
+        wgradz1=zvel0(j  ,k  ,l  )+zvel0(j+1,k  ,l  )+zvel0(j  ,k+1,l  )+zvel0(j+1,k+1,l  )
+        wgradz2=zvel0(j  ,k  ,l+1)+zvel0(j+1,k  ,l+1)+zvel0(j  ,k+1,l+1)+zvel0(j+1,k+1,l+1)
 
-      strain2 = 0.5_8*(xvel0(j,  k+1) + xvel0(j+1,k+1)-xvel0(j  ,k  )-xvel0(j+1,k  ))/celldy(k) &
-              + 0.5_8*(yvel0(j+1,k  ) + yvel0(j+1,k+1)-yvel0(j  ,k  )-yvel0(j  ,k+1))/celldx(j)
+        div = (xarea(j,k,l)*(ugradx2-ugradx1)+ &
+               yarea(j,k,l)*(vgrady2-vgrady1))+ &
+               zarea(j,k,l)*(wgradz2-wgradz1)
 
-      pgradx=(pressure(j+1,k)-pressure(j-1,k))/(celldx(j)+celldx(j+1))
-      pgrady=(pressure(j,k+1)-pressure(j,k-1))/(celldy(k)+celldy(k+1))
+        xx = 0.25_8*(ugradx2-ugradx1)/(celldx(j))
+        yy = 0.25_8*(vgrady2-vgrady1)/(celldy(k))
+        zz = 0.25_8*(wgradz2-wgradz1)/(celldz(l))
+        xy = 0.25_8*(ugrady2-ugrady1)/(celldy(k))+0.25_8*(vgradx2-vgradx1)/(celldx(j))
+        xz = 0.25_8*(ugradz2-ugradz1)/(celldz(l))+0.25_8*(wgradx2-wgradx1)/(celldx(j))
+        yz = 0.25_8*(vgradz2-vgradz1)/(celldz(l))+0.25_8*(wgrady2-wgrady1)/(celldy(k))
 
-      pgradx2 = pgradx*pgradx
-      pgrady2 = pgrady*pgrady
+        pgradx=(pressure(j+1,k,l)-pressure(j-1,k,l))/(celldx(j)+celldx(j+1))
+        pgrady=(pressure(j,k+1,l)-pressure(j,k-1,l))/(celldy(k)+celldy(k+1))
+        pgradz=(pressure(j,k,l+1)-pressure(j,k,l-1))/(celldz(l)+celldz(l+1))
 
-      limiter = ((0.5_8*(ugrad)/celldx(j))*pgradx2+(0.5_8*(vgrad)/celldy(k))*pgrady2+strain2*pgradx*pgrady)  &
-              /MAX(pgradx2+pgrady2,1.0e-16_8)
+        pgradx2 = pgradx*pgradx
+        pgrady2 = pgrady*pgrady
+        pgradz2 = pgradz*pgradz
 
-      IF ((limiter.GT.0.0).OR.(div.GE.0.0))THEN
-        viscosity(j,k) = 0.0
-      ELSE
-        pgradx = SIGN(MAX(1.0e-16_8,ABS(pgradx)),pgradx)
-        pgrady = SIGN(MAX(1.0e-16_8,ABS(pgrady)),pgrady)
-        pgrad = SQRT(pgradx*pgradx+pgrady*pgrady)
-        xgrad = ABS(celldx(j)*pgrad/pgradx)
-        ygrad = ABS(celldy(k)*pgrad/pgrady)
-        grad  = MIN(xgrad,ygrad)
-        grad2 = grad*grad
+        limiter = (xx*pgradx2+yy*pgrady2+zz*pgradz2                    &
+                +  xy*pgradx*pgrady+xz*pgradx*pgradz+yz*pgrady*pgradz) &
+                / MAX(pgradx2+pgrady2+pgradz2,1.0e-16_8)
 
-        viscosity(j,k)=2.0_8*density0(j,k)*grad2*limiter*limiter
-      ENDIF
+        IF ((limiter.GT.0.0).OR.(div.GE.0.0))THEN
+          viscosity(j,k,l) = 0.0
+        ELSE
+          pgradx = SIGN(MAX(1.0e-16_8,ABS(pgradx)),pgradx)
+          pgrady = SIGN(MAX(1.0e-16_8,ABS(pgrady)),pgrady)
+          pgradz = SIGN(MAX(1.0e-16_8,ABS(pgradz)),pgradz)
+          pgrad = SQRT(pgradx*pgradx+pgrady*pgrady+pgradz*pgradz)
+          xgrad = ABS(celldx(j)*pgrad/pgradx)
+          ygrad = ABS(celldy(k)*pgrad/pgrady)
+          zgrad = ABS(celldz(l)*pgrad/pgradz)
+          grad  = MIN(xgrad,ygrad,zgrad)
+          grad2 = grad*grad
 
+          viscosity(j,k,l)=2.0_8*density0(j,k,l)*grad2*limiter*limiter
+        ENDIF
+
+      ENDDO
     ENDDO
   ENDDO
 !$OMP END DO

@@ -1,22 +1,22 @@
-!Crown Copyright 2014 AWE.
+!Crown Copyright 2012 AWE.
 !
-! This file is part of TeaLeaf.
+! This file is part of CloverLeaf.
 !
-! TeaLeaf is free software: you can redistribute it and/or modify it under 
+! CloverLeaf is free software: you can redistribute it and/or modify it under 
 ! the terms of the GNU General Public License as published by the 
 ! Free Software Foundation, either version 3 of the License, or (at your option) 
 ! any later version.
 !
-! TeaLeaf is distributed in the hope that it will be useful, but 
+! CloverLeaf is distributed in the hope that it will be useful, but 
 ! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
 ! FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 ! details.
 !
 ! You should have received a copy of the GNU General Public License along with 
-! TeaLeaf. If not, see http://www.gnu.org/licenses/.
+! CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Reset field driver
-!>  @author David Beckingsale, Wayne Gaudin
+!>  @author Wayne Gaudin
 !>  @details Invokes the user specified field reset kernel.
 
 MODULE reset_field_module
@@ -35,7 +35,7 @@ SUBROUTINE reset_field()
   REAL(KIND=8) :: kernel_time,timer
 
   IF(profiler_on) kernel_time=timer()
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
 
     IF(chunks(c)%task.EQ.parallel%task) THEN
 
@@ -44,6 +44,8 @@ SUBROUTINE reset_field()
                               chunks(c)%field%x_max,     &
                               chunks(c)%field%y_min,     &
                               chunks(c)%field%y_max,     &
+                              chunks(c)%field%z_min,     &
+                              chunks(c)%field%z_max,     &
                               chunks(c)%field%density0,  &
                               chunks(c)%field%density1,  &
                               chunks(c)%field%energy0,   &
@@ -51,22 +53,11 @@ SUBROUTINE reset_field()
                               chunks(c)%field%xvel0,     &
                               chunks(c)%field%xvel1,     &
                               chunks(c)%field%yvel0,     &
-                              chunks(c)%field%yvel1      )
+                              chunks(c)%field%yvel1,     &
+                              chunks(c)%field%zvel0,     &
+                              chunks(c)%field%zvel1      )
       ELSEIF(use_opencl_kernels)THEN
         CALL reset_field_kernel_ocl()
-      ELSEIF(use_C_kernels)THEN
-        CALL reset_field_kernel_c(chunks(c)%field%x_min, &
-                              chunks(c)%field%x_max,     &
-                              chunks(c)%field%y_min,     &
-                              chunks(c)%field%y_max,     &
-                              chunks(c)%field%density0,  &
-                              chunks(c)%field%density1,  &
-                              chunks(c)%field%energy0,   &
-                              chunks(c)%field%energy1,   &
-                              chunks(c)%field%xvel0,     &
-                              chunks(c)%field%xvel1,     &
-                              chunks(c)%field%yvel0,     &
-                              chunks(c)%field%yvel1      )
       ENDIF
 
     ENDIF

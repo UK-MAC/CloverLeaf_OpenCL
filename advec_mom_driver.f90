@@ -1,22 +1,22 @@
-!Crown Copyright 2014 AWE.
+!Crown Copyright 2012 AWE.
 !
-! This file is part of TeaLeaf.
+! This file is part of CloverLeaf.
 !
-! TeaLeaf is free software: you can redistribute it and/or modify it under 
+! CloverLeaf is free software: you can redistribute it and/or modify it under 
 ! the terms of the GNU General Public License as published by the 
 ! Free Software Foundation, either version 3 of the License, or (at your option) 
 ! any later version.
 !
-! TeaLeaf is distributed in the hope that it will be useful, but 
+! CloverLeaf is distributed in the hope that it will be useful, but 
 ! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
 ! FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 ! details.
 !
 ! You should have received a copy of the GNU General Public License along with 
-! TeaLeaf. If not, see http://www.gnu.org/licenses/.
+! CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Momentum advection driver
-!>  @author David Beckingsale, Wayne Gaudin
+!>  @author Wayne Gaudin
 !>  @details Invokes the user specified momentum advection kernel.
 
 MODULE advec_mom_driver_module
@@ -30,7 +30,7 @@ SUBROUTINE advec_mom_driver(chunk,which_vel,direction,sweep_number)
 
   IMPLICIT NONE
 
-  INTEGER :: chunk,which_vel,direction,sweep_number,vector
+  INTEGER :: chunk,which_vel,direction,sweep_number,advec_int
 
   IF(chunks(chunk)%task.EQ.parallel%task) THEN
 
@@ -39,12 +39,17 @@ SUBROUTINE advec_mom_driver(chunk,which_vel,direction,sweep_number)
                           chunks(chunk)%field%x_max,              &
                           chunks(chunk)%field%y_min,              &
                           chunks(chunk)%field%y_max,              &
+                          chunks(chunk)%field%z_min,              &
+                          chunks(chunk)%field%z_max,              &
                           chunks(chunk)%field%xvel1,              &
                           chunks(chunk)%field%yvel1,              &
+                          chunks(chunk)%field%zvel1,              &
                           chunks(chunk)%field%mass_flux_x,        &
                           chunks(chunk)%field%vol_flux_x,         &
                           chunks(chunk)%field%mass_flux_y,        &
                           chunks(chunk)%field%vol_flux_y,         &
+                          chunks(chunk)%field%mass_flux_z,        &
+                          chunks(chunk)%field%vol_flux_z,         &
                           chunks(chunk)%field%volume,             &
                           chunks(chunk)%field%density1,           &
                           chunks(chunk)%field%work_array1,        &
@@ -56,43 +61,20 @@ SUBROUTINE advec_mom_driver(chunk,which_vel,direction,sweep_number)
                           chunks(chunk)%field%work_array7,        &
                           chunks(chunk)%field%celldx,             &
                           chunks(chunk)%field%celldy,             &
+                          chunks(chunk)%field%celldz,             &
+                          advect_x,                               &
                           which_vel,                              &
                           sweep_number,                           &
-                          direction,                              &
-                          use_vector_loops                        )
+                          direction                               )
     ELSEIF(use_opencl_kernels)THEN
-      CALL advec_mom_kernel_ocl(which_vel, sweep_number, direction)
-    ELSEIF(use_C_kernels)THEN
-      IF(use_vector_loops) THEN
-        vector=1
-      ELSE
-        vector=0
+
+      if (advect_x .eqv. .true.) then
+          advec_int = 1
+      else
+          advec_int = 0
       ENDIF
-      CALL advec_mom_kernel_c(chunks(chunk)%field%x_min,          &
-                          chunks(chunk)%field%x_max,              &
-                          chunks(chunk)%field%y_min,              &
-                          chunks(chunk)%field%y_max,              &
-                          chunks(chunk)%field%xvel1,              &
-                          chunks(chunk)%field%yvel1,              &
-                          chunks(chunk)%field%mass_flux_x,        &
-                          chunks(chunk)%field%vol_flux_x,         &
-                          chunks(chunk)%field%mass_flux_y,        &
-                          chunks(chunk)%field%vol_flux_y,         &
-                          chunks(chunk)%field%volume,             &
-                          chunks(chunk)%field%density1,           &
-                          chunks(chunk)%field%work_array1,        &
-                          chunks(chunk)%field%work_array2,        &
-                          chunks(chunk)%field%work_array3,        &
-                          chunks(chunk)%field%work_array4,        &
-                          chunks(chunk)%field%work_array5,        &
-                          chunks(chunk)%field%work_array6,        &
-                          chunks(chunk)%field%work_array7,        &
-                          chunks(chunk)%field%celldx,             &
-                          chunks(chunk)%field%celldy,             &
-                          which_vel,                              &
-                          sweep_number,                           &
-                          direction,                              &
-                          vector                                  )
+
+      CALL advec_mom_kernel_ocl(advec_int, which_vel, sweep_number, direction)
     ENDIF
 
   ENDIF

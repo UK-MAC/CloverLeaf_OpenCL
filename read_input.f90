@@ -1,22 +1,22 @@
-!Crown Copyright 2014 AWE.
+!Crown Copyright 2012 AWE.
 !
-! This file is part of TeaLeaf.
+! This file is part of CloverLeaf.
 !
-! TeaLeaf is free software: you can redistribute it and/or modify it under 
+! CloverLeaf is free software: you can redistribute it and/or modify it under 
 ! the terms of the GNU General Public License as published by the 
 ! Free Software Foundation, either version 3 of the License, or (at your option) 
 ! any later version.
 !
-! TeaLeaf is distributed in the hope that it will be useful, but 
+! CloverLeaf is distributed in the hope that it will be useful, but 
 ! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
 ! FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 ! details.
 !
 ! You should have received a copy of the GNU General Public License along with 
-! TeaLeaf. If not, see http://www.gnu.org/licenses/.
+! CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Reads the user input
-!>  @author David Beckingsale, Wayne Gaudin
+!>  @author Wayne Gaudin
 !>  @details Reads and parses the user input from the processed file and sets
 !>  the variables used in the generation phase. Default values are also set
 !>  here.
@@ -31,7 +31,7 @@ SUBROUTINE read_input()
 
   INTEGER            :: state,stat,state_max,n
 
-  REAL(KIND=8) :: dx,dy
+  REAL(KIND=8) :: dx,dy,dz
 
   CHARACTER(LEN=500) :: word
 
@@ -39,39 +39,35 @@ SUBROUTINE read_input()
 
   state_max=0
 
-  grid%xmin=  0.0
-  grid%ymin=  0.0
-  grid%xmax=100.0
-  grid%ymax=100.0
+  grid%xmin=  0.0_8
+  grid%ymin=  0.0_8
+  grid%zmin=  0.0_8
+  grid%xmax=100.0_8
+  grid%ymax=100.0_8
+  grid%zmax=100.0_8
 
   grid%x_cells=10
   grid%y_cells=10
+  grid%z_cells=10
 
-  end_time=10.0
+  end_time=10.0_8
   end_step=g_ibig
   complete=.FALSE.
 
   visit_frequency=0
   summary_frequency=10
 
-  dtinit=0.1
-  dtmax=1.0
-  dtmin=0.0000001
-  dtrise=1.5
-  dtc_safe=0.7
-  dtu_safe=0.5
-  dtv_safe=0.5
-  dtdiv_safe=0.7
-
-  max_iters=1000
-  eps=1.0e-6
+  dtinit=0.1_8
+  dtmax=1.0_8
+  dtmin=0.0000001_8
+  dtrise=1.5_8
+  dtc_safe=0.7_8
+  dtu_safe=0.5_8
+  dtv_safe=0.5_8
+  dtw_safe=0.5_8
+  dtdiv_safe=0.7_8
 
   use_fortran_kernels=.TRUE.
-  use_C_kernels=.FALSE.
-  use_OA_kernels=.FALSE.
-  use_opencl_kernels=.FALSE.
-  use_vector_loops=.FALSE.
-  coefficient = CONDUCTIVITY
   profiler_on=.FALSE.
   profiler%timestep=0.0
   profiler%acceleration=0.0
@@ -117,6 +113,7 @@ SUBROUTINE read_input()
   states(:)%density=0.0
   states(:)%xvel=0.0
   states(:)%yvel=0.0
+  states(:)%zvel=0.0
 
   DO
     stat=parse_getline(dummy)
@@ -155,12 +152,21 @@ SUBROUTINE read_input()
       CASE('ymax')
         grid%ymax=parse_getrval(parse_getword(.TRUE.))
         IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'ymax',grid%ymax
+      CASE('zmin')
+        grid%zmin=parse_getrval(parse_getword(.TRUE.))
+        IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'zmin',grid%zmin
+      CASE('zmax')
+        grid%zmax=parse_getrval(parse_getword(.TRUE.))
+        IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'zmax',grid%zmax
       CASE('x_cells')
         grid%x_cells=parse_getival(parse_getword(.TRUE.))
         IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'x_cells',grid%x_cells
       CASE('y_cells')
         grid%y_cells=parse_getival(parse_getword(.TRUE.))
         IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'y_cells',grid%y_cells
+      CASE('z_cells')
+        grid%z_cells=parse_getival(parse_getword(.TRUE.))
+        IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'z_cells',grid%z_cells
       CASE('visit_frequency')
         visit_frequency=parse_getival(parse_getword(.TRUE.))
         IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'visit_frequency',visit_frequency
@@ -169,26 +175,10 @@ SUBROUTINE read_input()
         IF(parallel%boss)WRITE(g_out,"(1x,a25,i12)")'summary_frequency',summary_frequency
       CASE('use_fortran_kernels')
         use_fortran_kernels=.TRUE.
-        use_C_kernels=.FALSE.
-        use_OA_kernels=.FALSE.
-        use_opencl_kernels=.FALSE.
-      CASE('use_c_kernels')
-        use_fortran_kernels=.FALSE.
-        use_C_kernels=.TRUE.
-        use_OA_kernels=.FALSE.
-        use_opencl_kernels=.FALSE.
+        use_opencl_kernels=.false.
       CASE('use_opencl_kernels')
         use_fortran_kernels=.FALSE.
-        use_C_kernels=.FALSE.
-        use_OA_kernels=.FALSE.
         use_opencl_kernels=.TRUE.
-      CASE('use_oa_kernels')
-        use_fortran_kernels=.FALSE.
-        use_C_kernels=.FALSE.
-        use_OA_kernels=.TRUE.
-        use_opencl_kernels=.FALSE.
-      CASE('use_vector_loops')
-        use_vector_loops=.TRUE.
       CASE('profiler_on')
         profiler_on=.TRUE.
         IF(parallel%boss)WRITE(g_out,"(1x,a25)")'Profiler on'
@@ -216,18 +206,27 @@ SUBROUTINE read_input()
           CASE('yvel')
             states(state)%yvel=parse_getrval(parse_getword(.TRUE.))
             IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'yvel ',states(state)%yvel
+          CASE('zvel')
+            states(state)%zvel=parse_getrval(parse_getword(.TRUE.))
+            IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'zvel ',states(state)%zvel
           CASE('xmin')
             states(state)%xmin=parse_getrval(parse_getword(.TRUE.))
             IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state xmin ',states(state)%xmin
           CASE('ymin')
             states(state)%ymin=parse_getrval(parse_getword(.TRUE.))
             IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state ymin ',states(state)%ymin
+          CASE('zmin')
+            states(state)%zmin=parse_getrval(parse_getword(.TRUE.))
+            IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state zmin ',states(state)%zmin
           CASE('xmax')
             states(state)%xmax=parse_getrval(parse_getword(.TRUE.))
             IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state xmax ',states(state)%xmax
           CASE('ymax')
             states(state)%ymax=parse_getrval(parse_getword(.TRUE.))
             IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state ymax ',states(state)%ymax
+          CASE('zmax')
+            states(state)%zmax=parse_getrval(parse_getword(.TRUE.))
+            IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state zmax ',states(state)%zmax
           CASE('radius')
             states(state)%radius=parse_getrval(parse_getword(.TRUE.))
             IF(parallel%boss)WRITE(g_out,"(1x,a25,e12.4)")'state radius ',states(state)%radius
@@ -240,12 +239,12 @@ SUBROUTINE read_input()
           CASE('geometry')
             word=TRIM(parse_getword(.TRUE.))
             SELECT CASE(word)
-            CASE("rectangle")
+            CASE("cuboid")
               states(state)%geometry=g_rect
-              IF(parallel%boss)WRITE(g_out,"(1x,a26)")'state geometry rectangular'
-            CASE("circle")
+              IF(parallel%boss)WRITE(g_out,"(1x,a26)")'state geometry cuboid'
+            CASE("sphere")
               states(state)%geometry=g_circ
-              IF(parallel%boss)WRITE(g_out,"(1x,a25)")'state geometry circular'
+              IF(parallel%boss)WRITE(g_out,"(1x,a25)")'state geometry sphere'
             CASE("point")
               states(state)%geometry=g_point
               IF(parallel%boss)WRITE(g_out,"(1x,a25)")'state geometry point'
@@ -260,13 +259,9 @@ SUBROUTINE read_input()
   IF(parallel%boss) THEN
     WRITE(g_out,*)
     IF(use_fortran_kernels) THEN
-      WRITE(g_out,"(1x,a)")'Using Fortran Kernels'
+      WRITE(g_out,"(1x,a25)")'Using Fortran Kernels'
     ELSEIF(use_opencl_kernels) THEN
-      WRITE(g_out,"(1x,a)")'Using OpenCL Kernels'
-    ELSEIF(use_c_kernels) THEN
-      WRITE(g_out,"(1x,a)")'Using C Kernels'
-    ELSEIF(use_oa_kernels) THEN
-      WRITE(g_out,"(1x,a)")'Using OpenAcc Kernels'
+      WRITE(g_out,"(1x,a25)")'Using OpenCL Kernels'
     ENDIF
     WRITE(g_out,*)
     WRITE(g_out,*) 'Input read finished.'
@@ -281,11 +276,14 @@ SUBROUTINE read_input()
   ! modification to the state extents does not change the answers.
   dx=(grid%xmax-grid%xmin)/float(grid%x_cells)
   dy=(grid%ymax-grid%ymin)/float(grid%y_cells)
+  dz=(grid%zmax-grid%zmin)/float(grid%z_cells)
   DO n=2,number_of_states
-    states(n)%xmin=states(n)%xmin+(dx/100.0)
-    states(n)%ymin=states(n)%ymin+(dy/100.0)
-    states(n)%xmax=states(n)%xmax-(dx/100.0)
-    states(n)%ymax=states(n)%ymax-(dy/100.0)
+    states(n)%xmin=states(n)%xmin+(dx/100.0_8)
+    states(n)%ymin=states(n)%ymin+(dy/100.0_8)
+    states(n)%zmin=states(n)%zmin+(dz/100.0_8)
+    states(n)%xmax=states(n)%xmax-(dx/100.0_8)
+    states(n)%ymax=states(n)%ymax-(dy/100.0_8)
+    states(n)%zmax=states(n)%zmax-(dz/100.0_8)
   ENDDO
 
 END SUBROUTINE read_input

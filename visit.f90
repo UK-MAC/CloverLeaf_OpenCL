@@ -1,22 +1,22 @@
-!Crown Copyright 2014 AWE.
+!Crown Copyright 2012 AWE.
 !
-! This file is part of TeaLeaf.
+! This file is part of CloverLeaf.
 !
-! TeaLeaf is free software: you can redistribute it and/or modify it under 
+! CloverLeaf is free software: you can redistribute it and/or modify it under 
 ! the terms of the GNU General Public License as published by the 
 ! Free Software Foundation, either version 3 of the License, or (at your option) 
 ! any later version.
 !
-! TeaLeaf is distributed in the hope that it will be useful, but 
+! CloverLeaf is distributed in the hope that it will be useful, but 
 ! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
 ! FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 ! details.
 !
 ! You should have received a copy of the GNU General Public License along with 
-! TeaLeaf. If not, see http://www.gnu.org/licenses/.
+! CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Generates graphics output files.
-!>  @author David Beckingsale, Wayne Gaudin
+!>  @author Wayne Gaudin
 !>  @details The field data over all mesh chunks is written to a .vtk files and
 !>  the .visit file is written that defines the time for each set of vtk files.
 !>  The ideal gas and viscosity routines are invoked to make sure this data is
@@ -31,8 +31,8 @@ SUBROUTINE visit
 
   IMPLICIT NONE
 
-  INTEGER :: j,k,c,err,get_unit,u,dummy
-  INTEGER :: nxc,nyc,nxv,nyv,nblocks
+  INTEGER :: j,k,l,c,err,get_unit,u,dummy
+  INTEGER :: nxc,nyc,nzc,nxv,nyv,nzv,nblocks
   REAL(KIND=8)    :: temp_var
 
   CHARACTER(len=80)           :: name
@@ -46,22 +46,23 @@ SUBROUTINE visit
   REAL(KIND=8) :: kernel_time,timer
 
   name = 'clover'
+  IF ( parallel%boss ) THEN
+    IF(first_call) THEN
 
-  IF(first_call) THEN
+      nblocks=number_of_chunks
+      filename = "clover.visit"
+      u=get_unit(dummy)
+      OPEN(UNIT=u,FILE=filename,STATUS='UNKNOWN',IOSTAT=err)
+      WRITE(u,'(a,i5)')'!NBLOCKS ',nblocks
+      CLOSE(u)
 
-    nblocks=number_of_chunks
-    filename = "clover.visit"
-    u=get_unit(dummy)
-    OPEN(UNIT=u,FILE=filename,STATUS='UNKNOWN',IOSTAT=err)
-    WRITE(u,'(a,i5)')'!NBLOCKS ',nblocks
-    CLOSE(u)
+      first_call=.FALSE.
 
-    first_call=.FALSE.
-
+    ENDIF
   ENDIF
 
   IF(profiler_on) kernel_time=timer()
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
     CALL ideal_gas(c,.FALSE.)
   ENDDO
   IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
@@ -70,6 +71,7 @@ SUBROUTINE visit
   fields(FIELD_PRESSURE)=1
   fields(FIELD_XVEL0)=1
   fields(FIELD_YVEL0)=1
+  fields(FIELD_ZVEL0)=1
   IF(profiler_on) kernel_time=timer()
   CALL update_halo(fields,1)
   IF(profiler_on) profiler%halo_exchange=profiler%halo_exchange+(timer()-kernel_time)
@@ -77,7 +79,6 @@ SUBROUTINE visit
   IF(profiler_on) kernel_time=timer()
   CALL viscosity()
   IF(profiler_on) profiler%viscosity=profiler%viscosity+(timer()-kernel_time)
-
   IF ( parallel%boss ) THEN
 
     filename = "clover.visit"
@@ -97,13 +98,15 @@ SUBROUTINE visit
   ENDIF
 
   IF(profiler_on) kernel_time=timer()
-  DO c = 1, number_of_chunks
+  DO c = 1, chunks_per_task
     IF(chunks(c)%task.EQ.parallel%task) THEN
       nxc=chunks(c)%field%x_max-chunks(c)%field%x_min+1
       nyc=chunks(c)%field%y_max-chunks(c)%field%y_min+1
+      nzc=chunks(c)%field%z_max-chunks(c)%field%z_min+1
       nxv=nxc+1
       nyv=nyc+1
-      WRITE(chunk_name, '(i6)') c+100000
+      nzv=nzc+1
+      WRITE(chunk_name, '(i6)') parallel%task+100001
       chunk_name(1:1) = "."
       WRITE(step_name, '(i6)') step+100000
       step_name(1:1) = "."
@@ -114,7 +117,7 @@ SUBROUTINE visit
       WRITE(u,'(a)')'vtk output'
       WRITE(u,'(a)')'ASCII'
       WRITE(u,'(a)')'DATASET RECTILINEAR_GRID'
-      WRITE(u,'(a,2i12,a)')'DIMENSIONS',nxv,nyv,' 1'
+      WRITE(u,'(a,3i12)')'DIMENSIONS',nxv,nyv,nzv
       WRITE(u,'(a,i5,a)')'X_COORDINATES ',nxv,' double'
       DO j=chunks(c)%field%x_min,chunks(c)%field%x_max+1
         WRITE(u,'(e12.4)')chunks(c)%field%vertexx(j)
@@ -123,47 +126,70 @@ SUBROUTINE visit
       DO k=chunks(c)%field%y_min,chunks(c)%field%y_max+1
         WRITE(u,'(e12.4)')chunks(c)%field%vertexy(k)
       ENDDO
-      WRITE(u,'(a)')'Z_COORDINATES 1 double'
-      WRITE(u,'(a)')'0'
-      WRITE(u,'(a,i20)')'CELL_DATA ',nxc*nyc
-      WRITE(u,'(a)')'FIELD FieldData 5'
-      WRITE(u,'(a,i20,a)')'density 1 ',nxc*nyc,' double'
-      DO k=chunks(c)%field%y_min,chunks(c)%field%y_max
-        WRITE(u,'(e12.4)')(chunks(c)%field%density0(j,k),j=chunks(c)%field%x_min,chunks(c)%field%x_max)
+      WRITE(u,'(a,i5,a)')'Z_COORDINATES ',nzv,' double'
+      DO l=chunks(c)%field%z_min,chunks(c)%field%z_max+1
+        WRITE(u,'(e12.4)')chunks(c)%field%vertexz(l)
       ENDDO
-      WRITE(u,'(a,i20,a)')'energy 1 ',nxc*nyc,' double'
-      DO k=chunks(c)%field%y_min,chunks(c)%field%y_max
-        WRITE(u,'(e12.4)')(chunks(c)%field%energy0(j,k),j=chunks(c)%field%x_min,chunks(c)%field%x_max)
-      ENDDO
-      WRITE(u,'(a,i20,a)')'pressure 1 ',nxc*nyc,' double'
-      DO k=chunks(c)%field%y_min,chunks(c)%field%y_max
-        WRITE(u,'(e12.4)')(chunks(c)%field%pressure(j,k),j=chunks(c)%field%x_min,chunks(c)%field%x_max)
-      ENDDO
-      WRITE(u,'(a,i20,a)')'viscosity 1 ',nxc*nyc,' double'
-      DO k=chunks(c)%field%y_min,chunks(c)%field%y_max
-        DO j=chunks(c)%field%x_min,chunks(c)%field%x_max
-          temp_var=0.0
-          IF(chunks(c)%field%viscosity(j,k).GT.0.00000001) temp_var=chunks(c)%field%viscosity(j,k)
-          WRITE(u,'(e12.4)') temp_var
+      WRITE(u,'(a,i20)')'CELL_DATA ',nxc*nyc*nzc
+      WRITE(u,'(a)')'FIELD FieldData 4'
+      WRITE(u,'(a,i20,a)')'density 1 ',nxc*nyc*nzc,' double'
+      DO l=chunks(c)%field%z_min,chunks(c)%field%z_max
+        DO k=chunks(c)%field%y_min,chunks(c)%field%y_max
+          WRITE(u,'(e12.4)')(chunks(c)%field%density0(j,k,l),j=chunks(c)%field%x_min,chunks(c)%field%x_max)
         ENDDO
       ENDDO
-      WRITE(u,'(a,i20,a)')'temperature 1 ',nxc*nyc,' double'
-      WRITE(u,'(a,i20)')'POINT_DATA ',nxv*nyv
-      WRITE(u,'(a)')'FIELD FieldData 2'
-      WRITE(u,'(a,i20,a)')'x_vel 1 ',nxv*nyv,' double'
-      DO k=chunks(c)%field%y_min,chunks(c)%field%y_max+1
-        DO j=chunks(c)%field%x_min,chunks(c)%field%x_max+1
-          temp_var=0.0
-          IF(ABS(chunks(c)%field%xvel0(j,k)).GT.0.00000001) temp_var=chunks(c)%field%xvel0(j,k)
-          WRITE(u,'(e12.4)') temp_var
+      WRITE(u,'(a,i20,a)')'energy 1 ',nxc*nyc*nzc,' double'
+      DO l=chunks(c)%field%z_min,chunks(c)%field%z_max
+        DO k=chunks(c)%field%y_min,chunks(c)%field%y_max
+          WRITE(u,'(e12.4)')(chunks(c)%field%energy0(j,k,l),j=chunks(c)%field%x_min,chunks(c)%field%x_max)
         ENDDO
       ENDDO
-      WRITE(u,'(a,i20,a)')'y_vel 1 ',nxv*nyv,' double'
-      DO k=chunks(c)%field%y_min,chunks(c)%field%y_max+1
-        DO j=chunks(c)%field%x_min,chunks(c)%field%x_max+1
-          temp_var=0.0
-          IF(ABS(chunks(c)%field%yvel0(j,k)).GT.0.00000001) temp_var=chunks(c)%field%yvel0(j,k)
-          WRITE(u,'(e12.4)') temp_var
+      WRITE(u,'(a,i20,a)')'pressure 1 ',nxc*nyc*nzc,' double'
+      DO l=chunks(c)%field%z_min,chunks(c)%field%z_max
+        DO k=chunks(c)%field%y_min,chunks(c)%field%y_max
+          WRITE(u,'(e12.4)')(chunks(c)%field%pressure(j,k,l),j=chunks(c)%field%x_min,chunks(c)%field%x_max)
+        ENDDO
+      ENDDO
+      WRITE(u,'(a,i20,a)')'viscosity 1 ',nxc*nyc*nzc,' double'
+      DO l=chunks(c)%field%z_min,chunks(c)%field%z_max
+        DO k=chunks(c)%field%y_min,chunks(c)%field%y_max
+          DO j=chunks(c)%field%x_min,chunks(c)%field%x_max
+            temp_var=0.0
+            IF(chunks(c)%field%viscosity(j,k,l).GT.0.00000001) temp_var=chunks(c)%field%viscosity(j,k,l)
+            WRITE(u,'(e12.4)') temp_var
+          ENDDO
+        ENDDO
+      ENDDO
+      WRITE(u,'(a,i20)')'POINT_DATA ',nxv*nyv*nzv
+      WRITE(u,'(a)')'FIELD FieldData 3'
+      WRITE(u,'(a,i20,a)')'x_vel 1 ',nxv*nyv*nzv,' double'
+      DO l=chunks(c)%field%z_min,chunks(c)%field%z_max+1
+        DO k=chunks(c)%field%y_min,chunks(c)%field%y_max+1
+          DO j=chunks(c)%field%x_min,chunks(c)%field%x_max+1
+            temp_var=0.0
+            IF(ABS(chunks(c)%field%xvel0(j,k,l)).GT.0.00000001) temp_var=chunks(c)%field%xvel0(j,k,l)
+            WRITE(u,'(e12.4)') temp_var
+          ENDDO
+        ENDDO
+      ENDDO
+      WRITE(u,'(a,i20,a)')'y_vel 1 ',nxv*nyv*nzv,' double'
+      DO l=chunks(c)%field%z_min,chunks(c)%field%z_max+1
+        DO k=chunks(c)%field%y_min,chunks(c)%field%y_max+1
+          DO j=chunks(c)%field%x_min,chunks(c)%field%x_max+1
+            temp_var=0.0
+            IF(ABS(chunks(c)%field%yvel0(j,k,l)).GT.0.00000001) temp_var=chunks(c)%field%yvel0(j,k,l)
+            WRITE(u,'(e12.4)') temp_var
+          ENDDO
+        ENDDO
+      ENDDO
+      WRITE(u,'(a,i20,a)')'z_vel 1 ',nxv*nyv*nzv,' double'
+      DO l=chunks(c)%field%z_min,chunks(c)%field%z_max+1
+        DO k=chunks(c)%field%y_min,chunks(c)%field%y_max+1
+          DO j=chunks(c)%field%x_min,chunks(c)%field%x_max+1
+            temp_var=0.0
+            IF(ABS(chunks(c)%field%zvel0(j,k,l)).GT.0.00000001) temp_var=chunks(c)%field%zvel0(j,k,l)
+            WRITE(u,'(e12.4)') temp_var
+          ENDDO
         ENDDO
       ENDDO
       CLOSE(u)

@@ -13,10 +13,9 @@ void CloverChunk::initReduction
     fprintf(DBGOUT, "\n---- Reduction ----\n");
 
     // each work group reduces to 1 value inside each kernel
-    const size_t total_to_reduce = ceil(float(reduced_cells)/(LOCAL_X*LOCAL_Y));
+    const size_t total_to_reduce = ceil(float(reduced_cells)/(LOCAL_X*LOCAL_Y*LOCAL_Z));
 
-    fprintf(DBGOUT, "Total cells to reduce = %zu\n", total_to_reduce);
-
+    fprintf(DBGOUT, "Total cells to reduce = %zu\n", reduced_cells);
     size_t reduction_global_size = total_to_reduce;
     fprintf(DBGOUT, "Reduction within work group reduces to = %zu\n", reduction_global_size);
 
@@ -68,7 +67,7 @@ void CloverChunk::initReduction
          *  NB at the moment, enforcing power of 2 local size anyway
          *  NB also, 128 was preferred work group size on phi
          */
-        size_t reduction_local_size = LOCAL_X*LOCAL_Y;
+        size_t reduction_local_size = LOCAL_X*LOCAL_Y*LOCAL_Z;
 
         // if there are more elements to reduce than the standard local size
         if (reduction_global_size > reduction_local_size)
@@ -179,4 +178,5 @@ void CloverChunk::initReduction
 
     fprintf(DBGOUT, "---- Reduction ----\n\n");
 }
+
 

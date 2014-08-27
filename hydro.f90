@@ -1,22 +1,22 @@
-!Crown Copyright 2014 AWE.
+!Crown Copyright 2012 AWE.
 !
-! This file is part of TeaLeaf.
+! This file is part of CloverLeaf.
 !
-! TeaLeaf is free software: you can redistribute it and/or modify it under 
+! CloverLeaf is free software: you can redistribute it and/or modify it under 
 ! the terms of the GNU General Public License as published by the 
 ! Free Software Foundation, either version 3 of the License, or (at your option) 
 ! any later version.
 !
-! TeaLeaf is distributed in the hope that it will be useful, but 
+! CloverLeaf is distributed in the hope that it will be useful, but 
 ! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
 ! FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 ! details.
 !
 ! You should have received a copy of the GNU General Public License along with 
-! TeaLeaf. If not, see http://www.gnu.org/licenses/.
+! CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
-!>  @brief Controls the main hydro/conduction cycle.
-!>  @author David Beckingsale, Wayne Gaudin
+!>  @brief Controls the main hydro cycle.
+!>  @author Wayne Gaudin
 !>  @details Controls the top level cycle, invoking all the drivers and checks
 !>  for outputs and completion.
 
@@ -60,7 +60,7 @@ SUBROUTINE hydro
     CALL flux_calc()
 
     CALL advection()
-    
+
     CALL reset_field()
 
     advect_x = .NOT. advect_x
@@ -91,7 +91,7 @@ SUBROUTINE hydro
       IF ( parallel%boss ) THEN
         WRITE(g_out,*)
         WRITE(g_out,*) 'Calculation complete'
-        WRITE(g_out,*) 'Tea is finishing'
+        WRITE(g_out,*) 'Clover is finishing'
         WRITE(g_out,*) 'Wall clock ', wall_clock
         WRITE(g_out,*) 'First step overhead', first_step-second_step
         WRITE(    0,*) 'Wall clock ', wall_clock
@@ -106,7 +106,8 @@ SUBROUTINE hydro
         ! caused by halo exhanges.
         kernel_total=profiler%timestep+profiler%ideal_gas+profiler%viscosity+profiler%PdV          &
                     +profiler%revert+profiler%acceleration+profiler%flux+profiler%cell_advection   &
-                    +profiler%mom_advection+profiler%reset+profiler%halo_exchange+profiler%summary
+                    +profiler%mom_advection+profiler%reset+profiler%halo_exchange+profiler%summary &
+                    +profiler%visit
         CALL clover_allgather(kernel_total,totals)
         ! So then what I do is use the individual kernel times for the
         ! maximum kernel time task for the profile print
@@ -138,8 +139,6 @@ SUBROUTINE hydro
         profiler%summary=totals(loc(1))
         CALL clover_allgather(profiler%visit,totals)
         profiler%visit=totals(loc(1))
-        CALL clover_allgather(profiler%set_field,totals)
-        profiler%set_field=totals(loc(1))
 
         IF ( parallel%boss ) THEN
           WRITE(g_out,*)
@@ -157,7 +156,6 @@ SUBROUTINE hydro
           WRITE(g_out,'(a23,2f16.4)')"Halo Exchange         :",profiler%halo_exchange,100.0*(profiler%halo_exchange/wall_clock)
           WRITE(g_out,'(a23,2f16.4)')"Summary               :",profiler%summary,100.0*(profiler%summary/wall_clock)
           WRITE(g_out,'(a23,2f16.4)')"Visit                 :",profiler%visit,100.0*(profiler%visit/wall_clock)
-          WRITE(g_out,'(a23,2f16.4)')"Set Field             :",profiler%set_field,100.0*(profiler%set_field/wall_clock)
           WRITE(g_out,'(a23,2f16.4)')"Total                 :",kernel_total,100.0*(kernel_total/wall_clock)
           WRITE(g_out,'(a23,2f16.4)')"The Rest              :",wall_clock-kernel_total,100.0*(wall_clock-kernel_total)/wall_clock
         ENDIF
