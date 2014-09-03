@@ -213,7 +213,7 @@ cl::Program CloverChunk::compileProgram
         }
         catch (cl::Error ie)
         {
-            DIE("Error in retrieving build info\n");
+            DIE("Error %d in retrieving build info\n", e.err());
         }
 
         std::string errs(errstream.str());
@@ -277,50 +277,52 @@ void CloverChunk::initSizes
                                  NULL));
     fprintf(DBGOUT, "Max work group size for update halo is %zu\n", max_update_wg_sz);
 
-    // subdivide row size until it will fit
-    size_t local_row_size = x_max+5;
-    while (local_row_size > max_update_wg_sz/2)
-    {
-        local_row_size = local_row_size/2;
-    }
-    fprintf(DBGOUT, "Local row work group size is %zu\n", local_row_size);
+    // ideally multiple of 32 for nvidia, ideally multiple of 64 for amd
+    size_t local_row_size = 64;
+    size_t local_column_size = 64;
 
-    update_ud_local_size[0] = cl::NDRange(local_row_size, 1);
-    update_ud_local_size[1] = cl::NDRange(local_row_size, 2);
+    cl_device_type dtype;
+    device.getInfo(CL_DEVICE_TYPE, &dtype);
 
-    size_t global_row_size = local_row_size;
-    while (global_row_size < x_max+5)
+    if (dtype == CL_DEVICE_TYPE_ACCELERATOR)
     {
-        global_row_size += local_row_size;
-    }
-    update_ud_global_size[0] = cl::NDRange(global_row_size, 1);
-    update_ud_global_size[1] = cl::NDRange(global_row_size, 2);
-
-    // same for column
-    size_t local_column_size = y_max+5;
-    while (local_column_size > max_update_wg_sz/2)
-    {
-        local_column_size = local_column_size/2;
-    }
-
-    if (CL_DEVICE_TYPE_ACCELERATOR == desired_type)
-    {
-        // on xeon phi, needs to be 16 so that update left/right kernels dont go really slow
+        // want to run with work group size of 16 for phi to speed up l/r updates
+        local_row_size = 16;
         local_column_size = 16;
     }
 
-    fprintf(DBGOUT, "Local column work group size is %zu\n", local_column_size);
-
+    // create the local sizes, dividing the last possible dimension if needs be
     update_lr_local_size[0] = cl::NDRange(1, local_column_size);
     update_lr_local_size[1] = cl::NDRange(2, local_column_size);
+    update_ud_local_size[0] = cl::NDRange(local_row_size, 1);
+    update_ud_local_size[1] = cl::NDRange(local_row_size, 2);
 
-    size_t global_column_size = local_column_size;
-    while (global_column_size < y_max+5)
-    {
-        global_column_size += local_column_size;
-    }
+    // start off doing minimum amount of work
+    size_t global_row_size = x_max + 5;
+    size_t global_column_size = y_max + 5;
+
+    // increase just to fit in with local work group sizes
+    while (global_row_size % local_row_size)
+        global_row_size++;
+    while (global_column_size % local_column_size)
+        global_column_size++;
+
+    // create ndranges
     update_lr_global_size[0] = cl::NDRange(1, global_column_size);
     update_lr_global_size[1] = cl::NDRange(2, global_column_size);
+    update_ud_global_size[0] = cl::NDRange(global_row_size, 1);
+    update_ud_global_size[1] = cl::NDRange(global_row_size, 2);
+
+    for (int depth = 0; depth < 2; depth++)
+    {
+        fprintf(DBGOUT, "Depth %d:\n", depth + 1);
+        fprintf(DBGOUT, "Left/right update halo size: [%zu %zu %zu] split by [%zu %zu %zu]\n",
+            update_lr_global_size[depth][0], update_lr_global_size[depth][1], update_lr_global_size[depth][2],
+            update_lr_local_size[depth][0], update_lr_local_size[depth][1], update_lr_local_size[depth][2]);
+        fprintf(DBGOUT, "Bottom/top update halo size: [%zu %zu %zu] split by [%zu %zu %zu]\n",
+            update_ud_global_size[depth][0], update_ud_global_size[depth][1], update_ud_global_size[depth][2],
+            update_ud_local_size[depth][0], update_ud_local_size[depth][1], update_ud_local_size[depth][2]);
+    }
 
     fprintf(DBGOUT, "Update halo parameters calculated\n");
 

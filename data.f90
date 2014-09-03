@@ -80,6 +80,7 @@ MODULE data_module
    INTEGER         ::            CONDUCTIVITY        = 1 &
                                 ,RECIP_CONDUCTIVITY  = 2
 
+INTEGER :: lr_pack_buffer_size, bt_pack_buffer_size
 
    TYPE parallel_type
       LOGICAL           ::      parallel &

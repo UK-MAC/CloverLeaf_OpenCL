@@ -5,35 +5,30 @@ extern "C" void ocl_pack_buffers_
 (int fields[NUM_FIELDS], int offsets[NUM_FIELDS], int * depth,
  int * face, double * buffer)
 {
-    int n_exchanged = std::accumulate(fields, fields + (NUM_FIELDS-1), 0);
-
-    if (n_exchanged > 0)
-    {
-        // only call if there's actually something to pack
-        chunk.packUnpackAllBuffers(fields, offsets, *depth, *face, 1, n_exchanged, buffer);
-    }
+    chunk.packUnpackAllBuffers(fields, offsets, *depth, *face, 1, buffer);
 }
 
 extern "C" void ocl_unpack_buffers_
 (int fields[NUM_FIELDS], int offsets[NUM_FIELDS], int * depth,
  int * face, double * buffer)
 {
-    int n_exchanged = std::accumulate(fields, fields + (NUM_FIELDS-1), 0);
-
-    if (n_exchanged > 0)
-    {
-        // only call if there's actually something to unpack
-        chunk.packUnpackAllBuffers(fields, offsets, *depth, *face, 0, n_exchanged, buffer);
-    }
+    chunk.packUnpackAllBuffers(fields, offsets, *depth, *face, 0, buffer);
 }
 
 void CloverChunk::packUnpackAllBuffers
 (int fields[NUM_FIELDS], int offsets[NUM_FIELDS],
- const int depth, const int face, const int pack, const int n_exchanged,
+ const int depth, const int face, const int pack,
  double * buffer)
 {
     // which subbuffer to use - incrmement by 1 for each buffer packed
     int current_subbuf = 0;
+
+    const int n_exchanged = std::accumulate(fields, fields + (NUM_FIELDS-1), 0);
+
+    if (n_exchanged < 1)
+    {
+        return;
+    }
 
     if (!pack)
     {
@@ -44,26 +39,26 @@ void CloverChunk::packUnpackAllBuffers
         {
         case CHUNK_LEFT:
             side_buffer = &left_buffer;
-            side_size = y_max;
+            side_size = lr_mpi_buf_sz;
             break;
         case CHUNK_RIGHT:
             side_buffer = &right_buffer;
-            side_size = y_max;
+            side_size = lr_mpi_buf_sz;
             break;
         case CHUNK_BOTTOM:
             side_buffer = &bottom_buffer;
-            side_size = x_max;
+            side_size = bt_mpi_buf_sz;
             break;
         case CHUNK_TOP:
             side_buffer = &top_buffer;
-            side_size = x_max;
+            side_size = bt_mpi_buf_sz;
             break;
         default:
             DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
         }
 
         queue.enqueueWriteBuffer(*side_buffer, CL_TRUE, 0,
-            n_exchanged*2*sizeof(double)*(side_size + 5),
+            n_exchanged*depth*side_size,
             buffer);
     }
 
@@ -113,10 +108,10 @@ void CloverChunk::packUnpackAllBuffers
             #define CASE_BUF(which_array)   \
             case FIELD_##which_array:       \
             {                               \
-                device_array = &which_array;\
+                device_array = which_array;\
             }
 
-            cl::Buffer * device_array;
+            cl::Buffer device_array;
 
             switch (which_field)
             {
@@ -139,6 +134,8 @@ void CloverChunk::packUnpackAllBuffers
                 device_array = NULL;
                 DIE("Invalid face %d passed to left/right pack buffer\n", which_field);
             }
+
+            #undef CASE_BUF
 
             cl::Kernel pack_kernel;
 
@@ -231,7 +228,7 @@ void CloverChunk::packUnpackAllBuffers
             // set args + launch kernel
             pack_kernel.setArg(0, x_inc);
             pack_kernel.setArg(1, y_inc);
-            pack_kernel.setArg(2, *device_array);
+            pack_kernel.setArg(2, device_array);
             pack_kernel.setArg(3, packing_subbuf);
             pack_kernel.setArg(4, depth);
 
@@ -247,9 +244,6 @@ void CloverChunk::packUnpackAllBuffers
 
     if (pack)
     {
-        // make sure kernels are finished
-        queue.finish();
-
         cl::Buffer * side_buffer = NULL;
         int side_size = 0;
 
@@ -257,26 +251,26 @@ void CloverChunk::packUnpackAllBuffers
         {
         case CHUNK_LEFT:
             side_buffer = &left_buffer;
-            side_size = y_max;
+            side_size = lr_mpi_buf_sz;
             break;
         case CHUNK_RIGHT:
             side_buffer = &right_buffer;
-            side_size = y_max;
+            side_size = lr_mpi_buf_sz;
             break;
         case CHUNK_BOTTOM:
             side_buffer = &bottom_buffer;
-            side_size = x_max;
+            side_size = bt_mpi_buf_sz;
             break;
         case CHUNK_TOP:
             side_buffer = &top_buffer;
-            side_size = x_max;
+            side_size = bt_mpi_buf_sz;
             break;
         default:
             DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
         }
 
         queue.enqueueReadBuffer(*side_buffer, CL_TRUE, 0,
-            n_exchanged*2*sizeof(double)*(side_size + 5),
+            n_exchanged*depth*side_size,
             buffer);
     }
 }

@@ -245,6 +245,9 @@ private:
     // mpi rank
     int rank;
 
+    // size of mpi buffers
+    size_t lr_mpi_buf_sz, bt_mpi_buf_sz;
+
     // desired type for opencl
     int desired_type;
 
@@ -252,6 +255,8 @@ private:
     int profiler_on;
     // for recording times if profiling is on
     std::map<std::string, double> kernel_times;
+    // recording number of times each kernel was called
+    std::map<std::string, int> kernel_calls;
 
     // Where to send debug output
     FILE* DBGOUT;
@@ -387,13 +392,17 @@ public:
 
     void packUnpackAllBuffers
     (int fields[NUM_FIELDS], int offsets[NUM_FIELDS], int depth,
-     int face, int pack, const int n_exchanged, double * buffer);
+     int face, int pack, double * buffer);
 
     void packRect
     (double* host_buffer,
      int x_inc, int y_inc,
      int edge, int dest,
      int which_field, int depth);
+
+    // allocate MPI buffers
+    void allocateMPIBuffers
+    (int*, int*);
 };
 
 extern CloverChunk chunk;
