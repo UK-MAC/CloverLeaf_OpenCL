@@ -81,7 +81,7 @@ void CloverChunk::enqueueKernel
             cl_ulong start, end;
 
             // used if no event was passed
-            cl::Event no_event_passed = cl::Event();
+            static cl::Event no_event_passed = cl::Event();
 
             if (event != NULL)
             {

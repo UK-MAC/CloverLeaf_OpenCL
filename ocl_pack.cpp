@@ -108,10 +108,10 @@ void CloverChunk::packUnpackAllBuffers
             #define CASE_BUF(which_array)   \
             case FIELD_##which_array:       \
             {                               \
-                device_array = which_array;\
+                device_array = &which_array;\
             }
 
-            cl::Buffer device_array;
+            cl::Buffer * device_array = NULL;
 
             switch (which_field)
             {
@@ -131,13 +131,12 @@ void CloverChunk::packUnpackAllBuffers
             CASE_BUF(mass_flux_x); break;
             CASE_BUF(mass_flux_y); break;
             default:
-                device_array = NULL;
                 DIE("Invalid face %d passed to left/right pack buffer\n", which_field);
             }
 
             #undef CASE_BUF
 
-            cl::Kernel pack_kernel;
+            cl::Kernel * pack_kernel;
 
             // set which kernel to call
             if (pack)
@@ -145,16 +144,16 @@ void CloverChunk::packUnpackAllBuffers
                 switch (face)
                 {
                 case CHUNK_LEFT:
-                    pack_kernel = pack_left_buffer_device;
+                    pack_kernel = &pack_left_buffer_device;
                     break;
                 case CHUNK_RIGHT:
-                    pack_kernel = pack_right_buffer_device;
+                    pack_kernel = &pack_right_buffer_device;
                     break;
                 case CHUNK_BOTTOM:
-                    pack_kernel = pack_bottom_buffer_device;
+                    pack_kernel = &pack_bottom_buffer_device;
                     break;
                 case CHUNK_TOP:
-                    pack_kernel = pack_top_buffer_device;
+                    pack_kernel = &pack_top_buffer_device;
                     break;
                 default:
                     DIE("Invalid face identifier %d passed to pack\n", face);
@@ -165,16 +164,16 @@ void CloverChunk::packUnpackAllBuffers
                 switch (face)
                 {
                 case CHUNK_LEFT:
-                    pack_kernel = unpack_left_buffer_device;
+                    pack_kernel = &unpack_left_buffer_device;
                     break;
                 case CHUNK_RIGHT:
-                    pack_kernel = unpack_right_buffer_device;
+                    pack_kernel = &unpack_right_buffer_device;
                     break;
                 case CHUNK_BOTTOM:
-                    pack_kernel = unpack_bottom_buffer_device;
+                    pack_kernel = &unpack_bottom_buffer_device;
                     break;
                 case CHUNK_TOP:
-                    pack_kernel = unpack_top_buffer_device;
+                    pack_kernel = &unpack_top_buffer_device;
                     break;
                 default:
                     DIE("Invalid face identifier %d passed to unpack\n", face);
@@ -183,21 +182,21 @@ void CloverChunk::packUnpackAllBuffers
 
             // choose the right subbuffer and global/local size
             // this might cause slowdown with clretainmemoryobject?
-            cl::Buffer packing_subbuf;
+            cl::Buffer * packing_subbuf;
 
             switch (face)
             {
             case CHUNK_LEFT:
-                packing_subbuf = left_subbuffers[depth-1].at(current_subbuf);
+                packing_subbuf = &left_subbuffers[depth-1].at(current_subbuf);
                 break;
             case CHUNK_RIGHT:
-                packing_subbuf = right_subbuffers[depth-1].at(current_subbuf);
+                packing_subbuf = &right_subbuffers[depth-1].at(current_subbuf);
                 break;
             case CHUNK_BOTTOM:
-                packing_subbuf = bottom_subbuffers[depth-1].at(current_subbuf);
+                packing_subbuf = &bottom_subbuffers[depth-1].at(current_subbuf);
                 break;
             case CHUNK_TOP:
-                packing_subbuf = top_subbuffers[depth-1].at(current_subbuf);
+                packing_subbuf = &top_subbuffers[depth-1].at(current_subbuf);
                 break;
             default:
                 DIE("Invalid face identifier %d passed to subbuf choice\n", face);
@@ -226,13 +225,13 @@ void CloverChunk::packUnpackAllBuffers
             }
 
             // set args + launch kernel
-            pack_kernel.setArg(0, x_inc);
-            pack_kernel.setArg(1, y_inc);
-            pack_kernel.setArg(2, device_array);
-            pack_kernel.setArg(3, packing_subbuf);
-            pack_kernel.setArg(4, depth);
+            pack_kernel->setArg(0, x_inc);
+            pack_kernel->setArg(1, y_inc);
+            pack_kernel->setArg(2, *device_array);
+            pack_kernel->setArg(3, *packing_subbuf);
+            pack_kernel->setArg(4, depth);
 
-            enqueueKernel(pack_kernel, __LINE__, __FILE__,
+            enqueueKernel(*pack_kernel, __LINE__, __FILE__,
                           cl::NullRange,
                           pack_global,
                           pack_local);
