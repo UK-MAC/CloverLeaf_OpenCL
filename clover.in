@@ -18,7 +18,7 @@
  end_step=87
 
  use_opencl_kernels
- opencl_vendor=nvidia
+ opencl_vendor=advanced
  opencl_type=gPU
 
 *endclover
