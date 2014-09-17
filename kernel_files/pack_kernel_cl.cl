@@ -2,14 +2,19 @@
 
 /********************/
 
+#if 0
 // for left/right
 #define VERT_IDX                        \
     ((column - 1) +                     \
     ((row    - 1) + depth - 1)*depth)
 // for top/bottom
 #define HORZ_IDX                        \
-    ((column - 1) + depth +             \
-    ((row    - 1) - 1)*(x_max + x_extra + 2*depth))
+    ((column - 0) + depth +             \
+    ((row    - 0) - 0)*(x_max + x_extra + 2*depth))
+#else
+#define HORZ_IDX gid
+#define VERT_IDX gid
+#endif
 
 __kernel void pack_left_buffer
 (int x_extra, int y_extra,
