@@ -136,7 +136,7 @@ void CloverChunk::packUnpackAllBuffers
 
             #undef CASE_BUF
 
-            cl::Kernel * pack_kernel;
+            cl::Kernel * pack_kernel = NULL;
 
             // set which kernel to call
             if (pack)
@@ -182,7 +182,7 @@ void CloverChunk::packUnpackAllBuffers
 
             // choose the right subbuffer and global/local size
             // this might cause slowdown with clretainmemoryobject?
-            cl::Buffer * packing_subbuf;
+            cl::Buffer * packing_subbuf = NULL;
 
             switch (face)
             {

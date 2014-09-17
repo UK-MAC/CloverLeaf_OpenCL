@@ -316,12 +316,12 @@ void CloverChunk::initSizes
     for (int depth = 0; depth < 2; depth++)
     {
         fprintf(DBGOUT, "Depth %d:\n", depth + 1);
-        fprintf(DBGOUT, "Left/right update halo size: [%zu %zu %zu] split by [%zu %zu %zu]\n",
-            update_lr_global_size[depth][0], update_lr_global_size[depth][1], update_lr_global_size[depth][2],
-            update_lr_local_size[depth][0], update_lr_local_size[depth][1], update_lr_local_size[depth][2]);
-        fprintf(DBGOUT, "Bottom/top update halo size: [%zu %zu %zu] split by [%zu %zu %zu]\n",
-            update_ud_global_size[depth][0], update_ud_global_size[depth][1], update_ud_global_size[depth][2],
-            update_ud_local_size[depth][0], update_ud_local_size[depth][1], update_ud_local_size[depth][2]);
+        fprintf(DBGOUT, "Left/right update halo size: [%zu %zu] split by [%zu %zu]\n",
+            update_lr_global_size[depth][0], update_lr_global_size[depth][1], 
+            update_lr_local_size[depth][0], update_lr_local_size[depth][1]);
+        fprintf(DBGOUT, "Bottom/top update halo size: [%zu %zu] split by [%zu %zu]\n",
+            update_ud_global_size[depth][0], update_ud_global_size[depth][1], 
+            update_ud_local_size[depth][0], update_ud_local_size[depth][1]);
     }
 
     fprintf(DBGOUT, "Update halo parameters calculated\n");
