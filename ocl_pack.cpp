@@ -23,7 +23,7 @@ void CloverChunk::packUnpackAllBuffers
     // which subbuffer to use - incrmement by 1 for each buffer packed
     int current_subbuf = 0;
 
-    const int n_exchanged = std::accumulate(fields, fields + (NUM_FIELDS-1), 0);
+    const int n_exchanged = std::accumulate(fields, fields + NUM_FIELDS, 0);
 
     if (n_exchanged < 1)
     {

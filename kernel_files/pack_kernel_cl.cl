@@ -2,38 +2,6 @@
 
 /********************/
 
-// j is column
-// k is row
-
-// could put this check in, prob doesnt need it
-// if (row > 1 - depth && row < y_max + 2 + depth + y_extra)
-
-// left/right buffer
-// index=j+(k+depth-1)*depth
-
-// left index 
-// left_snd_buffer(index)=field(chunks(chunk)%field%x_min+x_extra-1+j,k)
-// field(chunks(chunk)%field%x_min-j,k)=left_rcv_buffer(index)
-
-// right index
-// right_snd_buffer(index)=field(chunks(chunk)%field%x_max+1-j,k)
-// field(chunks(chunk)%field%x_max+x_extra+j,k)=right_rcv_buffer(index)
-
-/********************/
-
-// top/bottom buffer
-// index=j+depth+(k-1)*(chunks(chunk)%field%x_max+x_extra+(2*depth))
-
-// bottom index
-// bottom_snd_buffer(index)=field(j,chunks(chunk)%field%y_min+y_extra-1+k)
-// field(j,chunks(chunk)%field%y_min-k)=bottom_rcv_buffer(index)
-
-// top index
-// top_snd_buffer(index)=field(j,chunks(chunk)%field%y_max+1-k)
-// field(j,chunks(chunk)%field%y_max+y_extra+k)=top_rcv_buffer(index)
-
-/********************/
-
 // for left/right
 #define VERT_IDX                        \
     ((column - 1) +                     \
