@@ -104,7 +104,7 @@ void CloverChunk::packUnpackAllBuffers
 
     if (!pack)
     {
-        int side_size = 0;
+        size_t side_size = 0;
 
         switch (face)
         {
@@ -218,7 +218,7 @@ void CloverChunk::packUnpackAllBuffers
 
     if (pack)
     {
-        int side_size = 0;
+        size_t side_size = 0;
 
         switch (face)
         {
