@@ -20,9 +20,6 @@ void CloverChunk::packUnpackAllBuffers
  const int depth, const int face, const int pack,
  double * buffer)
 {
-    // which subbuffer to use - incrmement by 1 for each buffer packed
-    int current_subbuf = 0;
-
     const int n_exchanged = std::accumulate(fields, fields + NUM_FIELDS, 0);
 
     if (n_exchanged < 1)
@@ -30,27 +27,41 @@ void CloverChunk::packUnpackAllBuffers
         return;
     }
 
+    // which buffer is being used for this operation
+    cl::Buffer * side_buffer = NULL;
+
+    switch (face)
+    {
+    case CHUNK_LEFT:
+        side_buffer = &left_buffer;
+        break;
+    case CHUNK_RIGHT:
+        side_buffer = &right_buffer;
+        break;
+    case CHUNK_BOTTOM:
+        side_buffer = &bottom_buffer;
+        break;
+    case CHUNK_TOP:
+        side_buffer = &top_buffer;
+        break;
+    default:
+        DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
+    }
+
     if (!pack)
     {
-        cl::Buffer * side_buffer = NULL;
         int side_size = 0;
 
         switch (face)
         {
         case CHUNK_LEFT:
-            side_buffer = &left_buffer;
-            side_size = lr_mpi_buf_sz;
-            break;
         case CHUNK_RIGHT:
-            side_buffer = &right_buffer;
+            side_size = lr_mpi_buf_sz;
             side_size = lr_mpi_buf_sz;
             break;
         case CHUNK_BOTTOM:
-            side_buffer = &bottom_buffer;
-            side_size = bt_mpi_buf_sz;
-            break;
         case CHUNK_TOP:
-            side_buffer = &top_buffer;
+            side_size = bt_mpi_buf_sz;
             side_size = bt_mpi_buf_sz;
             break;
         default:
@@ -180,28 +191,6 @@ void CloverChunk::packUnpackAllBuffers
                 }
             }
 
-            // choose the right subbuffer and global/local size
-            // this might cause slowdown with clretainmemoryobject?
-            cl::Buffer * packing_subbuf = NULL;
-
-            switch (face)
-            {
-            case CHUNK_LEFT:
-                packing_subbuf = &left_buffer;
-                break;
-            case CHUNK_RIGHT:
-                packing_subbuf = &right_buffer;
-                break;
-            case CHUNK_BOTTOM:
-                packing_subbuf = &bottom_buffer;
-                break;
-            case CHUNK_TOP:
-                packing_subbuf = &top_buffer;
-                break;
-            default:
-                DIE("Invalid face identifier %d passed to subbuf choice\n", face);
-            }
-
             // reuse the halo update kernels sizes to launch packing kernels
             cl::NDRange pack_global, pack_local;
 
@@ -228,7 +217,7 @@ void CloverChunk::packUnpackAllBuffers
             pack_kernel->setArg(0, x_inc);
             pack_kernel->setArg(1, y_inc);
             pack_kernel->setArg(2, *device_array);
-            pack_kernel->setArg(3, *packing_subbuf);
+            pack_kernel->setArg(3, *side_buffer);
             pack_kernel->setArg(4, depth);
             pack_kernel->setArg(5, offsets[ii]);
 
@@ -236,33 +225,23 @@ void CloverChunk::packUnpackAllBuffers
                           cl::NullRange,
                           pack_global,
                           pack_local);
-
-            // use next subbuffer for next kernel launch
-            current_subbuf += 1;
         }
     }
 
     if (pack)
     {
-        cl::Buffer * side_buffer = NULL;
         int side_size = 0;
 
         switch (face)
         {
         case CHUNK_LEFT:
-            side_buffer = &left_buffer;
-            side_size = lr_mpi_buf_sz;
-            break;
         case CHUNK_RIGHT:
-            side_buffer = &right_buffer;
+            side_size = lr_mpi_buf_sz;
             side_size = lr_mpi_buf_sz;
             break;
         case CHUNK_BOTTOM:
-            side_buffer = &bottom_buffer;
-            side_size = bt_mpi_buf_sz;
-            break;
         case CHUNK_TOP:
-            side_buffer = &top_buffer;
+            side_size = bt_mpi_buf_sz;
             side_size = bt_mpi_buf_sz;
             break;
         default:
