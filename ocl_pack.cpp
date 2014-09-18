@@ -29,20 +29,30 @@ void CloverChunk::packUnpackAllBuffers
 
     // which buffer is being used for this operation
     cl::Buffer * side_buffer = NULL;
+    // reuse the halo update kernels sizes to launch packing kernels
+    cl::NDRange pack_global, pack_local;
 
     switch (face)
     {
     case CHUNK_LEFT:
         side_buffer = &left_buffer;
+        pack_global = update_lr_global_size[depth-1];
+        pack_local = update_lr_local_size[depth-1];
         break;
     case CHUNK_RIGHT:
         side_buffer = &right_buffer;
+        pack_global = update_lr_global_size[depth-1];
+        pack_local = update_lr_local_size[depth-1];
         break;
     case CHUNK_BOTTOM:
         side_buffer = &bottom_buffer;
+        pack_global = update_ud_global_size[depth-1];
+        pack_local = update_ud_local_size[depth-1];
         break;
     case CHUNK_TOP:
         side_buffer = &top_buffer;
+        pack_global = update_ud_global_size[depth-1];
+        pack_local = update_ud_local_size[depth-1];
         break;
     default:
         DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
@@ -189,28 +199,6 @@ void CloverChunk::packUnpackAllBuffers
                 default:
                     DIE("Invalid face identifier %d passed to unpack\n", face);
                 }
-            }
-
-            // reuse the halo update kernels sizes to launch packing kernels
-            cl::NDRange pack_global, pack_local;
-
-            switch (face)
-            {
-            // depth*y_max+... region - 1 or 2 columns
-            case CHUNK_LEFT:
-            case CHUNK_RIGHT:
-                pack_global = update_lr_global_size[depth-1];
-                pack_local = update_lr_local_size[depth-1];
-                break;
-
-            // depth*x_max+... region - 1 or 2 rows
-            case CHUNK_BOTTOM:
-            case CHUNK_TOP:
-                pack_global = update_ud_global_size[depth-1];
-                pack_local = update_ud_local_size[depth-1];
-                break;
-            default:
-                DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
             }
 
             // set args + launch kernel
