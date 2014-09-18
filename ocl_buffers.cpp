@@ -88,6 +88,16 @@ void CloverChunk::initBuffers
     BUF_ALLOC(reduce_buf_6, 1.5*((sizeof(double)*reduced_cells)/(LOCAL_X*LOCAL_Y)));
     BUF_ALLOC(PdV_reduce_buf, 1.5*((sizeof(int)*reduced_cells)/(LOCAL_X*LOCAL_Y)));
 
+    // set initial (ideal) size for buffers and increment untl it hits alignment
+    lr_mpi_buf_sz = sizeof(double)*(y_max + 5);
+    bt_mpi_buf_sz = sizeof(double)*(x_max + 5);
+
+    // enough for 1 for each array - overkill, but not that much extra space
+    BUF_ALLOC(left_buffer, NUM_BUFFERED_FIELDS*2*lr_mpi_buf_sz);
+    BUF_ALLOC(right_buffer, NUM_BUFFERED_FIELDS*2*lr_mpi_buf_sz);
+    BUF_ALLOC(bottom_buffer, NUM_BUFFERED_FIELDS*2*bt_mpi_buf_sz);
+    BUF_ALLOC(top_buffer, NUM_BUFFERED_FIELDS*2*bt_mpi_buf_sz);
+
     fprintf(DBGOUT, "Buffers allocated\n");
 }
 
@@ -106,25 +116,19 @@ void CloverChunk::allocateMPIBuffers
         DIE("%d (%s) when trying to get device alignment\n");
     }
 
-    // set initial (ideal) size for buffers and increment untl it hits alignment
-    lr_mpi_buf_sz = sizeof(double)*(y_max + 5);
-    bt_mpi_buf_sz = sizeof(double)*(x_max + 5);
-
+    if(0)
+    {
     while (lr_mpi_buf_sz % device_alignment)
         lr_mpi_buf_sz++;
     while (bt_mpi_buf_sz % device_alignment)
         bt_mpi_buf_sz++;
+    }
 
     const std::vector<double> zeros(NUM_BUFFERED_FIELDS*2*(std::max(lr_mpi_buf_sz, bt_mpi_buf_sz))/sizeof(double), 0.0);
 
-    // enough for 1 for each array - overkill, but not that much extra space
-    BUF_ALLOC(left_buffer, NUM_BUFFERED_FIELDS*2*lr_mpi_buf_sz);
-    BUF_ALLOC(right_buffer, NUM_BUFFERED_FIELDS*2*lr_mpi_buf_sz);
-    BUF_ALLOC(bottom_buffer, NUM_BUFFERED_FIELDS*2*bt_mpi_buf_sz);
-    BUF_ALLOC(top_buffer, NUM_BUFFERED_FIELDS*2*bt_mpi_buf_sz);
-
     // needs to be 2 sets, one for each depth
     // fortran expects it to be (sort of) contiguous depending on depth
+    if (0)
     for (int depth = 1; depth <= 2; depth++)
     {
         // start off with 0 offset, big enough for 1 exchange buffer

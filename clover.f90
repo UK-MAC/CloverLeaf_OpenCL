@@ -217,15 +217,9 @@ SUBROUTINE clover_allocate_buffers(chunk)
 
   INTEGER      :: chunk
 
-  if (use_opencl_kernels) then
-    ! get the packed sizes from opencl
-    call ocl_allocate_mpi_buffers(lr_pack_buffer_size, &
-        bt_pack_buffer_size)
-  else
     ! normal sizes
     lr_pack_buffer_size = (chunks(chunk)%field%y_max+5)
     bt_pack_buffer_size = (chunks(chunk)%field%x_max+5)
-  endif
 
   ! Unallocated buffers for external boundaries caused issues on some systems so they are now
   !  all allocated

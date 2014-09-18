@@ -187,16 +187,16 @@ void CloverChunk::packUnpackAllBuffers
             switch (face)
             {
             case CHUNK_LEFT:
-                packing_subbuf = &left_subbuffers[depth-1].at(current_subbuf);
+                packing_subbuf = &left_buffer;
                 break;
             case CHUNK_RIGHT:
-                packing_subbuf = &right_subbuffers[depth-1].at(current_subbuf);
+                packing_subbuf = &right_buffer;
                 break;
             case CHUNK_BOTTOM:
-                packing_subbuf = &bottom_subbuffers[depth-1].at(current_subbuf);
+                packing_subbuf = &bottom_buffer;
                 break;
             case CHUNK_TOP:
-                packing_subbuf = &top_subbuffers[depth-1].at(current_subbuf);
+                packing_subbuf = &top_buffer;
                 break;
             default:
                 DIE("Invalid face identifier %d passed to subbuf choice\n", face);
@@ -230,6 +230,7 @@ void CloverChunk::packUnpackAllBuffers
             pack_kernel->setArg(2, *device_array);
             pack_kernel->setArg(3, *packing_subbuf);
             pack_kernel->setArg(4, depth);
+            pack_kernel->setArg(5, offsets[ii]);
 
             enqueueKernel(*pack_kernel, __LINE__, __FILE__,
                           cl::NullRange,
