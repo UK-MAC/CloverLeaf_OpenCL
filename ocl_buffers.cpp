@@ -94,8 +94,6 @@ void CloverChunk::initBuffers
 void CloverChunk::allocateMPIBuffers
 (int * lr_align_elems, int * bt_align_elems)
 {
-    const std::vector<double> zeros(total_cells, 0.0);
-
     int device_alignment;
 
     // get the (device-specific) minimum alignment for the subbuffers
@@ -116,6 +114,8 @@ void CloverChunk::allocateMPIBuffers
         lr_mpi_buf_sz++;
     while (bt_mpi_buf_sz % device_alignment)
         bt_mpi_buf_sz++;
+
+    const std::vector<double> zeros(NUM_BUFFERED_FIELDS*2*(std::max(lr_mpi_buf_sz, bt_mpi_buf_sz))/sizeof(double), 0.0);
 
     // enough for 1 for each array - overkill, but not that much extra space
     BUF_ALLOC(left_buffer, NUM_BUFFERED_FIELDS*2*lr_mpi_buf_sz);
