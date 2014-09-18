@@ -111,11 +111,9 @@ void CloverChunk::packUnpackAllBuffers
         case CHUNK_LEFT:
         case CHUNK_RIGHT:
             side_size = lr_mpi_buf_sz;
-            side_size = lr_mpi_buf_sz;
             break;
         case CHUNK_BOTTOM:
         case CHUNK_TOP:
-            side_size = bt_mpi_buf_sz;
             side_size = bt_mpi_buf_sz;
             break;
         default:
@@ -225,11 +223,9 @@ void CloverChunk::packUnpackAllBuffers
         case CHUNK_LEFT:
         case CHUNK_RIGHT:
             side_size = lr_mpi_buf_sz;
-            side_size = lr_mpi_buf_sz;
             break;
         case CHUNK_BOTTOM:
         case CHUNK_TOP:
-            side_size = bt_mpi_buf_sz;
             side_size = bt_mpi_buf_sz;
             break;
         default:

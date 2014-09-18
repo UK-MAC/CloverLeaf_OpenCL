@@ -2,15 +2,15 @@
 
 /********************/
 
-#if 0
+#if 1
     // for left/right
     #define VERT_IDX                        \
         ((column - 1) +                     \
-        ((row    - 1) + depth - 1)*depth)
+        ((row    - 1) + depth - 1)*depth)+offset+1
     // for top/bottom
     #define HORZ_IDX                        \
-        ((column - 0) + depth +             \
-        ((row    - 0) - 0)*(x_max + x_extra + 2*depth))
+        ((column - 1) + depth +             \
+        ((row    - 0) - 0)*(x_max + x_extra + 2*depth))+offset-1
 #else
     #define HORZ_IDX gid+offset
     #define VERT_IDX gid+offset
