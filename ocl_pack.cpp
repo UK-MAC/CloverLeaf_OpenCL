@@ -58,6 +58,50 @@ void CloverChunk::packUnpackAllBuffers
         DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
     }
 
+    cl::Kernel * pack_kernel = NULL;
+
+    // set which kernel to call
+    if (pack)
+    {
+        switch (face)
+        {
+        case CHUNK_LEFT:
+            pack_kernel = &pack_left_buffer_device;
+            break;
+        case CHUNK_RIGHT:
+            pack_kernel = &pack_right_buffer_device;
+            break;
+        case CHUNK_BOTTOM:
+            pack_kernel = &pack_bottom_buffer_device;
+            break;
+        case CHUNK_TOP:
+            pack_kernel = &pack_top_buffer_device;
+            break;
+        default:
+            DIE("Invalid face identifier %d passed to pack\n", face);
+        }
+    }
+    else
+    {
+        switch (face)
+        {
+        case CHUNK_LEFT:
+            pack_kernel = &unpack_left_buffer_device;
+            break;
+        case CHUNK_RIGHT:
+            pack_kernel = &unpack_right_buffer_device;
+            break;
+        case CHUNK_BOTTOM:
+            pack_kernel = &unpack_bottom_buffer_device;
+            break;
+        case CHUNK_TOP:
+            pack_kernel = &unpack_top_buffer_device;
+            break;
+        default:
+            DIE("Invalid face identifier %d passed to unpack\n", face);
+        }
+    }
+
     if (!pack)
     {
         int side_size = 0;
@@ -156,50 +200,6 @@ void CloverChunk::packUnpackAllBuffers
             }
 
             #undef CASE_BUF
-
-            cl::Kernel * pack_kernel = NULL;
-
-            // set which kernel to call
-            if (pack)
-            {
-                switch (face)
-                {
-                case CHUNK_LEFT:
-                    pack_kernel = &pack_left_buffer_device;
-                    break;
-                case CHUNK_RIGHT:
-                    pack_kernel = &pack_right_buffer_device;
-                    break;
-                case CHUNK_BOTTOM:
-                    pack_kernel = &pack_bottom_buffer_device;
-                    break;
-                case CHUNK_TOP:
-                    pack_kernel = &pack_top_buffer_device;
-                    break;
-                default:
-                    DIE("Invalid face identifier %d passed to pack\n", face);
-                }
-            }
-            else
-            {
-                switch (face)
-                {
-                case CHUNK_LEFT:
-                    pack_kernel = &unpack_left_buffer_device;
-                    break;
-                case CHUNK_RIGHT:
-                    pack_kernel = &unpack_right_buffer_device;
-                    break;
-                case CHUNK_BOTTOM:
-                    pack_kernel = &unpack_bottom_buffer_device;
-                    break;
-                case CHUNK_TOP:
-                    pack_kernel = &unpack_top_buffer_device;
-                    break;
-                default:
-                    DIE("Invalid face identifier %d passed to unpack\n", face);
-                }
-            }
 
             // set args + launch kernel
             pack_kernel->setArg(0, x_inc);
