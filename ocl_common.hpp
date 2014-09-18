@@ -399,10 +399,6 @@ public:
      int x_inc, int y_inc,
      int edge, int dest,
      int which_field, int depth);
-
-    // allocate MPI buffers
-    void allocateMPIBuffers
-    (int*, int*);
 };
 
 extern CloverChunk chunk;

@@ -3,17 +3,17 @@
 /********************/
 
 #if 0
-// for left/right
-#define VERT_IDX                        \
-    ((column - 1) +                     \
-    ((row    - 1) + depth - 1)*depth)
-// for top/bottom
-#define HORZ_IDX                        \
-    ((column - 0) + depth +             \
-    ((row    - 0) - 0)*(x_max + x_extra + 2*depth))
+    // for left/right
+    #define VERT_IDX                        \
+        ((column - 1) +                     \
+        ((row    - 1) + depth - 1)*depth)
+    // for top/bottom
+    #define HORZ_IDX                        \
+        ((column - 0) + depth +             \
+        ((row    - 0) - 0)*(x_max + x_extra + 2*depth))
 #else
-#define HORZ_IDX gid+offset
-#define VERT_IDX gid+offset
+    #define HORZ_IDX gid+offset
+    #define VERT_IDX gid+offset
 #endif
 
 __kernel void pack_left_buffer
