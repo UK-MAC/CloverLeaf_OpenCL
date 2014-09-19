@@ -12,7 +12,8 @@
         ((column - 1) + depth +             \
         ((row    - 0) - 0)*(x_max + x_extra + 2*depth))+offset-1
 #else
-    #define HORZ_IDX gid+offset
+    #define HORZ_IDX \
+        offset + column + (row + depth - 1)*depth - 2
     #define VERT_IDX gid+offset
 #endif
 
