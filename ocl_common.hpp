@@ -378,12 +378,6 @@ public:
                       launch_specs.at(#knl).global,    \
                       local_group_size);
 
-    #define ENQUEUE(knl)                       \
-        enqueueKernel(knl, __LINE__, __FILE__, \
-                      cl::NullRange,           \
-                      global_size,             \
-                      local_group_size);
-
     // reduction
     template <typename T>
     T reduceValue

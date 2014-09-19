@@ -250,6 +250,8 @@ SUBROUTINE clover_exchange(fields,depth)
 
     end_pack_index_left_right=0
     end_pack_index_bottom_top=0
+    left_right_offset = 0
+    bottom_top_offset = 0
     DO field=1,15
       IF(fields(field).EQ.1) THEN
         left_right_offset(field)=end_pack_index_left_right

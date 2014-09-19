@@ -102,24 +102,29 @@ void CloverChunk::packUnpackAllBuffers
         }
     }
 
+    pack_kernel->setArg(3, *side_buffer);
+    pack_kernel->setArg(4, depth);
+
+    // size of this buffer
+    size_t side_size = 0;
+
+    switch (face)
+    {
+    case CHUNK_LEFT:
+    case CHUNK_RIGHT:
+        side_size = lr_mpi_buf_sz;
+        break;
+    case CHUNK_BOTTOM:
+    case CHUNK_TOP:
+        side_size = bt_mpi_buf_sz;
+        break;
+    default:
+        DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
+    }
+
+
     if (!pack)
     {
-        size_t side_size = 0;
-
-        switch (face)
-        {
-        case CHUNK_LEFT:
-        case CHUNK_RIGHT:
-            side_size = lr_mpi_buf_sz;
-            break;
-        case CHUNK_BOTTOM:
-        case CHUNK_TOP:
-            side_size = bt_mpi_buf_sz;
-            break;
-        default:
-            DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
-        }
-
         queue.enqueueWriteBuffer(*side_buffer, CL_TRUE, 0,
             n_exchanged*depth*side_size,
             buffer);
@@ -131,7 +136,7 @@ void CloverChunk::packUnpackAllBuffers
 
         if (fields[ii])
         {
-            if (offsets[ii] < 0)
+            if (offsets[ii] < 0 || offsets[ii] > NUM_FIELDS*side_size)
             {
                 DIE("Tried to pack/unpack field %d but invalid offset %d given\n",
                     ii, offsets[ii]);
@@ -203,8 +208,6 @@ void CloverChunk::packUnpackAllBuffers
             pack_kernel->setArg(0, x_inc);
             pack_kernel->setArg(1, y_inc);
             pack_kernel->setArg(2, *device_array);
-            pack_kernel->setArg(3, *side_buffer);
-            pack_kernel->setArg(4, depth);
             pack_kernel->setArg(5, offsets[ii]);
 
             enqueueKernel(*pack_kernel, __LINE__, __FILE__,
@@ -216,22 +219,7 @@ void CloverChunk::packUnpackAllBuffers
 
     if (pack)
     {
-        size_t side_size = 0;
-
-        switch (face)
-        {
-        case CHUNK_LEFT:
-        case CHUNK_RIGHT:
-            side_size = lr_mpi_buf_sz;
-            break;
-        case CHUNK_BOTTOM:
-        case CHUNK_TOP:
-            side_size = bt_mpi_buf_sz;
-            break;
-        default:
-            DIE("Invalid face identifier %d passed to mpi buffer packing\n", face);
-        }
-
+        queue.finish();
         queue.enqueueReadBuffer(*side_buffer, CL_TRUE, 0,
             n_exchanged*depth*side_size,
             buffer);
