@@ -6,6 +6,12 @@ extern "C" void initialise_chunk_kernel_ocl_
     chunk.initialise_chunk_kernel(*d_xmin, *d_ymin,*d_zmin, *d_dx, *d_dy, *d_dz);
 }
 
+#define ENQUEUE(knl)                       \
+    enqueueKernel(knl, __LINE__, __FILE__, \
+                  cl::NullRange,           \
+                  global_size,             \
+                  local_group_size);
+
 void CloverChunk::initialise_chunk_kernel
 (double d_xmin, double d_ymin,double d_zmin, double d_dx, double d_dy, double d_dz)
 {

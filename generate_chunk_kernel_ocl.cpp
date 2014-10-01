@@ -77,8 +77,8 @@ DIE("Error in creating %s buffer %d\n", #arr, e.err()); \
     generate_chunk_init_device.setArg(8, tmp_state_yvel);
     generate_chunk_init_device.setArg(9, tmp_state_zvel);
 
-    ENQUEUE(generate_chunk_init_device);
-    //ENQUEUE_OFFSET(generate_chunk_init_device);
+    //ENQUEUE(generate_chunk_init_device);
+    ENQUEUE_OFFSET(generate_chunk_init_device);
 
     generate_chunk_device.setArg(11, tmp_state_density);
     generate_chunk_device.setArg(12, tmp_state_energy);
@@ -102,8 +102,8 @@ DIE("Error in creating %s buffer %d\n", #arr, e.err()); \
     {
         generate_chunk_device.setArg(27, state);
 
-        ENQUEUE(generate_chunk_device);
-        //ENQUEUE_OFFSET(generate_chunk_device);
+        //ENQUEUE(generate_chunk_device);
+        ENQUEUE_OFFSET(generate_chunk_device);
     }
 }
 

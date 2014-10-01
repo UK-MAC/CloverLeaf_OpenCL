@@ -177,12 +177,6 @@ private:
     cl::Buffer top_buffer;
     cl::Buffer back_buffer;
     cl::Buffer front_buffer;
-    std::vector<cl::Buffer> left_subbuffers[2];
-    std::vector<cl::Buffer> right_subbuffers[2];
-    std::vector<cl::Buffer> bottom_subbuffers[2];
-    std::vector<cl::Buffer> top_subbuffers[2];
-    std::vector<cl::Buffer> back_subbuffers[2];
-    std::vector<cl::Buffer> front_subbuffers[2];
 
     // specific sizes and launch offsets for different kernels
     typedef struct {
@@ -293,6 +287,9 @@ private:
     // mpi rank
     int rank;
 
+    // size of mpi buffers
+    size_t lr_mpi_buf_sz, bt_mpi_buf_sz, fb_mpi_buf_sz;
+
     // desired type for opencl
     int desired_type;
 
@@ -300,26 +297,11 @@ private:
     int profiler_on;
     // for recording times if profiling is on
     std::map<std::string, double> kernel_times;
+    // recording number of times each kernel was called
+    std::map<std::string, int> kernel_calls;
 
     // Where to send debug output
     FILE* DBGOUT;
-
-    // type of callback for buffer packing
-    typedef cl_int (cl::CommandQueue::*buffer_func_t)
-    (
-        const cl::Buffer&,
-        cl_bool,
-        const cl::size_t<3>&,
-        const cl::size_t<3>&,
-        const cl::size_t<3>&,
-        size_t,
-        size_t,
-        size_t,
-        size_t,
-        void *,
-        const std::vector<cl::Event> *,
-        cl::Event
-    ) const;
 
     // compile a file and the contained kernels, and check for errors
     void compileKernel
@@ -433,13 +415,11 @@ public:
      const std::vector< cl::Event > * const events=NULL,
      cl::Event * const event=NULL) ;
 
-    #define ENQUEUE_OFFSET(knl)                                     \
-        CloverChunk::enqueueKernel(knl, __LINE__, __FILE__,         \
-                                   launch_specs.at(#knl).offset,    \
-                                   launch_specs.at(#knl).global,    \
-                                   local_group_size);
-
-    #define ENQUEUE(knl) ENQUEUE_OFFSET(knl)
+    #define ENQUEUE_OFFSET(knl)                        \
+        enqueueKernel(knl, __LINE__, __FILE__,         \
+                      launch_specs.at(#knl).offset,    \
+                      launch_specs.at(#knl).global,    \
+                      local_group_size);
 
     // reduction
     template <typename T>
@@ -449,13 +429,7 @@ public:
 
     void packUnpackAllBuffers
     (int fields[NUM_FIELDS], int offsets[NUM_FIELDS], int depth,
-     int face, int pack, const int n_exchanged, double * buffer);
-
-    void packRect
-    (double* host_buffer,
-     int x_inc, int y_inc, int z_inc,
-     int edge, int dest,
-     int which_field, int depth);
+     int face, int pack, double * buffer);
 };
 
 extern CloverChunk chunk;

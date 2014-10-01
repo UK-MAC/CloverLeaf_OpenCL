@@ -7,6 +7,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <cstdarg>
+#include <numeric>
 
 std::string errToString(cl_int err)
 {
@@ -80,7 +81,7 @@ void CloverChunk::enqueueKernel
             cl_ulong start, end;
 
             // used if no event was passed
-            cl::Event no_event_passed = cl::Event();
+            static cl::Event no_event_passed = cl::Event();
 
             if (event != NULL)
             {
@@ -120,10 +121,12 @@ void CloverChunk::enqueueKernel
 
             if (kernel_times.end() != kernel_times.find(func_name))
             {
+                kernel_calls.at(func_name) += 1;
                 kernel_times.at(func_name) += taken;
             }
             else
             {
+                kernel_calls[func_name] = 1;
                 kernel_times[func_name] = taken;
             }
         }
@@ -160,7 +163,8 @@ void CloverChunk::enqueueKernel
                 errstr << "Launch dimension " << ii << ": ";
                 errstr << "global " << global_range[ii] << ", ";
                 errstr << "local " << local_range[ii] << " ";
-                errstr << "(offset " << offset_range[ii] << ") - ";
+                // only print this if there is actually an offset
+                if (offset_range.dimensions()) errstr << "(offset " << offset_range[ii] << ") - ";
                 errstr << "(" << global_range[ii] << "%" << local_range[ii] << ") ";
                 errstr << "= " << global_range[ii] % local_range[ii] << std::endl;
             }
