@@ -165,6 +165,7 @@ void CloverChunk::initOcl
     case ANY_PLAT:
         fprintf(stdout, "No platform specified - using platform 0\n");
         platform = platforms.at(0);
+        break;
 
     default:
         // go through all platforms

@@ -1,5 +1,4 @@
 #include "ocl_common.hpp"
-extern CloverChunk chunk;
 
 extern "C" void viscosity_kernel_ocl_
 (void)

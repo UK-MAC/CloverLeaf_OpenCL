@@ -1,19 +1,19 @@
 !Crown Copyright 2014 AWE.
 !
-! This file is part of TeaLeaf.
+! This file is part of CloverLeaf.
 !
-! TeaLeaf is free software: you can redistribute it and/or modify it under 
+! CloverLeaf is free software: you can redistribute it and/or modify it under 
 ! the terms of the GNU General Public License as published by the 
 ! Free Software Foundation, either version 3 of the License, or (at your option) 
 ! any later version.
 !
-! TeaLeaf is distributed in the hope that it will be useful, but 
+! CloverLeaf is distributed in the hope that it will be useful, but 
 ! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
 ! FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 ! details.
 !
 ! You should have received a copy of the GNU General Public License along with 
-! TeaLeaf. If not, see http://www.gnu.org/licenses/.
+! CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Main set up routine
 !>  @author David Beckingsale, Wayne Gaudin
@@ -62,10 +62,12 @@ SUBROUTINE start
 
   CALL clover_decompose(grid%x_cells,grid%y_cells,left,right,bottom,top)
 
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
       
     ! Needs changing so there can be more than 1 chunk per task
-    chunks(c)%task = c-1
+    chunks(c)%task = parallel%task
+
+    !chunk_task_responsible_for = parallel%task+1
 
     x_cells = right(c) -left(c)  +1
     y_cells = top(c)   -bottom(c)+1
@@ -95,13 +97,13 @@ SUBROUTINE start
 
   CALL clover_barrier
 
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
     IF(chunks(c)%task.EQ.parallel%task)THEN
       CALL clover_allocate_buffers(c)
     ENDIF
   ENDDO
 
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
     IF(chunks(c)%task.EQ.parallel%task)THEN
       CALL initialise_chunk(c)
     ENDIF
@@ -111,7 +113,7 @@ SUBROUTINE start
      WRITE(g_out,*) 'Generating chunks'
   ENDIF
 
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
     IF(chunks(c)%task.EQ.parallel%task)THEN
       CALL generate_chunk(c)
     ENDIF
@@ -126,7 +128,7 @@ SUBROUTINE start
   profiler_off=profiler_on
   profiler_on=.FALSE.
 
-  DO c = 1, number_of_chunks
+  DO c = 1, chunks_per_task
     CALL ideal_gas(c,.FALSE.)
   END DO
 

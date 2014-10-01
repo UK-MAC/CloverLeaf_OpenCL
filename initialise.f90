@@ -1,19 +1,19 @@
 !Crown Copyright 2014 AWE.
 !
-! This file is part of TeaLeaf.
+! This file is part of CloverLeaf.
 !
-! TeaLeaf is free software: you can redistribute it and/or modify it under 
+! CloverLeaf is free software: you can redistribute it and/or modify it under 
 ! the terms of the GNU General Public License as published by the 
 ! Free Software Foundation, either version 3 of the License, or (at your option) 
 ! any later version.
 !
-! TeaLeaf is distributed in the hope that it will be useful, but 
+! CloverLeaf is distributed in the hope that it will be useful, but 
 ! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
 ! FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 ! details.
 !
 ! You should have received a copy of the GNU General Public License along with 
-! TeaLeaf. If not, see http://www.gnu.org/licenses/.
+! CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Top level initialisation routine
 !>  @author David Beckingsale, Wayne Gaudin
@@ -49,7 +49,7 @@ SUBROUTINE initialise
   IF(parallel%boss)THEN
 !$  IF(OMP_GET_THREAD_NUM().EQ.0) THEN
       WRITE(g_out,*)
-      WRITE(g_out,'(a15,f8.3)') 'Tea Version ',g_version
+      WRITE(g_out,'(a15,f8.3)') 'Clover Version ',g_version
       WRITE(g_out,'(a18)') 'MPI Version'
 !$    WRITE(g_out,'(a18)') 'OpenMP Version'
       WRITE(g_out,'(a14,i6)') 'Task Count ',parallel%max_task !MPI
@@ -63,7 +63,7 @@ SUBROUTINE initialise
   CALL clover_barrier
 
   IF(parallel%boss)THEN
-    WRITE(g_out,*) 'Tea will run from the following input:-'
+    WRITE(g_out,*) 'Clover will run from the following input:-'
     WRITE(g_out,*)
   ENDIF
 

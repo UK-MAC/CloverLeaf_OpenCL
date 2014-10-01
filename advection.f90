@@ -1,19 +1,19 @@
 !Crown Copyright 2014 AWE.
 !
-! This file is part of TeaLeaf.
+! This file is part of CloverLeaf.
 !
-! TeaLeaf is free software: you can redistribute it and/or modify it under 
+! CloverLeaf is free software: you can redistribute it and/or modify it under 
 ! the terms of the GNU General Public License as published by the 
 ! Free Software Foundation, either version 3 of the License, or (at your option) 
 ! any later version.
 !
-! TeaLeaf is distributed in the hope that it will be useful, but 
+! CloverLeaf is distributed in the hope that it will be useful, but 
 ! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
 ! FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 ! details.
 !
 ! You should have received a copy of the GNU General Public License along with 
-! TeaLeaf. If not, see http://www.gnu.org/licenses/.
+! CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Top level advection driver
 !>  @author David Beckingsale, Wayne Gaudin
@@ -56,7 +56,7 @@ SUBROUTINE advection()
   IF(profiler_on) profiler%halo_exchange=profiler%halo_exchange+(timer()-kernel_time)
 
   IF(profiler_on) kernel_time=timer()
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
     CALL advec_cell_driver(c,sweep_number,direction)
   ENDDO
   IF(profiler_on) profiler%cell_advection=profiler%cell_advection+(timer()-kernel_time)
@@ -73,10 +73,10 @@ SUBROUTINE advection()
   IF(profiler_on) profiler%halo_exchange=profiler%halo_exchange+(timer()-kernel_time)
 
   IF(profiler_on) kernel_time=timer()
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
     CALL advec_mom_driver(c,xvel,direction,sweep_number) 
   ENDDO
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
     CALL advec_mom_driver(c,yvel,direction,sweep_number) 
   ENDDO
   IF(profiler_on) profiler%mom_advection=profiler%mom_advection+(timer()-kernel_time)
@@ -86,7 +86,7 @@ SUBROUTINE advection()
   IF(.not.advect_x) direction=g_xdir
 
   IF(profiler_on) kernel_time=timer()
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
     CALL advec_cell_driver(c,sweep_number,direction)
   ENDDO
   IF(profiler_on) profiler%cell_advection=profiler%cell_advection+(timer()-kernel_time)
@@ -103,10 +103,10 @@ SUBROUTINE advection()
   IF(profiler_on) profiler%halo_exchange=profiler%halo_exchange+(timer()-kernel_time)
 
   IF(profiler_on) kernel_time=timer()
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
     CALL advec_mom_driver(c,xvel,direction,sweep_number) 
   ENDDO
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
     CALL advec_mom_driver(c,yvel,direction,sweep_number) 
   ENDDO
   IF(profiler_on) profiler%mom_advection=profiler%mom_advection+(timer()-kernel_time)

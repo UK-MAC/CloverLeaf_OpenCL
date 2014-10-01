@@ -1,19 +1,19 @@
 !Crown Copyright 2014 AWE.
 !
-! This file is part of TeaLeaf.
+! This file is part of CloverLeaf.
 !
-! TeaLeaf is free software: you can redistribute it and/or modify it under 
+! CloverLeaf is free software: you can redistribute it and/or modify it under 
 ! the terms of the GNU General Public License as published by the 
 ! Free Software Foundation, either version 3 of the License, or (at your option) 
 ! any later version.
 !
-! TeaLeaf is distributed in the hope that it will be useful, but 
+! CloverLeaf is distributed in the hope that it will be useful, but 
 ! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
 ! FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 ! details.
 !
 ! You should have received a copy of the GNU General Public License along with 
-! TeaLeaf. If not, see http://www.gnu.org/licenses/.
+! CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Driver for the PdV update.
 !>  @author David Beckingsale, Wayne Gaudin
@@ -46,7 +46,7 @@ SUBROUTINE PdV(predict)
   error_condition=0 ! Not used yet due to issue with OpenA reduction
 
   IF(profiler_on) kernel_time=timer()
-  DO c=1,number_of_chunks
+  DO c=1,chunks_per_task
 
     IF(chunks(c)%task.EQ.parallel%task) THEN
 
@@ -122,7 +122,7 @@ SUBROUTINE PdV(predict)
 
   IF(predict)THEN
     IF(profiler_on) kernel_time=timer()
-    DO c=1,number_of_chunks
+    DO c=1,chunks_per_task
       CALL ideal_gas(c,.TRUE.)
     ENDDO
     IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)

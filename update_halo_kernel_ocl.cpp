@@ -1,5 +1,4 @@
 #include "ocl_common.hpp"
-extern CloverChunk chunk;
 
 // types of array data
 const static cell_info_t CELL(    0, 0,  1,  1, 0, 0, CELL_DATA);
@@ -44,10 +43,10 @@ int depth)
                                    update_##dir##_local_size[depth-1]); \
     }
 
+    CHECK_LAUNCH(bottom, ud)
+    CHECK_LAUNCH(top, ud)
     CHECK_LAUNCH(left, lr)
     CHECK_LAUNCH(right, lr)
-    CHECK_LAUNCH(top, ud)
-    CHECK_LAUNCH(bottom, ud)
 }
 
 void CloverChunk::update_halo_kernel

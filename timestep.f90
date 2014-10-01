@@ -1,19 +1,19 @@
 !Crown Copyright 2014 AWE.
 !
-! This file is part of TeaLeaf.
+! This file is part of CloverLeaf.
 !
-! TeaLeaf is free software: you can redistribute it and/or modify it under 
+! CloverLeaf is free software: you can redistribute it and/or modify it under 
 ! the terms of the GNU General Public License as published by the 
 ! Free Software Foundation, either version 3 of the License, or (at your option) 
 ! any later version.
 !
-! TeaLeaf is distributed in the hope that it will be useful, but 
+! CloverLeaf is distributed in the hope that it will be useful, but 
 ! WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or 
 ! FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
 ! details.
 !
 ! You should have received a copy of the GNU General Public License along with 
-! TeaLeaf. If not, see http://www.gnu.org/licenses/.
+! CloverLeaf. If not, see http://www.gnu.org/licenses/.
 
 !>  @brief Calculate the minimum timestep for all mesh chunks.
 !>  @author David Beckingsale, Wayne Gaudin
@@ -57,7 +57,7 @@ SUBROUTINE timestep()
   small=0
 
   IF(profiler_on) kernel_time=timer()
-  DO c = 1, number_of_chunks
+  DO c = 1, chunks_per_task
     CALL ideal_gas(c,.FALSE.)
   END DO
   IF(profiler_on) profiler%ideal_gas=profiler%ideal_gas+(timer()-kernel_time)
@@ -83,7 +83,7 @@ SUBROUTINE timestep()
   IF(profiler_on) profiler%halo_exchange=profiler%halo_exchange+(timer()-kernel_time)
 
   IF(profiler_on) kernel_time=timer()
-  DO c = 1, number_of_chunks
+  DO c = 1, chunks_per_task
     CALL calc_dt(c,dtlp,dtl_control,xl_pos,yl_pos,jldt,kldt)
 
     IF(dtlp.LE.dt) THEN

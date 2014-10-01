@@ -1,6 +1,5 @@
 #include "ocl_common.hpp"
 #include "ocl_reduction.hpp"
-extern CloverChunk chunk;
 
 #include <iostream>
 

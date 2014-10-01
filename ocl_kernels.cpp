@@ -86,6 +86,15 @@ void CloverChunk::initProgram
     compileKernel(options_str, "./kernel_files/advec_cell_cl.cl", "advec_cell_ener_flux_y", advec_cell_ener_flux_y_device);
     compileKernel(options_str, "./kernel_files/advec_cell_cl.cl", "advec_cell_y", advec_cell_y_device);
 
+    compileKernel(options_str, "./kernel_files/pack_kernel_cl.cl", "pack_left_buffer", pack_left_buffer_device);
+    compileKernel(options_str, "./kernel_files/pack_kernel_cl.cl", "unpack_left_buffer", unpack_left_buffer_device);
+    compileKernel(options_str, "./kernel_files/pack_kernel_cl.cl", "pack_right_buffer", pack_right_buffer_device);
+    compileKernel(options_str, "./kernel_files/pack_kernel_cl.cl", "unpack_right_buffer", unpack_right_buffer_device);
+    compileKernel(options_str, "./kernel_files/pack_kernel_cl.cl", "pack_bottom_buffer", pack_bottom_buffer_device);
+    compileKernel(options_str, "./kernel_files/pack_kernel_cl.cl", "unpack_bottom_buffer", unpack_bottom_buffer_device);
+    compileKernel(options_str, "./kernel_files/pack_kernel_cl.cl", "pack_top_buffer", pack_top_buffer_device);
+    compileKernel(options_str, "./kernel_files/pack_kernel_cl.cl", "unpack_top_buffer", unpack_top_buffer_device);
+
     fprintf(stdout, "done.\n");
     fprintf(DBGOUT, "All kernels compiled\n");
 }
@@ -204,7 +213,7 @@ cl::Program CloverChunk::compileProgram
         }
         catch (cl::Error ie)
         {
-            DIE("Error in retrieving build info\n");
+            DIE("Error %d in retrieving build info\n", e.err());
         }
 
         std::string errs(errstream.str());
@@ -268,50 +277,52 @@ void CloverChunk::initSizes
                                  NULL));
     fprintf(DBGOUT, "Max work group size for update halo is %zu\n", max_update_wg_sz);
 
-    // subdivide row size until it will fit
-    size_t local_row_size = x_max+5;
-    while (local_row_size > max_update_wg_sz/2)
-    {
-        local_row_size = local_row_size/2;
-    }
-    fprintf(DBGOUT, "Local row work group size is %zu\n", local_row_size);
+    // ideally multiple of 32 for nvidia, ideally multiple of 64 for amd
+    size_t local_row_size = 64;
+    size_t local_column_size = 64;
 
-    update_ud_local_size[0] = cl::NDRange(local_row_size, 1);
-    update_ud_local_size[1] = cl::NDRange(local_row_size, 2);
+    cl_device_type dtype;
+    device.getInfo(CL_DEVICE_TYPE, &dtype);
 
-    size_t global_row_size = local_row_size;
-    while (global_row_size < x_max+5)
+    if (dtype == CL_DEVICE_TYPE_ACCELERATOR)
     {
-        global_row_size += local_row_size;
-    }
-    update_ud_global_size[0] = cl::NDRange(global_row_size, 1);
-    update_ud_global_size[1] = cl::NDRange(global_row_size, 2);
-
-    // same for column
-    size_t local_column_size = y_max+5;
-    while (local_column_size > max_update_wg_sz/2)
-    {
-        local_column_size = local_column_size/2;
-    }
-
-    if (CL_DEVICE_TYPE_ACCELERATOR == desired_type)
-    {
-        // on xeon phi, needs to be 16 so that update left/right kernels dont go really slow
+        // want to run with work group size of 16 for phi to speed up l/r updates
+        local_row_size = 16;
         local_column_size = 16;
     }
 
-    fprintf(DBGOUT, "Local column work group size is %zu\n", local_column_size);
-
+    // create the local sizes, dividing the last possible dimension if needs be
     update_lr_local_size[0] = cl::NDRange(1, local_column_size);
     update_lr_local_size[1] = cl::NDRange(2, local_column_size);
+    update_ud_local_size[0] = cl::NDRange(local_row_size, 1);
+    update_ud_local_size[1] = cl::NDRange(local_row_size, 2);
 
-    size_t global_column_size = local_column_size;
-    while (global_column_size < y_max+5)
-    {
-        global_column_size += local_column_size;
-    }
+    // start off doing minimum amount of work
+    size_t global_row_size = x_max + 5;
+    size_t global_column_size = y_max + 5;
+
+    // increase just to fit in with local work group sizes
+    while (global_row_size % local_row_size)
+        global_row_size++;
+    while (global_column_size % local_column_size)
+        global_column_size++;
+
+    // create ndranges
     update_lr_global_size[0] = cl::NDRange(1, global_column_size);
     update_lr_global_size[1] = cl::NDRange(2, global_column_size);
+    update_ud_global_size[0] = cl::NDRange(global_row_size, 1);
+    update_ud_global_size[1] = cl::NDRange(global_row_size, 2);
+
+    for (int depth = 0; depth < 2; depth++)
+    {
+        fprintf(DBGOUT, "Depth %d:\n", depth + 1);
+        fprintf(DBGOUT, "Left/right update halo size: [%zu %zu] split by [%zu %zu]\n",
+            update_lr_global_size[depth][0], update_lr_global_size[depth][1],
+            update_lr_local_size[depth][0], update_lr_local_size[depth][1]);
+        fprintf(DBGOUT, "Bottom/top update halo size: [%zu %zu] split by [%zu %zu]\n",
+            update_ud_global_size[depth][0], update_ud_global_size[depth][1],
+            update_ud_local_size[depth][0], update_ud_local_size[depth][1]);
+    }
 
     fprintf(DBGOUT, "Update halo parameters calculated\n");
 
@@ -331,41 +342,41 @@ void CloverChunk::initSizes
         launch_specs[#knl"_device"] = cur_specs;                                \
     }
 
-    FIND_PADDING_SIZE(ideal_gas, 0, 0, 0, 0); 
-    FIND_PADDING_SIZE(accelerate, 0, 1, 0, 1); 
-    FIND_PADDING_SIZE(flux_calc_x, 0, 0, 1, 0); 
-    FIND_PADDING_SIZE(flux_calc_y, 0, 0, 0, 1); 
-    FIND_PADDING_SIZE(viscosity, 0, 0, 0, 0); 
-    FIND_PADDING_SIZE(revert, 0, 0, 0, 0); 
-    FIND_PADDING_SIZE(reset_field, 0, 1, 0, 1); 
-    FIND_PADDING_SIZE(set_field, 0, 1, 0, 1); 
+    FIND_PADDING_SIZE(ideal_gas, 0, 0, 0, 0);
+    FIND_PADDING_SIZE(accelerate, 0, 1, 0, 1);
+    FIND_PADDING_SIZE(flux_calc_x, 0, 0, 0, 1);
+    FIND_PADDING_SIZE(flux_calc_y, 0, 1, 0, 0);
+    FIND_PADDING_SIZE(viscosity, 0, 0, 0, 0);
+    FIND_PADDING_SIZE(revert, 0, 0, 0, 0);
+    FIND_PADDING_SIZE(reset_field, 0, 1, 0, 1);
+    FIND_PADDING_SIZE(set_field, 0, 1, 0, 1);
     FIND_PADDING_SIZE(field_summary, 0, 0, 0, 0);
     FIND_PADDING_SIZE(calc_dt, 0, 0, 0, 0);
 
-    FIND_PADDING_SIZE(advec_mom_vol, -2, 2, -2, 2); 
+    FIND_PADDING_SIZE(advec_mom_vol, -2, 2, -2, 2);
 
-    FIND_PADDING_SIZE(advec_mom_node_flux_post_x_1, 0, 1, -2, 2); 
-    FIND_PADDING_SIZE(advec_mom_node_flux_post_x_2, 0, 1, -1, 2); 
-    FIND_PADDING_SIZE(advec_mom_node_pre_x, 0, 1, -1, 2); 
-    FIND_PADDING_SIZE(advec_mom_flux_x, 0, 1, -1, 1); 
-    FIND_PADDING_SIZE(advec_mom_xvel, 0, 1, 0, 1); 
+    FIND_PADDING_SIZE(advec_mom_node_flux_post_x_1, 0, 1, -2, 2);
+    FIND_PADDING_SIZE(advec_mom_node_flux_post_x_2, 0, 1, -1, 2);
+    FIND_PADDING_SIZE(advec_mom_node_pre_x, 0, 1, -1, 2);
+    FIND_PADDING_SIZE(advec_mom_flux_x, 0, 1, -1, 1);
+    FIND_PADDING_SIZE(advec_mom_xvel, 0, 1, 0, 1);
 
-    FIND_PADDING_SIZE(advec_mom_node_flux_post_y_1, -2, 2, 0, 1); 
-    FIND_PADDING_SIZE(advec_mom_node_flux_post_y_2, -1, 2, 0, 1); 
-    FIND_PADDING_SIZE(advec_mom_node_pre_y, -1, 2, 0, 1); 
-    FIND_PADDING_SIZE(advec_mom_flux_y, -1, 1, 0, 1); 
-    FIND_PADDING_SIZE(advec_mom_yvel, 0, 1, 0, 1); 
+    FIND_PADDING_SIZE(advec_mom_node_flux_post_y_1, -2, 2, 0, 1);
+    FIND_PADDING_SIZE(advec_mom_node_flux_post_y_2, -1, 2, 0, 1);
+    FIND_PADDING_SIZE(advec_mom_node_pre_y, -1, 2, 0, 1);
+    FIND_PADDING_SIZE(advec_mom_flux_y, -1, 1, 0, 1);
+    FIND_PADDING_SIZE(advec_mom_yvel, 0, 1, 0, 1);
 
-    FIND_PADDING_SIZE(advec_cell_pre_vol_x, -2, 2, -2, 2); 
-    FIND_PADDING_SIZE(advec_cell_ener_flux_x, 0, 0, 0, 2); 
-    FIND_PADDING_SIZE(advec_cell_x, 0, 0, 0, 0); 
+    FIND_PADDING_SIZE(advec_cell_pre_vol_x, -2, 2, -2, 2);
+    FIND_PADDING_SIZE(advec_cell_ener_flux_x, 0, 0, 0, 2);
+    FIND_PADDING_SIZE(advec_cell_x, 0, 0, 0, 0);
 
-    FIND_PADDING_SIZE(advec_cell_pre_vol_y, -2, 2, -2, 2); 
-    FIND_PADDING_SIZE(advec_cell_ener_flux_y, 0, 2, 0, 0); 
-    FIND_PADDING_SIZE(advec_cell_y, 0, 0, 0, 0); 
+    FIND_PADDING_SIZE(advec_cell_pre_vol_y, -2, 2, -2, 2);
+    FIND_PADDING_SIZE(advec_cell_ener_flux_y, 0, 2, 0, 0);
+    FIND_PADDING_SIZE(advec_cell_y, 0, 0, 0, 0);
 
-    FIND_PADDING_SIZE(PdV_predict, 0, 0, 0, 0); 
-    FIND_PADDING_SIZE(PdV_not_predict, 0, 0, 0, 0); 
+    FIND_PADDING_SIZE(PdV_predict, 0, 0, 0, 0);
+    FIND_PADDING_SIZE(PdV_not_predict, 0, 0, 0, 0);
 
     FIND_PADDING_SIZE(initialise_chunk_first, 0, 3, 0, 3);
     FIND_PADDING_SIZE(initialise_chunk_second, -2, 2, -2, 2);

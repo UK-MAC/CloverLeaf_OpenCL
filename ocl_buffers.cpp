@@ -82,10 +82,15 @@ void CloverChunk::initBuffers
     BUF_ALLOC(reduce_buf_6, 1.5*((sizeof(double)*reduced_cells)/(LOCAL_X*LOCAL_Y)));
     BUF_ALLOC(PdV_reduce_buf, 1.5*((sizeof(int)*reduced_cells)/(LOCAL_X*LOCAL_Y)));
 
-    #undef BUF2D_ALLOC
-    #undef BUF1DX_ALLOC
-    #undef BUF1DY_ALLOC
-    #undef BUF_ALLOC
+    // set initial (ideal) size for buffers and increment untl it hits alignment
+    lr_mpi_buf_sz = sizeof(double)*(y_max + 5);
+    bt_mpi_buf_sz = sizeof(double)*(x_max + 5);
+
+    // enough for 1 for each array - overkill, but not that much extra space
+    BUF_ALLOC(left_buffer, NUM_BUFFERED_FIELDS*2*lr_mpi_buf_sz);
+    BUF_ALLOC(right_buffer, NUM_BUFFERED_FIELDS*2*lr_mpi_buf_sz);
+    BUF_ALLOC(bottom_buffer, NUM_BUFFERED_FIELDS*2*bt_mpi_buf_sz);
+    BUF_ALLOC(top_buffer, NUM_BUFFERED_FIELDS*2*bt_mpi_buf_sz);
 
     fprintf(DBGOUT, "Buffers allocated\n");
 }

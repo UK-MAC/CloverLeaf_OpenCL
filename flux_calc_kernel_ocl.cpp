@@ -1,6 +1,5 @@
 
 #include "ocl_common.hpp"
-extern CloverChunk chunk;
 
 extern "C" void flux_calc_kernel_ocl_
 (double *dbyt)
