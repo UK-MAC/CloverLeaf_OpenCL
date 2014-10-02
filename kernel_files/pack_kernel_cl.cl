@@ -1,7 +1,7 @@
 #include "./kernel_files/macros_cl.cl"
 
 // left/right
-#if 1
+#if 0
 #define VERT_IDX                                            \
     (column         - 2 +                                   \
     (row    + depth - 1)*depth +                            \
@@ -36,8 +36,7 @@ const int depth, int offset)
     if (slice >= (z_min + 1) - depth && slice <= (z_max + 1) + z_extra + depth)
     if (row >= (y_min + 1) - depth && row <= (y_max + 1) + y_extra + depth)
     {
-        left_buffer[VERT_IDX] =
-            array[THARR3D((x_min + 1) + x_extra, 0, 0, x_extra, y_extra)];
+        left_buffer[VERT_IDX] = array[THARR3D((x_min + 1) + x_extra, 0, 0, x_extra, y_extra)];
     }
 }
 
@@ -69,8 +68,7 @@ const int depth, int offset)
     if (slice >= (z_min + 1) - depth && slice <= (z_max + 1) + z_extra + depth)
     if (row >= (y_min + 1) - depth && row <= (y_max + 1) + y_extra + depth)
     {
-        right_buffer[VERT_IDX] = array[THARR3D((x_max + 1) - 2*column,
-            0, 0, x_extra, y_extra)];
+        right_buffer[VERT_IDX] = array[THARR3D((x_max + 1) - 2*column, 0, 0, x_extra, y_extra)];
     }
 }
 
@@ -85,8 +83,7 @@ const int depth, int offset)
     if (slice >= (z_min + 1) - depth && slice <= (z_max + 1) + z_extra + depth)
     if (row >= (y_min + 1) - depth && row <= (y_max + 1) + y_extra + depth)
     {
-        array[THARR3D((x_max + 1) + x_extra + 1, 0, 0, x_extra, y_extra)] =
-            right_buffer[VERT_IDX];
+        array[THARR3D((x_max + 1) + x_extra + 1, 0, 0, x_extra, y_extra)] = right_buffer[VERT_IDX];
     }
 }
 
