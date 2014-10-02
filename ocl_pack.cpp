@@ -184,7 +184,7 @@ void CloverChunk::packUnpackAllBuffers
                 break;
             case FIELD_mass_flux_z:
             case FIELD_vol_flux_z:
-                y_inc = 1;
+                z_inc = 1;
                 break;
             case FIELD_density0:
             case FIELD_density1:
