@@ -110,8 +110,8 @@ void CloverChunk::initBuffers
     BUF_ALLOC(right_buffer, NUM_BUFFERED_FIELDS*2*lr_mpi_buf_sz);
     BUF_ALLOC(bottom_buffer, NUM_BUFFERED_FIELDS*2*bt_mpi_buf_sz);
     BUF_ALLOC(top_buffer, NUM_BUFFERED_FIELDS*2*bt_mpi_buf_sz);
-    BUF_ALLOC(front_buffer, NUM_BUFFERED_FIELDS*2*fb_mpi_buf_sz);
     BUF_ALLOC(back_buffer, NUM_BUFFERED_FIELDS*2*fb_mpi_buf_sz);
+    BUF_ALLOC(front_buffer, NUM_BUFFERED_FIELDS*2*fb_mpi_buf_sz);
 
     fprintf(DBGOUT, "Buffers allocated\n");
 }

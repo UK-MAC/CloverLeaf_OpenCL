@@ -5,7 +5,8 @@
 #define VERT_IDX                                                    \
     ((column - 1) +                                                 \
     ((row    - 1) + depth - 1)*depth +                              \
-    ((slice  - 1) + depth - 1)*(y_max + y_extra + 2*depth)*depth)
+    ((slice  - 1) + depth - 1)*(y_max + y_extra + 2*depth)*depth)   \
+    + offset
 #else
 #define VERT_IDX                                            \
     (slice  + depth - 1 +                                                           \
@@ -17,13 +18,15 @@
 #define HORZ_IDX                                                                    \
     (column + depth - 1 +                                                           \
     (slice  + depth - 1)* (x_max + x_extra + 2*depth) +                             \
-    (row            - 1)*((x_max + x_extra + 2*depth)*(z_max + z_extra + 2*depth)))
+    (row            - 1)*((x_max + x_extra + 2*depth)*(z_max + z_extra + 2*depth))) \
+    + offset
 
 // back/front
 #define DEPTH_IDX                                                                   \
     (row    + depth - 1 +                                                           \
     (column + depth - 1)* (x_max + x_extra + 2*depth) +                             \
-    (slice          - 1)*((x_max + x_extra + 2*depth)*(y_max + y_extra + 2*depth)))
+    (slice          - 1)*((x_max + x_extra + 2*depth)*(y_max + y_extra + 2*depth))) \
+    + offset
 
 __kernel void pack_left_buffer
 (int x_extra, int y_extra, int z_extra,
