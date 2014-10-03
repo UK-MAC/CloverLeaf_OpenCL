@@ -399,9 +399,9 @@ void CloverChunk::initSizes
 
     FIND_PADDING_SIZE(ideal_gas, 0, 0, 0, 0, 0, 0);
     FIND_PADDING_SIZE(accelerate, 0, 1, 0, 1, 0, 1);
-    FIND_PADDING_SIZE(flux_calc_x, 0, 0, 0, 1, 0, 0);
-    FIND_PADDING_SIZE(flux_calc_y, 0, 0, 0, 0, 0, 1);
     FIND_PADDING_SIZE(flux_calc_z, 0, 1, 0, 0, 0, 0);
+    FIND_PADDING_SIZE(flux_calc_y, 0, 0, 0, 1, 0, 0);
+    FIND_PADDING_SIZE(flux_calc_x, 0, 0, 0, 0, 0, 1);
     FIND_PADDING_SIZE(viscosity, 0, 0, 0, 0, 0, 0);
     FIND_PADDING_SIZE(revert, 0, 0, 0, 0, 0, 0);
     FIND_PADDING_SIZE(reset_field, 0, 1, 0, 1, 0, 1);
