@@ -14,86 +14,70 @@ void CloverChunk::advec_mom_kernel
     advec_mom_vol_device.setArg(0, mom_sweep);
     advec_mom_vol_device.setArg(7, advect_int);
 
-    //ENQUEUE(advec_mom_vol_device);
     ENQUEUE_OFFSET(advec_mom_vol_device);
 
     if (1 == which_vel)
     {
-        advec_mom_flux_x_device.setArg(3, xvel1);
+        advec_mom_flux_x_device.setArg(2, xvel1);
         advec_mom_xvel_device.setArg(3, xvel1);
-        advec_mom_flux_y_device.setArg(3, xvel1);
+        advec_mom_flux_y_device.setArg(2, xvel1);
         advec_mom_yvel_device.setArg(3, xvel1);
-        advec_mom_flux_z_device.setArg(3, xvel1);
+        advec_mom_flux_z_device.setArg(2, xvel1);
         advec_mom_zvel_device.setArg(3, xvel1);
     }
     else if (2 == which_vel)
     {
-        advec_mom_flux_x_device.setArg(3, yvel1);
+        advec_mom_flux_x_device.setArg(2, yvel1);
         advec_mom_xvel_device.setArg(3, yvel1);
-        advec_mom_flux_y_device.setArg(3, yvel1);
+        advec_mom_flux_y_device.setArg(2, yvel1);
         advec_mom_yvel_device.setArg(3, yvel1);
-        advec_mom_flux_z_device.setArg(3, yvel1);
+        advec_mom_flux_z_device.setArg(2, yvel1);
         advec_mom_zvel_device.setArg(3, yvel1);
     }
     else
     {
-        advec_mom_flux_x_device.setArg(3, zvel1);
+        advec_mom_flux_x_device.setArg(2, zvel1);
         advec_mom_xvel_device.setArg(3, zvel1);
-        advec_mom_flux_y_device.setArg(3, zvel1);
+        advec_mom_flux_y_device.setArg(2, zvel1);
         advec_mom_yvel_device.setArg(3, zvel1);
-        advec_mom_flux_z_device.setArg(3, zvel1);
+        advec_mom_flux_z_device.setArg(2, zvel1);
         advec_mom_zvel_device.setArg(3, zvel1);
     }
 
     if (1 == direction)
     {
-        //ENQUEUE(advec_mom_node_flux_post_x_1_device);
         ENQUEUE_OFFSET(advec_mom_node_flux_post_x_1_device);
 
-        //ENQUEUE(advec_mom_node_flux_post_x_2_device);
         ENQUEUE_OFFSET(advec_mom_node_flux_post_x_2_device);
 
-        //ENQUEUE(advec_mom_node_pre_x_device);
         ENQUEUE_OFFSET(advec_mom_node_pre_x_device);
 
-        //ENQUEUE(advec_mom_flux_x_device);
         ENQUEUE_OFFSET(advec_mom_flux_x_device);
 
-        //ENQUEUE(advec_mom_xvel_device);
         ENQUEUE_OFFSET(advec_mom_xvel_device);
     }
     else if (2 == direction)
     {
-        //ENQUEUE(advec_mom_node_flux_post_y_1_device);
         ENQUEUE_OFFSET(advec_mom_node_flux_post_y_1_device);
 
-        //ENQUEUE(advec_mom_node_flux_post_y_2_device);
         ENQUEUE_OFFSET(advec_mom_node_flux_post_y_2_device);
 
-        //ENQUEUE(advec_mom_node_pre_y_device);
         ENQUEUE_OFFSET(advec_mom_node_pre_y_device);
 
-        //ENQUEUE(advec_mom_flux_y_device);
         ENQUEUE_OFFSET(advec_mom_flux_y_device);
 
-        //ENQUEUE(advec_mom_yvel_device);
         ENQUEUE_OFFSET(advec_mom_yvel_device);
     }
     else if (3 == direction)
     {
-        //ENQUEUE(advec_mom_node_flux_post_z_1_device);
         ENQUEUE_OFFSET(advec_mom_node_flux_post_z_1_device);
 
-        //ENQUEUE(advec_mom_node_flux_post_z_2_device);
         ENQUEUE_OFFSET(advec_mom_node_flux_post_z_2_device);
 
-        //ENQUEUE(advec_mom_node_pre_z_device);
         ENQUEUE_OFFSET(advec_mom_node_pre_z_device);
 
-        //ENQUEUE(advec_mom_flux_z_device);
         ENQUEUE_OFFSET(advec_mom_flux_z_device);
 
-        //ENQUEUE(advec_mom_zvel_device);
         ENQUEUE_OFFSET(advec_mom_zvel_device);
     }
 }

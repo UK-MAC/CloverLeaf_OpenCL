@@ -184,4 +184,3 @@ END SUBROUTINE calc_dt_kernel
 
 END MODULE calc_dt_kernel_module
 
-

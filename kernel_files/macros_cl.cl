@@ -97,4 +97,15 @@
 
 #endif
 
+/*
+ *  On the xeon phi putting in a barrier after some memory accesses makes the
+ *  kernels execute quicker, mostly just the ones which use xvel/yvel/zvel a lot
+ *
+ *  XXX actually seems to help for some kernels on AMD as well...?
+ */
+#if defined(CL_DEVICE_TYPE_ACCELERATOR)
+    #define XEON_PHI_LOCAL_MEM_BARRIER barrier(CLK_LOCAL_MEM_FENCE)
+#else
+    #define XEON_PHI_LOCAL_MEM_BARRIER 
+#endif
 

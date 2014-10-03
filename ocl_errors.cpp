@@ -215,10 +215,108 @@ CloverChunk::~CloverChunk
     {
         fprintf(stdout, "@@@@@ PROFILING @@@@@\n");
 
-        for (std::map<std::string, double>::iterator ii = kernel_times.begin();
-            ii != kernel_times.end(); ii++)
+        if (kernel_times.size() > 0)
         {
-            fprintf(stdout, "%30s : %.3f\n", (*ii).first.c_str(), (*ii).second);
+            // how many arrays each kernel accesses
+            std::map<std::string, double> kernel_params;
+
+            /*
+             *  could do this as some kind of static thing but some paramters
+             *  needs changing depending on the run time parameters. This is
+             *  horrendously ugly but it is only done when profiling is on (slow
+             *  anyway)
+             *
+             *  Overall some of these kernels are slightly udnerstimated due to
+             *  things like field_summary writing back the reduction values, but
+             *  these take up a minor part of the run time
+             *
+             *  This also assumes that they only work on the inner cells, which
+             *  is not always the case but would require yet another gignatic
+             *  tabel specifying how many cells each kernel actually accessed.
+             *  Underestimating it and assuming perfect caching is about as
+             *  sensible as possible
+             */
+            kernel_params["PdV_not_predict"] = 16;
+            kernel_params["PdV_predict"] = 13;
+            kernel_params["accelerate"] = 13;
+            kernel_params["advec_cell_ener_flux_x"] = 6;
+            kernel_params["advec_cell_ener_flux_y"] = 6;
+            kernel_params["advec_cell_ener_flux_z"] = 6;
+            kernel_params["advec_cell_pre_vol_x"] = 4.5;
+            kernel_params["advec_cell_pre_vol_y"] = 4.5;
+            kernel_params["advec_cell_pre_vol_z"] = 4.5;
+            kernel_params["advec_cell_x"] = 6;
+            kernel_params["advec_cell_y"] = 6;
+            kernel_params["advec_cell_z"] = 6;
+            kernel_params["advec_mom_flux_x"] = 4;
+            kernel_params["advec_mom_flux_y"] = 4;
+            kernel_params["advec_mom_flux_z"] = 4;
+            kernel_params["advec_mom_node_flux_post_x_1"] = 2;
+            kernel_params["advec_mom_node_flux_post_x_2"] = 3;
+            kernel_params["advec_mom_node_flux_post_y_1"] = 2;
+            kernel_params["advec_mom_node_flux_post_y_2"] = 3;
+            kernel_params["advec_mom_node_flux_post_z_1"] = 2;
+            kernel_params["advec_mom_node_flux_post_z_2"] = 3;
+            kernel_params["advec_mom_node_pre_x"] = 3;
+            kernel_params["advec_mom_node_pre_y"] = 3;
+            kernel_params["advec_mom_node_pre_z"] = 3;
+            kernel_params["advec_mom_vol"] = 6;
+            kernel_params["advec_mom_xvel"] = 4;
+            kernel_params["advec_mom_yvel"] = 4;
+            kernel_params["advec_mom_zvel"] = 4;
+            kernel_params["calc_dt"] = 10;
+            kernel_params["field_summary"] = 7;
+            kernel_params["flux_calc_x"] = 4;
+            kernel_params["flux_calc_y"] = 4;
+            kernel_params["flux_calc_z"] = 4;
+            kernel_params["generate_chunk"] = 5;
+            kernel_params["generate_chunk_init"] = 5;
+            kernel_params["ideal_gas"] = 4;
+            kernel_params["initialise_chunk_first"] = 1;
+            kernel_params["initialise_chunk_second"] = 4;
+            kernel_params["reset_field"] = 10;
+            kernel_params["revert"] = 4;
+            kernel_params["viscosity"] = 6;
+            // 6 <= (avg depth) * 2 for writing and reading 2 slices of array
+            //   <= ((1+2)/2) * 2
+            kernel_params["update_halo_left"] = 3.0/(x_max);
+            kernel_params["update_halo_right"] = 3.0/(x_max);
+            kernel_params["update_halo_bottom"] = 3.0/(y_max);
+            kernel_params["update_halo_top"] = 3.0/(y_max);
+            kernel_params["update_halo_back"] = 3.0/(z_max);
+            kernel_params["update_halo_front"] = 3.0/(z_max);
+            // slighty underestimated, but roughly correct
+            kernel_params["reduction"] = 1.0/(LOCAL_X*LOCAL_Y*LOCAL_Z);
+
+            double total_transferred = 0.0;
+            double total_kernel_time = 0.0;
+
+            for (std::map<std::string, double>::iterator ii = kernel_times.begin();
+                ii != kernel_times.end(); ii++)
+            {
+                total_kernel_time += ii->second;
+            }
+
+            fprintf(stdout, "%30s   %7s %5s %9s\n", "Kernel name", "runtime", "calls", "bandwidth");
+
+            std::map<std::string, double>::iterator ii = kernel_times.begin();
+            std::map<std::string, int>::iterator jj = kernel_calls.begin();
+
+            for (; ii != kernel_times.end(); ii++, jj++)
+            {
+                double kernel_transferred = (x_max*y_max*z_max*sizeof(double)
+                    *jj->second*kernel_params.at(jj->first))*1e-9;
+                double kernel_bw = kernel_transferred/(ii->second/1000.0);
+
+                fprintf(stdout, "%30s %9.3f %5d %7.5f\n",
+                    ii->first.c_str(), ii->second, jj->second, kernel_bw);
+
+                total_transferred += kernel_transferred;
+            }
+
+            fprintf(stdout, "Total kernel time %f ms\n", total_kernel_time);
+            fprintf(stdout, "Total kernel memory transferred %f GB\n", total_transferred);
+            fprintf(stdout, "Average kernel bandwidth %f GB/s\n", total_transferred/(total_kernel_time/1000.0));
         }
     }
 }

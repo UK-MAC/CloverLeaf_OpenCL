@@ -14,14 +14,12 @@ void CloverChunk::PdV_kernel
     {
         PdV_predict_device.setArg(0, dt);
 
-        //ENQUEUE(PdV_predict_device)
         ENQUEUE_OFFSET(PdV_predict_device)
     }
     else
     {
         PdV_not_predict_device.setArg(0, dt);
 
-        //ENQUEUE(PdV_not_predict_device)
         ENQUEUE_OFFSET(PdV_not_predict_device)
     }
 

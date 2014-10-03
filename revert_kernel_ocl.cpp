@@ -9,6 +9,5 @@ extern "C" void revert_kernel_ocl_
 void CloverChunk::revert_kernel
 (void)
 {
-    //ENQUEUE(revert_device)
     ENQUEUE_OFFSET(revert_device)
 }

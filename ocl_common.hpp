@@ -8,8 +8,8 @@
 #include <map>
 
 // 2 dimensional arrays - use a 2D tile for local group
-const static size_t LOCAL_X = 128;
-const static size_t LOCAL_Y = 1;
+const static size_t LOCAL_X = 64;
+const static size_t LOCAL_Y = 2;
 const static size_t LOCAL_Z = 1;
 const static cl::NDRange local_group_size(LOCAL_X, LOCAL_Y,LOCAL_Z);
 

@@ -44,7 +44,6 @@ double* xl_pos, double* yl_pos,double* zl_pos, int* jldt, int* kldt, int* lldt, 
     calc_dt_device.setArg(6, dtw_safe);
     calc_dt_device.setArg(7, dtdiv_safe);
 
-    //ENQUEUE(calc_dt_device)
     ENQUEUE_OFFSET(calc_dt_device)
 
     *dt_min_val = reduceValue<double>(min_red_kernels_double, reduce_buf_2);

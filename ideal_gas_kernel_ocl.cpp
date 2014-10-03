@@ -26,7 +26,6 @@ void CloverChunk::ideal_gas_kernel
         ideal_gas_device.setArg(0, density1);
         ideal_gas_device.setArg(1, energy1);
 
-        //ENQUEUE(ideal_gas_device)
         ENQUEUE_OFFSET(ideal_gas_device)
     }
     else
@@ -35,7 +34,6 @@ void CloverChunk::ideal_gas_kernel
         ideal_gas_device.setArg(0, density0);
         ideal_gas_device.setArg(1, energy0);
 
-        //ENQUEUE(ideal_gas_device)
         ENQUEUE_OFFSET(ideal_gas_device)
     }
 }

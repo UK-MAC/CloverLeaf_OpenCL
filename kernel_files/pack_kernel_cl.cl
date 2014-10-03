@@ -1,11 +1,11 @@
 #include "./kernel_files/macros_cl.cl"
 
 // left/right
-#if 0
-#define VERT_IDX                                            \
-    (column         - 2 +                                   \
-    (row    + depth - 1)*depth +                            \
-    (slice  + depth - 2)*(y_max + y_extra + 2*depth)*depth)
+#if 1
+#define VERT_IDX                                                    \
+    ((column - 1) +                                                 \
+    ((row    - 1) + depth - 1)*depth +                              \
+    ((slice  - 1) + depth - 1)*(y_max + y_extra + 2*depth)*depth)
 #else
 #define VERT_IDX                                            \
     (slice  + depth - 1 +                                                           \

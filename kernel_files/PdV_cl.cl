@@ -1,4 +1,5 @@
 #include "./kernel_files/macros_cl.cl"
+
 __kernel void PdV_predict
 (double dt,
  __global int * __restrict const error_condition,
@@ -14,10 +15,7 @@ __kernel void PdV_predict
  __global const double * __restrict const viscosity,
  __global const double * __restrict const xvel0,
  __global const double * __restrict const yvel0,
- __global const double * __restrict const zvel0,
- __global const double * __restrict const xvel1,
- __global const double * __restrict const yvel1,
- __global const double * __restrict const zvel1)
+ __global const double * __restrict const zvel0)
 {
     __kernel_indexes;
 
@@ -36,25 +34,37 @@ __kernel void PdV_predict
 		+xvel0[THARR3D(0 ,0 ,0 ,1 ,1)]+xvel0[THARR3D(0 ,1 ,0 ,1 ,1)]+xvel0[THARR3D(0 ,0 ,1 ,1 ,1)]+xvel0[THARR3D(0 ,1 ,1 ,1 ,1)]))
 		*0.125*dt*0.5;
 
+XEON_PHI_LOCAL_MEM_BARRIER;
+
 	right_flux= (xarea[THARR3D(1 ,0 ,0 ,1 ,0)]*(xvel0[THARR3D(1 ,0 ,0 ,1 ,1)]+xvel0[THARR3D(1 ,1 ,0 ,1 ,1)]+xvel0[THARR3D(1 ,0 ,1 ,1 ,1)]+xvel0[THARR3D(1 ,1 ,1 ,1 ,1)]
 		+xvel0[THARR3D(1 ,0 ,0 ,1 ,1)]+xvel0[THARR3D(1 ,1 ,0 ,1 ,1)]+xvel0[THARR3D(1 ,0 ,1 ,1 ,1)]+xvel0[THARR3D(1 ,1 ,1 ,1 ,1)]))
 		*0.125*dt*0.5;
+
+XEON_PHI_LOCAL_MEM_BARRIER;
 
 	bottom_flux=(yarea[THARR3D(0 ,0 ,0 ,0 ,1)]*(yvel0[THARR3D(0 ,0 ,0 ,1 ,1)]+yvel0[THARR3D(1 ,0 ,0 ,1 ,1)]+yvel0[THARR3D(0 ,0 ,1 ,1 ,1)]+yvel0[THARR3D(1 ,0 ,1 ,1 ,1)]
 		+yvel0[THARR3D(0 ,0 ,0 ,1 ,1)]+yvel0[THARR3D(1 ,0 ,0 ,1 ,1)]+yvel0[THARR3D(0 ,0 ,1 ,1 ,1)]+yvel0[THARR3D(1 ,0 ,1 ,1 ,1)]))
 		*0.125*dt*0.5;
 
+XEON_PHI_LOCAL_MEM_BARRIER;
+
 	top_flux= (yarea[THARR3D(0 ,1 ,0 ,0 ,1)]*(yvel0[THARR3D(0 ,1 ,0 ,1 ,1)]+yvel0[THARR3D(1 ,1 ,0 ,1 ,1)]+yvel0[THARR3D(0 ,1 ,1 ,1 ,1)]+yvel0[THARR3D(1 ,1 ,1 ,1 ,1)]
 		+yvel0[THARR3D(0 ,1 ,0 ,1 ,1)]+yvel0[THARR3D(1 ,1 ,0 ,1 ,1)]+yvel0[THARR3D(0 ,1 ,1 ,1 ,1)]+yvel0[THARR3D(1 ,1 ,1 ,1 ,1)]))
 		*0.125*dt*0.5;
+
+XEON_PHI_LOCAL_MEM_BARRIER;
 
 	back_flux= (zarea[THARR3D(0 ,0 ,0 ,0 ,0)]*(zvel0[THARR3D(0 ,0 ,0 ,1 ,1)]+zvel0[THARR3D(1 ,0 ,0 ,1 ,1)]+zvel0[THARR3D(0 ,1 ,0 ,1 ,1)]+zvel0[THARR3D(1 ,1 ,0 ,1 ,1)]
 		+zvel0[THARR3D(0 ,0 ,0 ,1 ,1)]+zvel0[THARR3D(1 ,0 ,0 ,1 ,1)]+zvel0[THARR3D(0 ,1 ,0 ,1 ,1)]+zvel0[THARR3D(1 ,1 ,0 ,1 ,1)]))
 		*0.125*dt*0.5;
 
+XEON_PHI_LOCAL_MEM_BARRIER;
+
 	front_flux= (zarea[THARR3D(0 ,0 ,1,0,0)]*(zvel0[THARR3D(0 ,0 ,1,1,1)]+zvel0[THARR3D(1,0 ,1,1,1)]+zvel0[THARR3D(0 ,1,1,1,1)]+zvel0[THARR3D(1,1,1,1,1)]
 		+zvel0[THARR3D(0 ,0 ,1,1,1)]+zvel0[THARR3D(1,0 ,1,1,1)]+zvel0[THARR3D(0 ,1,1,1,1)]+zvel0[THARR3D(1,1,1,1,1)]))
 		*0.125*dt*0.5;
+
+XEON_PHI_LOCAL_MEM_BARRIER;
 
 
         total_flux=right_flux-left_flux+top_flux-bottom_flux+front_flux-back_flux;
@@ -126,25 +136,37 @@ __kernel void PdV_not_predict
 		+xvel1[THARR3D(0 ,0 ,0,1,1)]+xvel1[THARR3D(0 ,1,0,1,1)]+xvel1[THARR3D(0 ,0 ,1,1,1)]+xvel1[THARR3D(0 ,1,1,1,1)]))
 		*0.125*dt;
 
+XEON_PHI_LOCAL_MEM_BARRIER;
+
 	right_flux= (xarea[THARR3D(1,0 ,0,1,0)]*(xvel0[THARR3D(1,0 ,0,1,1)]+xvel0[THARR3D(1,1,0,1,1)]+xvel0[THARR3D(1,0 ,1,1,1)]+xvel0[THARR3D(1,1,1,1,1)]
 		+xvel1[THARR3D(1,0 ,0,1,1)]+xvel1[THARR3D(1,1,0,1,1)]+xvel1[THARR3D(1,0 ,1,1,1)]+xvel1[THARR3D(1,1,1,1,1)]))
 		*0.125*dt;
+
+XEON_PHI_LOCAL_MEM_BARRIER;
 
 	bottom_flux=(yarea[THARR3D(0 ,0 ,0 ,0 ,1)]*(yvel0[THARR3D(0 ,0 ,0 ,1 ,1)]+yvel0[THARR3D(1 ,0 ,0 ,1 ,1)]+yvel0[THARR3D(0 ,0 ,1 ,1 ,1)]+yvel0[THARR3D(1 ,0 ,1 ,1 ,1)]
 		+yvel1[THARR3D(0 ,0 ,0 ,1 ,1)]+yvel1[THARR3D(1 ,0 ,0 ,1 ,1)]+yvel1[THARR3D(0 ,0 ,1 ,1 ,1)]+yvel1[THARR3D(1 ,0 ,1 ,1 ,1)]))
 		*0.125*dt;
 
+XEON_PHI_LOCAL_MEM_BARRIER;
+
 	top_flux= (yarea[THARR3D(0 ,1 ,0 ,0 ,1)]*(yvel0[THARR3D(0 ,1 ,0 ,1 ,1)]+yvel0[THARR3D(1 ,1 ,0 ,1 ,1)]+yvel0[THARR3D(0 ,1 ,1 ,1 ,1)]+yvel0[THARR3D(1 ,1 ,1 ,1 ,1)]
 		+yvel1[THARR3D(0 ,1 ,0 ,1 ,1)]+yvel1[THARR3D(1 ,1 ,0 ,1 ,1)]+yvel1[THARR3D(0 ,1 ,1 ,1 ,1)]+yvel1[THARR3D(1 ,1 ,1 ,1 ,1)]))
 		*0.125*dt;
+
+XEON_PHI_LOCAL_MEM_BARRIER;
 
 	back_flux= (zarea[THARR3D(0 ,0 ,0 ,0 ,0)]*(zvel0[THARR3D(0 ,0 ,0 ,1 ,1)]+zvel0[THARR3D(1 ,0 ,0 ,1 ,1)]+zvel0[THARR3D(0 ,1 ,0 ,1 ,1)]+zvel0[THARR3D(1 ,1 ,0 ,1 ,1)]
 		+zvel1[THARR3D(0 ,0 ,0 ,1 ,1)]+zvel1[THARR3D(1 ,0 ,0 ,1 ,1)]+zvel1[THARR3D(0 ,1 ,0 ,1 ,1)]+zvel1[THARR3D(1 ,1 ,0 ,1 ,1)]))
 		*0.125*dt;
 
+XEON_PHI_LOCAL_MEM_BARRIER;
+
 	front_flux= (zarea[THARR3D(0 ,0 ,1,0,0)]*(zvel0[THARR3D(0 ,0 ,1,1,1)]+zvel0[THARR3D(1,0 ,1,1,1)]+zvel0[THARR3D(0 ,1,1,1,1)]+zvel0[THARR3D(1,1,1,1,1)]
 		+zvel1[THARR3D(0 ,0 ,1,1,1)]+zvel1[THARR3D(1,0 ,1,1,1)]+zvel1[THARR3D(0 ,1,1,1,1)]+zvel1[THARR3D(1,1,1,1,1)]))
 		*0.125*dt;
+
+XEON_PHI_LOCAL_MEM_BARRIER;
 
 	total_flux=right_flux-left_flux+top_flux-bottom_flux+front_flux-back_flux;
 

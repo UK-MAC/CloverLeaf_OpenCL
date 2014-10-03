@@ -9,6 +9,5 @@ extern "C" void reset_field_kernel_ocl_
 void CloverChunk::reset_field_kernel
 (void)
 {
-    //ENQUEUE(reset_field_device)
     ENQUEUE_OFFSET(reset_field_device)
 }

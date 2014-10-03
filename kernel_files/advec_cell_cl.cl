@@ -1,7 +1,6 @@
 #include "./kernel_files/macros_cl.cl"
 #define _SHARED_KERNEL_ARGS_ \
 const int swp_nmbr, \
-__global const double* __restrict const volume, \
 __global const double* __restrict const vol_flux_x, \
 __global const double* __restrict const vol_flux_y, \
 __global const double* __restrict const vol_flux_z, \
@@ -188,7 +187,7 @@ int advect_int)
             {
                 pre_vol[THARR3D(0, 0, 0,1,1)] = volume[THARR3D(0, 0, 0,0,0)]
                 +(vol_flux_y[THARR3D(0, 1, 0,0,1)] - vol_flux_y[THARR3D(0, 0, 0,0,1)]
-                + vol_flux_z[THARR3D(1, 0, 0,1,0)] - vol_flux_z[THARR3D(0, 0, 0,1,0)]);
+                + vol_flux_z[THARR3D(1, 0, 0,0,0)] - vol_flux_z[THARR3D(0, 0, 0,0,0)]);
 
                 post_vol[THARR3D(0, 0, 0,1,1)] = pre_vol[THARR3D(0, 0, 0,1,1)]
                 - (vol_flux_y[THARR3D(0, 1, 0,0,1)] - vol_flux_y[THARR3D(0, 0, 0,0,1)]);

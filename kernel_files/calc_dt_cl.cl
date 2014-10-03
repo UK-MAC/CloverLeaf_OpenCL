@@ -43,9 +43,9 @@ __kernel void calc_dt
     dt_min_shared[lid] = dt_min_val;
     jk_ctrl_shared[lid] = jk_control;
 
-    if(row >= (y_min + 1) && row <= (y_max + 1)
-    && column >= (x_min + 1) && column <= (x_max + 1)
-    && slice >= (z_min + 1) && slice <= (z_max + 1))
+    if(/*row >= (y_min + 1) &&*/ row <= (y_max + 1)
+    && /*column >= (x_min + 1) &&*/ column <= (x_max + 1)
+    && /*slice >= (z_min + 1) &&*/ slice <= (z_max + 1))
     {
         dsx = celldx[column];
         dsy = celldy[row];
@@ -59,6 +59,8 @@ __kernel void calc_dt
 
         div = 0.0;
 
+XEON_PHI_LOCAL_MEM_BARRIER;
+
         //x
         dv1=(xvel0[THARR3D(0  ,0  ,0,1,1  )]+xvel0[THARR3D(0  ,1,0,1,1  )]+xvel0[THARR3D(0  ,0  ,1,1,1)]+xvel0[THARR3D(0  ,1,1,1,1)])*xarea[THARR3D(0  ,0  ,0,1,0  )];
 
@@ -69,6 +71,8 @@ __kernel void calc_dt
         const double dtut = dtu_safe * 2.0 * volume[THARR3D(0, 0, 0,0,0)]
             / MAX(g_small*volume[THARR3D(0, 0, 0,0,0)],
             MAX(fabs(dv1), fabs(dv2)));
+
+XEON_PHI_LOCAL_MEM_BARRIER;
 
         //y
         dv1=(yvel0[THARR3D(0  ,0  ,0,1,1  )]+yvel0[THARR3D(1,0  ,0,1,1  )]+yvel0[THARR3D(0  ,0  ,1,1,1)]+yvel0[THARR3D(1,0  ,1,1,1)])*yarea[THARR3D(0  ,0  ,0,0,1  )];
@@ -81,10 +85,12 @@ __kernel void calc_dt
             / MAX(g_small*volume[THARR3D(0, 0, 0,0,0)],
             MAX(fabs(dv1), fabs(dv2)));
 
+XEON_PHI_LOCAL_MEM_BARRIER;
+
         //z
         dv1=(zvel0[THARR3D(0  ,0  ,0,1,1  )]+zvel0[THARR3D(1,0  ,0,1,1  )]+zvel0[THARR3D(0  ,1  ,0,1,1)]+zvel0[THARR3D(1,1  ,0,1,1)])*zarea[THARR3D(0  ,0  ,0,0,0  )];
 
-        dv2=(zvel0[THARR3D(0  ,0,1,1,1  )]+zvel0[THARR3D(1,0,1,1,1  )]+zvel0[THARR3D(0  ,1,1,1,1)]+zvel0[THARR3D(1,1,1,1,1)])*zarea[THARR3D(0  ,0,1,0,1  )];
+        dv2=(zvel0[THARR3D(0  ,0,1,1,1  )]+zvel0[THARR3D(1,0,1,1,1  )]+zvel0[THARR3D(0  ,1,1,1,1)]+zvel0[THARR3D(1,1,1,1,1)])*zarea[THARR3D(0  ,0,1,0,0  )];
 
         div += dv2 - dv1;
 

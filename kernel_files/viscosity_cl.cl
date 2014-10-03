@@ -12,68 +12,72 @@ __kernel void viscosity
 {
     __kernel_indexes;
 
-    double ugrad, vgrad,wgrad, grad2, pgradx, pgrady,pgradz, pgradx2, pgrady2,pgradz2,
-        grad, ygrad, pgrad, xgrad,zgrad, div, strain2, limiter;
-
     if(/*row >= (y_min + 1) && */ row <= (y_max + 1)
     && /*column >= (x_min + 1) && */ column <= (x_max + 1)
     && /*slice >= (z_min + 1) && */ slice <= (z_max + 1))
     {
-        ugrad=0.5*((xvel0[THARR3D(1,0 ,0,1,1 )]+xvel0[THARR3D(1,1,0,1,1 )]+xvel0[THARR3D(1,0 ,1,1,1)]+xvel0[THARR3D(1,1,1,1,1)])
-		-(xvel0[THARR3D(0 ,0 ,0,1,1 )]+xvel0[THARR3D(0 ,1,0,1,1 )]+xvel0[THARR3D(0 ,0 ,1,1,1)]+xvel0[THARR3D(0 ,1,1,1,1)]));
+        #define GRADVARS(uvw) \
+        const double uvw##gradx1 = (xvel0[THARR3D(0, 0, 0, 1, 1)]+xvel0[THARR3D(0, 1, 0, 1, 1)]+xvel0[THARR3D(0, 0, 1, 1, 1)]+xvel0[THARR3D(0, 1, 1, 1, 1)]);   \
+		const double uvw##gradx2 = (xvel0[THARR3D(1, 0, 0, 1, 1)]+xvel0[THARR3D(1, 1, 0, 1, 1)]+xvel0[THARR3D(1, 0, 1, 1, 1)]+xvel0[THARR3D(1, 1, 1, 1, 1)]);   \
+        const double uvw##grady1 = (xvel0[THARR3D(0, 0, 0, 1, 1)]+xvel0[THARR3D(1, 0, 0, 1, 1)]+xvel0[THARR3D(0, 0, 1, 1, 1)]+xvel0[THARR3D(1, 0, 1, 1, 1)]);   \
+		const double uvw##grady2 = (xvel0[THARR3D(0, 1, 0, 1, 1)]+xvel0[THARR3D(1, 1, 0, 1, 1)]+xvel0[THARR3D(0, 1, 1, 1, 1)]+xvel0[THARR3D(1, 1, 1, 1, 1)]);   \
+        const double uvw##gradz1 = (xvel0[THARR3D(0, 0, 0, 1, 1)]+xvel0[THARR3D(1, 0, 0, 1, 1)]+xvel0[THARR3D(0, 1, 0, 1, 1)]+xvel0[THARR3D(1, 1, 0, 1, 1)]);   \
+		const double uvw##gradz2 = (xvel0[THARR3D(0, 0, 1, 1, 1)]+xvel0[THARR3D(1, 0, 1, 1, 1)]+xvel0[THARR3D(0, 1, 1, 1, 1)]+xvel0[THARR3D(1, 1, 1, 1, 1)]);
 
-        vgrad=0.5*((yvel0[THARR3D(0 ,1,0,1,1 )]+yvel0[THARR3D(1,1,0,1,1 )]+yvel0[THARR3D(0 ,1,1,1,1)]+yvel0[THARR3D(1,1,1,1,1)])
-		-(yvel0[THARR3D(0 ,0 ,0,1,1 )]+yvel0[THARR3D(1,0 ,0,1,1 )]+yvel0[THARR3D(0 ,0 ,1,1,1)]+yvel0[THARR3D(1,0 ,1,1,1)]));
+        GRADVARS(u)
 
-        wgrad=0.5*((zvel0[THARR3D(0 ,0 ,1,1,1)]+zvel0[THARR3D(1,1,1,1,1)]+zvel0[THARR3D(0 ,0 ,1,1,1)]+zvel0[THARR3D(1,1,1,1,1)])
-		-(zvel0[THARR3D(0 ,0,0,1,1 )]+zvel0[THARR3D(1,0 ,0,1,1 )]+zvel0[THARR3D(0 ,1,0,1,1 )]+zvel0[THARR3D(1,1,0,1,1 )]));
+XEON_PHI_LOCAL_MEM_BARRIER;
 
-        div = (celldy[row]*celldz[slice])   *ugrad +
-              (celldx[column]*celldz[slice])*vgrad +
-              (celldy[row]*celldx[column])  *wgrad;
+        GRADVARS(v)
 
-//Double check that (celldy[row]*celldz[slice])==yarea, etc
+XEON_PHI_LOCAL_MEM_BARRIER;
 
-        strain2 = 0.5*(xvel0[THARR3D(0, 1,0,1,1 )] + xvel0[THARR3D(1,1,1,1,1)]-xvel0[THARR3D(0 ,0 ,0,1,1)]-xvel0[THARR3D(1,0 ,0,1,1 )])/(celldy[row]*celldz[slice])
-                + 0.5*(yvel0[THARR3D(1,0 ,0,1,1 )] + yvel0[THARR3D(1,1,1,1,1)]-yvel0[THARR3D(0 ,0 ,0,1,1)]-yvel0[THARR3D(0 ,1,0,1,1 )])/(celldx[column]*celldz[slice])
-                + 0.5*(zvel0[THARR3D(0 ,0 ,1,1,1)] + zvel0[THARR3D(1,1,1,1,1)]-zvel0[THARR3D(0 ,0 ,0,1,1)]-zvel0[THARR3D(0 ,0 ,1,1,1)])/(celldy[row]*celldx[column]);
+        GRADVARS(w)
 
+XEON_PHI_LOCAL_MEM_BARRIER;
 
-        pgradx = (pressure[THARR3D(1, 0, 0,0,0)] - pressure[THARR3D(-1, 0, 0,0,0)])
-               / (celldx[column] + celldx[column + 1]);
-        pgrady = (pressure[THARR3D(0, 1, 0,0,0)] - pressure[THARR3D(0, -1, 0,0,0)])
-               / (celldy[row] + celldy[row + 1]);
-        pgradz = (pressure[THARR3D(0,0,1,0,0)]-pressure[THARR3D(0,0,-1,0,0)])/(celldz[slice] + celldz[slice + 1]);
+        const double div = (celldy[row]*celldz[slice])   *(ugradx2 - ugradx1) +
+                           (celldx[column]*celldz[slice])*(vgrady2 - vgrady1) +
+                           (celldy[row]*celldx[column])  *(wgradz2 - wgradz1);
 
-        pgradx2 = pgradx*pgradx;
-        pgrady2 = pgrady*pgrady;
-        pgradz2 = pgradz*pgradz;
+        const double xx = 0.25*(ugradx2 - ugradx1)/celldx[column];
+        const double yy = 0.25*(vgrady2 - vgrady1)/celldy[row];
+        const double zz = 0.25*(wgradz2 - wgradz1)/celldz[slice];
 
-        limiter = ((0.5*(ugrad)/celldx[column])*pgradx2
-		+ (0.5*(vgrad)/celldy[row])*pgrady2
-		+ (0.5*(wgrad)/celldz[slice])*pgradz2
-		+strain2*pgradx*pgrady*pgradz)
-		/ MAX(pgradx2+pgrady2+pgradz2,1.0e-16);
+        const double xy = 0.25*(ugrady2 - ugrady1)/celldy[row]   + 0.25*(vgradx2 - vgradx1)/celldx[column];
+        const double xz = 0.25*(ugradz2 - ugradz1)/celldz[slice] + 0.25*(wgradx2 - wgradx1)/celldx[column];
+        const double yz = 0.25*(vgradz2 - vgradz1)/celldz[slice] + 0.25*(wgrady2 - wgrady1)/celldy[row];
 
+        double pgradx = (pressure[THARR3D(1, 0, 0, 0, 0)] - pressure[THARR3D(-1, 0, 0, 0, 0)]) / (celldx[column] + celldx[column + 1]);
+        double pgrady = (pressure[THARR3D(0, 1, 0, 0, 0)] - pressure[THARR3D(0, -1, 0, 0, 0)]) / (celldy[row]    + celldy[row + 1]);
+        double pgradz = (pressure[THARR3D(0, 0, 1, 0, 0)] - pressure[THARR3D(0, 0, -1, 0, 0)]) / (celldz[slice]  + celldz[slice + 1]);
 
-        pgradx = SIGN(MAX(1.0e-16, fabs(pgradx)), pgradx);
-        pgrady = SIGN(MAX(1.0e-16, fabs(pgrady)), pgrady);
-        pgradz = SIGN(MAX(1.0e-16, fabs(pgradz)), pgradz);
-        pgrad = SQRT(pgradx*pgradx+pgrady*pgrady+pgradz*pgradz);
-        xgrad = fabs(celldx[column] * pgrad / pgradx);
-        ygrad = fabs(celldy[row] * pgrad / pgrady);
-        zgrad = fabs(celldz[slice]*pgrad / pgradz);
+        const double pgradx2 = pgradx*pgradx;
+        const double pgrady2 = pgrady*pgrady;
+        const double pgradz2 = pgradz*pgradz;
 
-        grad = MIN(xgrad, MIN(ygrad,zgrad));
-        grad2 = grad * grad;
+        const double limiter = (xx*pgradx2 + yy*pgrady2 + zz*pgradz2 +
+            xy*pgradx*pgrady + xz*pgradx*pgradz + yz*pgrady*pgradz) /
+            MAX(pgradx2+pgrady2+pgradz2, 1.0e-16);
 
         if(limiter > 0 || div >= 0.0)
         {
-            viscosity[THARR3D(0,0,0,0,0)] = 0.0;
+            viscosity[THARR3D(0, 0, 0, 0, 0)] = 0.0;
         }
         else
         {
-            viscosity[THARR3D(0,0,0,0,0)] = 2.0 * density0[THARR3D(0,0,0,0,0)] * grad2 * (limiter * limiter);
+            pgradx = SIGN(MAX(1.0e-16, fabs(pgradx)), pgradx);
+            pgrady = SIGN(MAX(1.0e-16, fabs(pgrady)), pgrady);
+            pgradz = SIGN(MAX(1.0e-16, fabs(pgradz)), pgradz);
+            const double pgrad = SQRT(pgradx*pgradx + pgrady*pgrady + pgradz*pgradz);
+            const double xgrad = fabs(celldx[column]*pgrad/pgradx);
+            const double ygrad = fabs(celldy[row]   *pgrad/pgrady);
+            const double zgrad = fabs(celldz[slice] *pgrad/pgradz);
+
+            const double grad = MIN(xgrad, MIN(ygrad, zgrad));
+            const double grad2 = grad*grad;
+
+            viscosity[THARR3D(0, 0, 0, 0, 0)] = 2.0*density0[THARR3D(0, 0, 0, 0, 0)]*grad2*(limiter*limiter);
         }
     }
 }

@@ -133,23 +133,10 @@ MPI_COMPILER=mpif90
 C_MPI_COMPILER=mpicc
 CXX_MPI_COMPILER=mpiCC
 
+CXXFLAGS+=$(CFLAGS)
+
 C_FILES=\
-	accelerate_kernel_c.o           \
-	pack_kernel_c.o \
-	PdV_kernel_c.o                  \
-	timer_c.o                  \
-	initialise_chunk_kernel_c.o                  \
-	calc_dt_kernel_c.o                  \
-	field_summary_kernel_c.o                  \
-	update_halo_kernel_c.o                  \
-	generate_chunk_kernel_c.o                  \
-	flux_calc_kernel_c.o            \
-	revert_kernel_c.o               \
-	reset_field_kernel_c.o          \
-	ideal_gas_kernel_c.o            \
-	viscosity_kernel_c.o            \
-	advec_cell_kernel_c.o			\
-	advec_mom_kernel_c.o
+    timer_c.o
 
 FORTRAN_FILES=\
 	pack_kernel.o \
@@ -237,7 +224,7 @@ include make.deps
 %.mod %_module.mod %_leaf_module.mod: %.f90 %.o
 	@true
 %.o: %.f90 Makefile
-	$(MPI_COMPILER) -cpp $(CFLAGS) -c $< -o $*.o
+	$(MPI_COMPILER) -cpp $(FLAGS) -c $< -o $*.o
 %.o: %.c Makefile
 	$(C_MPI_COMPILER) $(CFLAGS) -c $< -o $*.o
 

@@ -25,11 +25,10 @@ __kernel void update_halo_left
     __kernel_indexes;
   if (slice >= 2 - depth && slice <= (z_max + 1) + z_extra + depth)
   {
-    if (column < depth)
     if (row >= 2 - depth && row <= (y_max + 1) + y_extra + depth)
     {
         cur_array[THARR3D(1 - 2*column, 0, 0, x_extra, y_extra)] =
-            x_invert * cur_array[THARR3D(l_offset + 2, 0, 0, x_extra, y_extra)];
+            x_invert * cur_array[THARR3D((x_min + 1) + l_offset, 0, 0, x_extra, y_extra)];
     }
   }
 }
@@ -47,11 +46,10 @@ __kernel void update_halo_right
     __kernel_indexes;
   if (slice >= 2 - depth && slice <= (z_max + 1) + z_extra + depth)
   {
-    if (column < depth)
     if (row >= 2 - depth && row <= (y_max + 1) + y_extra + depth)
     {
-        cur_array[THARR3D(x_max + 2 + x_extra, 0, 0, x_extra, y_extra)] =
-            x_invert * cur_array[THARR3D(x_max + 1 - y_f_offset - 2*column, 0, 0, x_extra, y_extra)];
+        cur_array[THARR3D((x_max + 1) + 1 + x_extra, 0, 0, x_extra, y_extra)] =
+            x_invert * cur_array[THARR3D((x_max + 1) - y_f_offset - 2*column, 0, 0, x_extra, y_extra)];
     }
   }
 }
@@ -71,15 +69,8 @@ __kernel void update_halo_bottom
   {
     if (column >= 2 - depth && column <= (x_max + 1) + x_extra + depth)
     {
-        if (row < depth)
-        {
-            /*
-             * 1 - 2 * row means that row 0 services row 1, and vice versa
-             * this means that it can be dispatched with 'depth' rows only
-             */
-            cur_array[THARR3D(0, 1 - 2*row, 0, x_extra, y_extra)] =
-                y_invert * cur_array[THARR3D(0, b_offset + 2, 0, x_extra, y_extra)];
-        }
+        cur_array[THARR3D(0, 1 - 2*row, 0, x_extra, y_extra)] =
+            y_invert * cur_array[THARR3D(0, (y_min + 1) + b_offset, 0, x_extra, y_extra)];
     }
   }
 }
@@ -99,11 +90,8 @@ __kernel void update_halo_top
   {
     if (column >= 2 - depth && column <= (x_max + 1) + x_extra + depth)
     {
-        if (row < depth)
-        {
-            cur_array[THARR3D(0, y_max + 2 + y_extra, 0, x_extra, y_extra)] =
-                y_invert * cur_array[THARR3D(0, y_max + 1 - x_f_offset - 2*row, 0, x_extra, y_extra)];
-        }
+        cur_array[THARR3D(0, (y_max + 1) + 1 + y_extra, 0, x_extra, y_extra)] =
+            y_invert * cur_array[THARR3D(0, (y_max + 1) - x_f_offset - 2*row, 0, x_extra, y_extra)];
     }
   }
 }
@@ -119,13 +107,12 @@ __kernel void update_halo_back
     int z_offset = (grid_type != CELL_DATA) ? 1 : 0;
 
     __kernel_indexes;
-  if (slice < depth)
   if (column >= 2 - depth && column <= (x_max + 1) + x_extra + depth)
   {
     if (row >= 2 - depth && row <= (y_max + 1) + y_extra + depth)
     {
         cur_array[THARR3D(0, 0, 1 - 2*slice, x_extra, y_extra)] =
-            z_invert * cur_array[THARR3D(0, 0, z_offset + 2, x_extra, y_extra)];
+            z_invert * cur_array[THARR3D(0, 0, (z_min + 1) + z_offset, x_extra, y_extra)];
     }
   }
 }
@@ -141,13 +128,12 @@ __kernel void update_halo_front
 
   int z_offset = (x_face || y_face);
 
-  if (slice < depth)
   if (column >= 2 - depth && column <= (x_max + 1) + x_extra + depth)
   {
     if (row >= 2 - depth && row <= (y_max + 1) + y_extra + depth)
     {
-        cur_array[THARR3D(0, 0, z_max + 2 + z_extra, x_extra, y_extra)] =
-            z_invert * cur_array[THARR3D(0, 0, z_max + 1 - z_offset - 2*slice, x_extra, y_extra)];
+        cur_array[THARR3D(0, 0, (z_max + 1) + 1 + z_extra, x_extra, y_extra)] =
+            z_invert * cur_array[THARR3D(0, 0, (z_max + 1) - z_offset - 2*slice, x_extra, y_extra)];
     }
   }
 }

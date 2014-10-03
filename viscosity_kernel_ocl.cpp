@@ -9,6 +9,5 @@ extern "C" void viscosity_kernel_ocl_
 void CloverChunk::viscosity_kernel
 (void)
 {
-    //ENQUEUE(viscosity_device)
     ENQUEUE_OFFSET(viscosity_device)
 }

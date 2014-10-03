@@ -27,9 +27,9 @@ __kernel void field_summary
     ke_shared[lid] = 0.0;
     press_shared[lid] = 0.0;
 
-    if(row >= (y_min + 1) && row <= (y_max + 1)
-    && column >= (x_min + 1) && column <= (x_max + 1)
-    && slice >= (z_min + 1) && slice <= (z_max + 1))
+    if(/*row >= (y_min + 1) &&*/ row <= (y_max + 1)
+    && /*column >= (x_min + 1) &&*/ column <= (x_max + 1)
+    && /*slice >= (z_min + 1) &&*/ slice <= (z_max + 1))
     {
         double vsqrd = 0.0;
 

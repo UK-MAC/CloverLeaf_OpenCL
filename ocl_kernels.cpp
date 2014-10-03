@@ -240,7 +240,6 @@ cl::Program CloverChunk::compileProgram
         throw KernelCompileError(errs.c_str());
     }
 
-    // return
     errstream << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(device);
     std::string errs(errstream.str());
 
@@ -289,7 +288,9 @@ void CloverChunk::initSizes
      *  reduction, so can just fit it to the row/column even if its not a pwoer
      *  of 2
      */
+
     // get max local size for the update kernels
+    // different directions are near identical, so should have the same limit
     size_t max_update_wg_sz;
     cl::detail::errHandler(
         clGetKernelWorkGroupInfo(update_halo_bottom_device(),
@@ -300,58 +301,79 @@ void CloverChunk::initSizes
                                  NULL));
     fprintf(DBGOUT, "Max work group size for update halo is %zu\n", max_update_wg_sz);
 
-    // subdivide row size until it will fit
-    size_t local_row_size = x_max+5;
-    while (local_row_size > max_update_wg_sz/2)
-    {
-        local_row_size = local_row_size/2;
-    }
-    fprintf(DBGOUT, "Local row work group size is %zu\n", local_row_size);
+    // ideally multiple of 32 for nvidia, ideally multiple of 64 for amd
+    size_t local_row_size = 16;
+    size_t local_column_size = 16;
+    size_t local_slice_size = 16;
 
-    update_ud_local_size[0] = cl::NDRange(local_row_size, 1, 1);
-    update_ud_local_size[1] = cl::NDRange(local_row_size, 2, 1);
+    cl_device_type dtype;
+    device.getInfo(CL_DEVICE_TYPE, &dtype);
 
-    size_t global_row_size = local_row_size;
-    while (global_row_size < x_max+5)
+    if (dtype == CL_DEVICE_TYPE_ACCELERATOR)
     {
-        global_row_size += local_row_size;
-    }
-    update_ud_global_size[0] = cl::NDRange(global_row_size, 1, z_max+5);
-    update_ud_global_size[1] = cl::NDRange(global_row_size, 2, z_max+5);
-
-    // same for column
-    size_t local_column_size = y_max+5;
-    while (local_column_size > max_update_wg_sz/2)
-    {
-        local_column_size = local_column_size/2;
+        // want to run with work group size of 16 for phi to speed up l/r updates
+        local_row_size = 4;
+        local_column_size = 4;
+        local_slice_size = 4;
     }
 
-    if (CL_DEVICE_TYPE_ACCELERATOR == desired_type)
+    // divide all local sizes if 16x16x1 is too big
+    while (local_row_size * local_slice_size > max_update_wg_sz)
     {
-        // on xeon phi, needs to be 16 so that update left/right kernels dont go really slow
-        local_column_size = 16;
+        local_row_size /= 2;
+        local_column_size /= 2;
+        local_slice_size /= 2;
     }
 
-    fprintf(DBGOUT, "Local column work group size is %zu\n", local_column_size);
-
-    update_lr_local_size[0] = cl::NDRange(1, local_column_size, 1);
-    update_lr_local_size[1] = cl::NDRange(2, local_column_size, 1);
-
-    size_t global_column_size = local_column_size;
-    while (global_column_size < y_max+5)
+    // divide one local dimension if 16x16x2 is still too big
+    size_t local_divide = 1;
+    while (local_row_size * local_slice_size * 2 / local_divide > max_update_wg_sz)
     {
-        global_column_size += local_column_size;
+        local_divide *= 2;
     }
-    update_lr_global_size[0] = cl::NDRange(1, global_column_size, z_max+5);
-    update_lr_global_size[1] = cl::NDRange(2, global_column_size, z_max+5);
 
-    // front and back
-    update_fb_local_size[0] = cl::NDRange(local_row_size, 1, 1);
-    update_fb_local_size[1] = cl::NDRange(local_row_size, 1, 2);
+    // create the local sizes, dividing the last possible dimension if needs be
+    update_lr_local_size[0] = cl::NDRange(1, local_column_size, local_slice_size);
+    update_lr_local_size[1] = cl::NDRange(2, local_column_size, local_slice_size/local_divide);
+    update_ud_local_size[0] = cl::NDRange(local_row_size, 1, local_slice_size);
+    update_ud_local_size[1] = cl::NDRange(local_row_size, 2, local_slice_size/local_divide);
+    update_fb_local_size[0] = cl::NDRange(local_row_size, local_column_size, 1);
+    update_fb_local_size[1] = cl::NDRange(local_row_size, local_column_size/local_divide, 2);
 
+    // start off doing minimum amount of work
+    size_t global_row_size = x_max + 5;
+    size_t global_column_size = y_max + 5;
+    size_t global_slice_size = z_max + 5;
+
+    // increase just to fit in with local work group sizes
+    while (global_row_size % local_row_size)
+        global_row_size++;
+    while (global_column_size % local_column_size)
+        global_column_size++;
+    while (global_slice_size % local_slice_size)
+        global_slice_size++;
+
+    // create ndranges
+    update_lr_global_size[0] = cl::NDRange(1, global_column_size, global_slice_size);
+    update_lr_global_size[1] = cl::NDRange(2, global_column_size, global_slice_size);
+    update_ud_global_size[0] = cl::NDRange(global_row_size, 1, global_slice_size);
+    update_ud_global_size[1] = cl::NDRange(global_row_size, 2, global_slice_size);
     update_fb_global_size[0] = cl::NDRange(global_row_size, global_column_size, 1);
     update_fb_global_size[1] = cl::NDRange(global_row_size, global_column_size, 2);
-    // TODO move into function
+
+    for (int depth = 0; depth < 2; depth++)
+    {
+        fprintf(DBGOUT, "Depth %d:\n", depth + 1);
+        fprintf(DBGOUT, "Left/right update halo size: [%zu %zu %zu] split by [%zu %zu %zu]\n",
+            update_lr_global_size[depth][0], update_lr_global_size[depth][1], update_lr_global_size[depth][2],
+            update_lr_local_size[depth][0], update_lr_local_size[depth][1], update_lr_local_size[depth][2]);
+        fprintf(DBGOUT, "Bottom/top update halo size: [%zu %zu %zu] split by [%zu %zu %zu]\n",
+            update_ud_global_size[depth][0], update_ud_global_size[depth][1], update_ud_global_size[depth][2],
+            update_ud_local_size[depth][0], update_ud_local_size[depth][1], update_ud_local_size[depth][2]);
+        fprintf(DBGOUT, "Front/back update halo size: [%zu %zu %zu] split by [%zu %zu %zu]\n",
+            update_fb_global_size[depth][0], update_fb_global_size[depth][1], update_fb_global_size[depth][2],
+            update_fb_local_size[depth][0], update_fb_local_size[depth][1], update_fb_local_size[depth][2]);
+    }
 
     fprintf(DBGOUT, "Update halo parameters calculated\n");
 
@@ -377,7 +399,7 @@ void CloverChunk::initSizes
 
     FIND_PADDING_SIZE(ideal_gas, 0, 0, 0, 0, 0, 0);
     FIND_PADDING_SIZE(accelerate, 0, 1, 0, 1, 0, 1);
-    FIND_PADDING_SIZE(flux_calc_x, 0, 0, 0, 0, 1, 0);
+    FIND_PADDING_SIZE(flux_calc_x, 0, 0, 0, 1, 0, 0);
     FIND_PADDING_SIZE(flux_calc_y, 0, 0, 0, 0, 0, 1);
     FIND_PADDING_SIZE(flux_calc_z, 0, 1, 0, 0, 0, 0);
     FIND_PADDING_SIZE(viscosity, 0, 0, 0, 0, 0, 0);
@@ -551,10 +573,9 @@ void CloverChunk::initArgs
     advec_mom_node_pre_x_device.setArg(2, work_array_4);
 
     advec_mom_flux_x_device.setArg(0, work_array_2);
-    advec_mom_flux_x_device.setArg(1, work_array_3);
-    advec_mom_flux_x_device.setArg(2, work_array_4);
-    advec_mom_flux_x_device.setArg(4, celldx);
-    advec_mom_flux_x_device.setArg(5, work_array_5);
+    advec_mom_flux_x_device.setArg(1, work_array_4);
+    advec_mom_flux_x_device.setArg(3, celldx);
+    advec_mom_flux_x_device.setArg(4, work_array_5);
 
     advec_mom_xvel_device.setArg(0, work_array_3);
     advec_mom_xvel_device.setArg(1, work_array_4);
@@ -573,10 +594,9 @@ void CloverChunk::initArgs
     advec_mom_node_pre_y_device.setArg(2, work_array_4);
 
     advec_mom_flux_y_device.setArg(0, work_array_2);
-    advec_mom_flux_y_device.setArg(1, work_array_3);
-    advec_mom_flux_y_device.setArg(2, work_array_4);
-    advec_mom_flux_y_device.setArg(4, celldy);
-    advec_mom_flux_y_device.setArg(5, work_array_5);
+    advec_mom_flux_y_device.setArg(1, work_array_4);
+    advec_mom_flux_y_device.setArg(3, celldy);
+    advec_mom_flux_y_device.setArg(4, work_array_5);
 
     advec_mom_yvel_device.setArg(0, work_array_3);
     advec_mom_yvel_device.setArg(1, work_array_4);
@@ -595,10 +615,9 @@ void CloverChunk::initArgs
     advec_mom_node_pre_z_device.setArg(2, work_array_4);
 
     advec_mom_flux_z_device.setArg(0, work_array_2);
-    advec_mom_flux_z_device.setArg(1, work_array_3);
-    advec_mom_flux_z_device.setArg(2, work_array_4);
-    advec_mom_flux_z_device.setArg(4, celldz);
-    advec_mom_flux_z_device.setArg(5, work_array_5);
+    advec_mom_flux_z_device.setArg(1, work_array_4);
+    advec_mom_flux_z_device.setArg(3, celldz);
+    advec_mom_flux_z_device.setArg(4, work_array_5);
 
     advec_mom_zvel_device.setArg(0, work_array_3);
     advec_mom_zvel_device.setArg(1, work_array_4);
@@ -611,14 +630,13 @@ void CloverChunk::initArgs
     */
 
     #define SET_SHARED(knl)             \
-        knl.setArg(1, volume);          \
-        knl.setArg(2, vol_flux_x);      \
-        knl.setArg(3, vol_flux_y);      \
-        knl.setArg(4, vol_flux_z);      \
-        knl.setArg(5, work_array_2);    \
-        knl.setArg(6, density1);        \
-        knl.setArg(7, energy1);         \
-        knl.setArg(8, work_array_1);
+        knl.setArg(1, vol_flux_x);      \
+        knl.setArg(2, vol_flux_y);      \
+        knl.setArg(3, vol_flux_z);      \
+        knl.setArg(4, work_array_2);    \
+        knl.setArg(5, density1);        \
+        knl.setArg(6, energy1);         \
+        knl.setArg(7, work_array_1);
 
     // x kernels
     advec_cell_pre_vol_x_device.setArg(1, work_array_2);
@@ -629,11 +647,11 @@ void CloverChunk::initArgs
     advec_cell_pre_vol_x_device.setArg(6, vol_flux_z);
 
     SET_SHARED(advec_cell_ener_flux_x_device)
-    advec_cell_ener_flux_x_device.setArg(9, vertexdx);
-    advec_cell_ener_flux_x_device.setArg(10, mass_flux_x);
+    advec_cell_ener_flux_x_device.setArg(8, vertexdx);
+    advec_cell_ener_flux_x_device.setArg(9, mass_flux_x);
 
     SET_SHARED(advec_cell_x_device)
-    advec_cell_x_device.setArg(9, mass_flux_x);
+    advec_cell_x_device.setArg(8, mass_flux_x);
 
     // y kernels
     advec_cell_pre_vol_y_device.setArg(1, work_array_2);
@@ -644,11 +662,11 @@ void CloverChunk::initArgs
     advec_cell_pre_vol_y_device.setArg(6, vol_flux_z);
 
     SET_SHARED(advec_cell_ener_flux_y_device)
-    advec_cell_ener_flux_y_device.setArg(9, vertexdy);
-    advec_cell_ener_flux_y_device.setArg(10, mass_flux_y);
+    advec_cell_ener_flux_y_device.setArg(8, vertexdy);
+    advec_cell_ener_flux_y_device.setArg(9, mass_flux_y);
 
     SET_SHARED(advec_cell_y_device)
-    advec_cell_y_device.setArg(9, mass_flux_y);
+    advec_cell_y_device.setArg(8, mass_flux_y);
 
     // z kernels
     advec_cell_pre_vol_z_device.setArg(1, work_array_2);
@@ -659,11 +677,11 @@ void CloverChunk::initArgs
     advec_cell_pre_vol_z_device.setArg(6, vol_flux_z);
 
     SET_SHARED(advec_cell_ener_flux_z_device)
-    advec_cell_ener_flux_z_device.setArg(9, vertexdz);
-    advec_cell_ener_flux_z_device.setArg(10, mass_flux_z);
+    advec_cell_ener_flux_z_device.setArg(8, vertexdz);
+    advec_cell_ener_flux_z_device.setArg(9, mass_flux_z);
 
     SET_SHARED(advec_cell_z_device)
-    advec_cell_z_device.setArg(9, mass_flux_z);
+    advec_cell_z_device.setArg(8, mass_flux_z);
 
     #undef SET_SHARED
 
@@ -713,9 +731,6 @@ void CloverChunk::initArgs
     PdV_predict_device.setArg(12, xvel0);
     PdV_predict_device.setArg(13, yvel0);
     PdV_predict_device.setArg(14, zvel0);
-    PdV_predict_device.setArg(15, xvel1);
-    PdV_predict_device.setArg(16, yvel1);
-    PdV_predict_device.setArg(17, zvel1);
 
     PdV_not_predict_device.setArg(1, PdV_reduce_buf);
     PdV_not_predict_device.setArg(2, xarea);
@@ -775,5 +790,4 @@ void CloverChunk::initArgs
 
     fprintf(DBGOUT, "Kernel arguments set\n");
 }
-
 

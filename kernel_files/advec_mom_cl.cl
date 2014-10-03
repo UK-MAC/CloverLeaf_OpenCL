@@ -117,7 +117,6 @@ __kernel void advec_mom_node_pre_x
 
 __kernel void advec_mom_flux_x
 (__global const double* __restrict const node_flux,
- __global const double* __restrict const node_mass_post,
  __global const double* __restrict const node_mass_pre,
  __global const double* __restrict const xvel1,
  __global const double* __restrict const celldx,
@@ -130,7 +129,7 @@ __kernel void advec_mom_flux_x
     double sigma, width, vdiffuw, vdiffdw, limiter;
     double auw, adw, wind;
 
-    if(row >= (y_min + 1) && row <= (y_max + 1) + 1
+    if(/*row >= (y_min + 1) &&*/ row <= (y_max + 1) + 1
     && /*column >= (x_min + 1) - 1 &&*/ column <= (x_max + 1) + 1
     && /*slice >= (z_min + 1) - 2 &&*/ slice <= (z_max + 1)+1)
     {
@@ -250,7 +249,6 @@ __kernel void advec_mom_node_pre_y
 
 __kernel void advec_mom_flux_y
 (__global const double* __restrict const node_flux,
- __global const double* __restrict const node_mass_post,
  __global const double* __restrict const node_mass_pre,
  __global const double* __restrict const yvel1,
  __global const double* __restrict const celldy,
@@ -264,7 +262,7 @@ __kernel void advec_mom_flux_y
     double auw, adw, wind;
 
     if(/*row >= (y_min + 1) - 1 &&*/ row <= (y_max + 1) + 1
-    && column >= (x_min + 1) && column <= (x_max + 1) + 1
+    && /*column >= (x_min + 1) && */column <= (x_max + 1) + 1
     && /*slice >= (z_min + 1) - 2 &&*/ slice <= (z_max + 1)+1)
     {
         if(node_flux[THARR3D(0, 0,0,1, 1)] < 0.0)
@@ -382,7 +380,6 @@ __kernel void advec_mom_node_pre_z
 
 __kernel void advec_mom_flux_z
 (__global const double* __restrict const node_flux,
- __global const double* __restrict const node_mass_post,
  __global const double* __restrict const node_mass_pre,
  __global const double* __restrict const zvel1,
  __global const double* __restrict const celldz,
@@ -396,7 +393,7 @@ __kernel void advec_mom_flux_z
     double auw, adw, wind;
 
     if(/*row >= (y_min + 1) - 1 &&*/ row <= (y_max + 1) + 1
-    && column >= (x_min + 1) && column <= (x_max + 1) + 1
+    && /*column >= (x_min + 1) && */column <= (x_max + 1) + 1
     && /*slice >= (z_min + 1) - 2 &&*/ slice <= (z_max + 1)+1)
     {
         if(node_flux[THARR3D(0, 0,0,1, 1)] < 0.0)

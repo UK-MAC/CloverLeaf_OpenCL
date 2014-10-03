@@ -78,6 +78,7 @@ __kernel void initialise_chunk_second
         celly[row] = 0.5 * (vertexy[row] + vertexy[row + 1]);
         celldy[row] = d_dy;
     }
+
     //fill z arrays
     if (row == 0 && slice <= (z_max + 1) + 2 && column == 0)
     {
@@ -95,38 +96,4 @@ __kernel void initialise_chunk_second
         zarea[THARR3D(0, 0,0, 0,0)] = d_dx * d_dy;
     }
 }
-/*
-{
-__kernel_indexes;
 
-//fill x arrays
-if (column >= (x_min-1)-2 && column <= (x_max + 1) + 2)
-{
-cellx[column] = 0.5 * (vertexx[column] + vertexx[column + 1]);
-celldx[column] = d_dx;
-}
-
-//fill y arrays
-if (row >= (y_min+1)-2 && row <= (y_max + 1) + 2)
-{
-celly[row] = 0.5 * (vertexy[row] + vertexy[row + 1]);
-celldy[row] = d_dy;
-}
-//fill z arrays
-if (slice >= (z_min+1)-2 && slice <= (z_max + 1) + 2)
-{
-cellz[slice] = 0.5 * (vertexz[slice] + vertexz[slice + 1]);
-celldz[slice] = d_dz;
-}
-
-if (row <= (y_max + 1) + 2
-&& column <= (x_max + 1) + 2
-&& slice <= (z_max + 1) + 2)
-{
-volume[THARR3D(0, 0, 0,0,0)] = d_dx * d_dy * d_dz;
-xarea[THARR3D(0, 0,0, 1,0)] = d_dy * d_dz;
-yarea[THARR3D(0, 0,0, 0,1)] = d_dx * d_dz;
-zarea[THARR3D(0, 0,0, 0,0)] = d_dx * d_dy;
-}
-}
-*/
