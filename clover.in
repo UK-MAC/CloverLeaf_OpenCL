@@ -14,11 +14,11 @@
  !visit_frequency 1
  summary_frequency 1
 
- x_cells=100
- y_cells=100
- z_cells=100
+ x_cells=98
+ y_cells=96
+ z_cells=96
  end_time=100.0
- end_step=100
+ end_step=3000
 
  use_opencl_kernels
  opencl_vendor=nvidia

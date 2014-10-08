@@ -3,7 +3,7 @@
 // left/right
 #if 1
 #define VERT_IDX                                                    \
-    ((column - 1) +                                                 \
+    ((column - 0) +                                                 \
     ((row    - 1) + depth - 1)*depth +                              \
     ((slice  - 1) + depth - 1)*(y_max + y_extra + 2*depth)*depth)   \
     + offset
@@ -17,15 +17,15 @@
 // bottom/top
 #define HORZ_IDX                                                                    \
     (column + depth - 1 +                                                           \
-    (slice  + depth - 1)* (x_max + x_extra + 2*depth) +                             \
+    (slice  + depth - 0)* (x_max + x_extra + 2*depth) +                             \
     (row            - 1)*((x_max + x_extra + 2*depth)*(z_max + z_extra + 2*depth))) \
     + offset
 
 // back/front
 #define DEPTH_IDX                                                                   \
-    (row    + depth - 1 +                                                           \
-    (column + depth - 1)* (x_max + x_extra + 2*depth) +                             \
-    (slice          - 1)*((x_max + x_extra + 2*depth)*(y_max + y_extra + 2*depth))) \
+    ((row    - 1) + depth +                                                           \
+    ((column - 1) + depth)* (x_max + x_extra + 2*depth) +                             \
+    ((slice  - 0)        )*((x_max + x_extra + 2*depth)*(y_max + y_extra + 2*depth))) \
     + offset
 
 __kernel void pack_left_buffer

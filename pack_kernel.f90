@@ -590,7 +590,10 @@ SUBROUTINE clover_unpack_message_back(x_min,x_max,y_min,y_max,z_min,z_max,field,
 !$OMP PARALLEL DO PRIVATE(index)
     DO k=y_min-depth,y_max+y_inc+depth
       DO j=x_min-depth,x_max+x_inc+depth
-        index= buffer_offset + (j+depth) + (k-1+depth)*(x_max+x_inc+2*depth) + (l-1)*((x_max+x_inc+2*depth)*(y_max+y_inc+2*depth))
+        index= buffer_offset +  &
+            (j+depth) + &
+            (k-1+depth)*(x_max+x_inc+2*depth) + &
+            (l-1)*((x_max+x_inc+2*depth)*(y_max+y_inc+2*depth))
         field(j,k,z_min-l)=back_rcv_buffer(index)
       ENDDO
     ENDDO
