@@ -62,8 +62,8 @@ __kernel void calc_dt
         const double dtvt = dtv_safe*4.0*volume[THARR3D(0, 0, 0, 0, 0)]/MAX(1.0e-5*volume[THARR3D(0, 0, 0, 0, 0)], MAX(fabs(dv1), fabs(dv2)));
 
         // z
-        const double dw1 = (zvel0[THARR3D(0, 0, 0, 1, 1)] + zvel0[THARR3D(0, 1, 0, 1, 1)] + zvel0[THARR3D(1, 0, 0, 1, 1)] + zvel0[THARR3D(1, 1, 0, 1, 1)])*zarea[THARR3D(0, 0, 0, 0, 1)];
-        const double dw2 = (zvel0[THARR3D(0, 0, 1, 1, 1)] + zvel0[THARR3D(0, 1, 1, 1, 1)] + zvel0[THARR3D(1, 0, 1, 1, 1)] + zvel0[THARR3D(1, 1, 1, 1, 1)])*zarea[THARR3D(0, 0, 0, 0, 1)];
+        const double dw1 = (zvel0[THARR3D(0, 0, 0, 1, 1)] + zvel0[THARR3D(0, 1, 0, 1, 1)] + zvel0[THARR3D(1, 0, 0, 1, 1)] + zvel0[THARR3D(1, 1, 0, 1, 1)])*zarea[THARR3D(0, 0, 0, 0, 0)];
+        const double dw2 = (zvel0[THARR3D(0, 0, 1, 1, 1)] + zvel0[THARR3D(0, 1, 1, 1, 1)] + zvel0[THARR3D(1, 0, 1, 1, 1)] + zvel0[THARR3D(1, 1, 1, 1, 1)])*zarea[THARR3D(0, 0, 0, 0, 0)];
 
         const double dtwt = dtw_safe*4.0*volume[THARR3D(0, 0, 0, 0, 0)]/MAX(1.0e-5*volume[THARR3D(0, 0, 0, 0, 0)], MAX(fabs(dw1), fabs(dw2)));
 
