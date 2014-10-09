@@ -28,12 +28,6 @@ __kernel void calc_dt
 {
     __kernel_indexes;
 
-    double dsx, dsy,dsz;
-    double cc;
-    double div;
-    double dv1;
-    double dv2;
-
     //reduced
     double dt_min_val = g_big;
     double jk_control = 0.0;
@@ -47,6 +41,40 @@ __kernel void calc_dt
     && /*column >= (x_min + 1) &&*/ column <= (x_max + 1)
     && /*slice >= (z_min + 1) &&*/ slice <= (z_max + 1))
     {
+#if 1
+        const double ds = 1.0/pow(MIN(celldx[column], MIN(celldy[row], celldz[slice])), 2);
+
+        const double ss_sq = pow(soundspeed[THARR3D(0, 0, 0, 0, 0)], 2);
+        const double cc = ss_sq + 2.0*viscosity[THARR3D(0, 0, 0, 0, 0)]/density0[THARR3D(0, 0, 0, 0, 0)];
+
+        const double dtct = dtc_safe*1.0/MAX(SQRT(ds*cc), g_small);
+
+        // x
+        const double du1 = (xvel0[THARR3D(0, 0, 0, 1, 1)] + xvel0[THARR3D(0, 1, 0, 1, 1)] + xvel0[THARR3D(0, 0, 1, 1, 1)] + xvel0[THARR3D(0, 1, 1, 1, 1)])*xarea[THARR3D(0, 0, 0, 1, 0)];
+        const double du2 = (xvel0[THARR3D(1, 0, 0, 1, 1)] + xvel0[THARR3D(1, 1, 0, 1, 1)] + xvel0[THARR3D(1, 0, 1, 1, 1)] + xvel0[THARR3D(1, 1, 1, 1, 1)])*xarea[THARR3D(0, 0, 0, 1, 0)];
+
+        const double dtut = dtu_safe*4.0*volume[THARR3D(0, 0, 0, 0, 0)]/MAX(1.0e-5*volume[THARR3D(0, 0, 0, 0, 0)], MAX(fabs(du1), fabs(du2)));
+
+        // y
+        const double dv1 = (yvel0[THARR3D(0, 0, 0, 1, 1)] + yvel0[THARR3D(1, 0, 0, 1, 1)] + yvel0[THARR3D(0, 0, 1, 1, 1)] + yvel0[THARR3D(1, 0, 1, 1, 1)])*yarea[THARR3D(0, 0, 0, 0, 1)];
+        const double dv2 = (yvel0[THARR3D(0, 1, 0, 1, 1)] + yvel0[THARR3D(1, 1, 0, 1, 1)] + yvel0[THARR3D(0, 1, 1, 1, 1)] + yvel0[THARR3D(1, 1, 1, 1, 1)])*yarea[THARR3D(0, 0, 0, 0, 1)];
+
+        const double dtvt = dtv_safe*4.0*volume[THARR3D(0, 0, 0, 0, 0)]/MAX(1.0e-5*volume[THARR3D(0, 0, 0, 0, 0)], MAX(fabs(dv1), fabs(dv2)));
+
+        // z
+        const double dw1 = (zvel0[THARR3D(0, 0, 0, 1, 1)] + zvel0[THARR3D(0, 1, 0, 1, 1)] + zvel0[THARR3D(1, 0, 0, 1, 1)] + zvel0[THARR3D(1, 1, 0, 1, 1)])*zarea[THARR3D(0, 0, 0, 0, 1)];
+        const double dw2 = (zvel0[THARR3D(0, 0, 1, 1, 1)] + zvel0[THARR3D(0, 1, 1, 1, 1)] + zvel0[THARR3D(1, 0, 1, 1, 1)] + zvel0[THARR3D(1, 1, 1, 1, 1)])*zarea[THARR3D(0, 0, 0, 0, 1)];
+
+        const double dtwt = dtw_safe*4.0*volume[THARR3D(0, 0, 0, 0, 0)]/MAX(1.0e-5*volume[THARR3D(0, 0, 0, 0, 0)], MAX(fabs(dw1), fabs(dw2)));
+
+        const double div = du2-du1 + dv2-dv1 + dw2-dw1;
+
+        const double dtdivt = dtdiv_safe*4.0*volume[THARR3D(0, 0, 0, 0, 0)]/MAX(volume[THARR3D(0, 0, 0, 0, 0)]*1.0e-5, fabs(div));
+
+        dt_min_shared[lid] = MIN(MIN(MIN(MIN(dtct, dtut), dtvt), dtwt), dtdivt);
+
+#else
+        double dsx, dsy, dsz, cc, div, dv1, dv2, du1, du2;
         dsx = celldx[column];
         dsy = celldy[row];
         dsz = celldz[slice];
@@ -107,6 +135,7 @@ XEON_PHI_LOCAL_MEM_BARRIER;
         dt_min_shared[lid] = MIN(dtdivt, MIN(dtvt, MIN(dtct, MIN(dtut,dtwt))));
 //THIS NEEDS FIXING
         jk_ctrl_shared[lid] = (column + (x_max * (row - 1))) + 0.4;
+        #endif
     }
 
     REDUCTION(dt_min_shared, dt_min_out, MIN)

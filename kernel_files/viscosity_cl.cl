@@ -8,7 +8,10 @@ __kernel void viscosity
  __global double * __restrict const viscosity,
  __global const double * __restrict const xvel0,
  __global const double * __restrict const yvel0,
- __global const double * __restrict const zvel0)
+ __global const double * __restrict const zvel0,
+ __global const double * __restrict const xarea,
+ __global const double * __restrict const yarea,
+ __global const double * __restrict const zarea)
 {
     __kernel_indexes;
 
@@ -36,9 +39,9 @@ XEON_PHI_LOCAL_MEM_BARRIER;
 
 XEON_PHI_LOCAL_MEM_BARRIER;
 
-        const double div = (celldy[row]*celldz[slice])   *(ugradx2 - ugradx1) +
-                           (celldx[column]*celldz[slice])*(vgrady2 - vgrady1) +
-                           (celldy[row]*celldx[column])  *(wgradz2 - wgradz1);
+        const double div = xarea[THARR3D(0, 0, 0, 1, 0)]*(ugradx2 - ugradx1) +
+                           yarea[THARR3D(0, 0, 0, 0, 1)]*(vgrady2 - vgrady1) +
+                           zarea[THARR3D(0, 0, 0, 0, 0)]*(wgradz2 - wgradz1);
 
         const double xx = 0.25*(ugradx2 - ugradx1)/celldx[column];
         const double yy = 0.25*(vgrady2 - vgrady1)/celldy[row];

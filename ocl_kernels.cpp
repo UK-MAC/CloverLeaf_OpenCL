@@ -513,6 +513,9 @@ void CloverChunk::initArgs
     viscosity_device.setArg(6, xvel0);
     viscosity_device.setArg(7, yvel0);
     viscosity_device.setArg(8, zvel0);
+    viscosity_device.setArg(9, xarea);
+    viscosity_device.setArg(10, yarea);
+    viscosity_device.setArg(11, zarea);
 
     // revert
     revert_device.setArg(0, density0);

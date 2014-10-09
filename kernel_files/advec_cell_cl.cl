@@ -52,14 +52,6 @@ __kernel void advec_cell_ener_flux_x
     int upwind, donor, downwind, dif;
     const double one_by_six = 1.0/6.0;
 
-    //
-    // if cell is within x area:
-    // +++++++++++++++++++++
-    // +++++++++++++++++++++
-    // ++xxxxxxxxxxxxxxxxxxx
-    // +++++++++++++++++++++
-    // +++++++++++++++++++++
-    //
     if(/*row >= (y_min + 1) &&*/ row <= (y_max + 1)
     && /*column >= (x_min + 1) &&*/ column <= (x_max + 1) + 2
     && /*slice >= (z_min + 1) &&*/ slice <= (z_max + 1))

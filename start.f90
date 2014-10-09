@@ -55,14 +55,14 @@ SUBROUTINE start
 
   CALL clover_get_num_chunks(number_of_chunks)
 
-  ALLOCATE(chunks(1:number_of_chunks))
+  ALLOCATE(chunks(1:chunks_per_task))
 
-  ALLOCATE(left(1:number_of_chunks))
-  ALLOCATE(right(1:number_of_chunks))
-  ALLOCATE(bottom(1:number_of_chunks))
-  ALLOCATE(top(1:number_of_chunks))
-  ALLOCATE(back(1:number_of_chunks))
-  ALLOCATE(front(1:number_of_chunks))
+  ALLOCATE(left(1:chunks_per_task))
+  ALLOCATE(right(1:chunks_per_task))
+  ALLOCATE(bottom(1:chunks_per_task))
+  ALLOCATE(top(1:chunks_per_task))
+  ALLOCATE(back(1:chunks_per_task))
+  ALLOCATE(front(1:chunks_per_task))
 
   CALL clover_decompose(grid%x_cells,grid%y_cells,grid%z_cells,left,right,bottom,top,back,front)
 

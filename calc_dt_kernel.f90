@@ -124,7 +124,6 @@ SUBROUTINE calc_dt_kernel(x_min,x_max,y_min,y_max,z_min,z_max, &
         dw1=(zvel0(j  ,k  ,l  )+zvel0(j  ,k+1,l  )+zvel0(j+1,k  ,l  )+zvel0(j+1,k+1,l  ))*zarea(j  ,k  ,l  )
         dw2=(zvel0(j  ,k  ,l+1)+zvel0(j  ,k+1,l+1)+zvel0(j+1,k  ,l+1)+zvel0(j+1,k+1,l+1))*zarea(j  ,k  ,l  )
 
-
         dtwt=dtw_safe*4.0_8*volume(j,k,l)/MAX(ABS(dw1),ABS(dw2),1.0e-5_8*volume(j,k,l))
 
         div=du2-du1+dv2-dv1+dw2-dw1
