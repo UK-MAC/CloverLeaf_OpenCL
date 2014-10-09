@@ -19,23 +19,23 @@ __kernel void viscosity
     && /*column >= (x_min + 1) && */ column <= (x_max + 1)
     && /*slice >= (z_min + 1) && */ slice <= (z_max + 1))
     {
-        #define GRADVARS(uvw) \
-        const double uvw##gradx1 = (xvel0[THARR3D(0, 0, 0, 1, 1)]+xvel0[THARR3D(0, 1, 0, 1, 1)]+xvel0[THARR3D(0, 0, 1, 1, 1)]+xvel0[THARR3D(0, 1, 1, 1, 1)]);   \
-		const double uvw##gradx2 = (xvel0[THARR3D(1, 0, 0, 1, 1)]+xvel0[THARR3D(1, 1, 0, 1, 1)]+xvel0[THARR3D(1, 0, 1, 1, 1)]+xvel0[THARR3D(1, 1, 1, 1, 1)]);   \
-        const double uvw##grady1 = (xvel0[THARR3D(0, 0, 0, 1, 1)]+xvel0[THARR3D(1, 0, 0, 1, 1)]+xvel0[THARR3D(0, 0, 1, 1, 1)]+xvel0[THARR3D(1, 0, 1, 1, 1)]);   \
-		const double uvw##grady2 = (xvel0[THARR3D(0, 1, 0, 1, 1)]+xvel0[THARR3D(1, 1, 0, 1, 1)]+xvel0[THARR3D(0, 1, 1, 1, 1)]+xvel0[THARR3D(1, 1, 1, 1, 1)]);   \
-        const double uvw##gradz1 = (xvel0[THARR3D(0, 0, 0, 1, 1)]+xvel0[THARR3D(1, 0, 0, 1, 1)]+xvel0[THARR3D(0, 1, 0, 1, 1)]+xvel0[THARR3D(1, 1, 0, 1, 1)]);   \
-		const double uvw##gradz2 = (xvel0[THARR3D(0, 0, 1, 1, 1)]+xvel0[THARR3D(1, 0, 1, 1, 1)]+xvel0[THARR3D(0, 1, 1, 1, 1)]+xvel0[THARR3D(1, 1, 1, 1, 1)]);
+        #define GRADVARS(uvw, xyz) \
+        const double uvw##gradx1 = (xyz##vel0[THARR3D(0, 0, 0, 1, 1)]+xyz##vel0[THARR3D(0, 1, 0, 1, 1)]+xyz##vel0[THARR3D(0, 0, 1, 1, 1)]+xyz##vel0[THARR3D(0, 1, 1, 1, 1)]);   \
+		const double uvw##gradx2 = (xyz##vel0[THARR3D(1, 0, 0, 1, 1)]+xyz##vel0[THARR3D(1, 1, 0, 1, 1)]+xyz##vel0[THARR3D(1, 0, 1, 1, 1)]+xyz##vel0[THARR3D(1, 1, 1, 1, 1)]);   \
+        const double uvw##grady1 = (xyz##vel0[THARR3D(0, 0, 0, 1, 1)]+xyz##vel0[THARR3D(1, 0, 0, 1, 1)]+xyz##vel0[THARR3D(0, 0, 1, 1, 1)]+xyz##vel0[THARR3D(1, 0, 1, 1, 1)]);   \
+		const double uvw##grady2 = (xyz##vel0[THARR3D(0, 1, 0, 1, 1)]+xyz##vel0[THARR3D(1, 1, 0, 1, 1)]+xyz##vel0[THARR3D(0, 1, 1, 1, 1)]+xyz##vel0[THARR3D(1, 1, 1, 1, 1)]);   \
+        const double uvw##gradz1 = (xyz##vel0[THARR3D(0, 0, 0, 1, 1)]+xyz##vel0[THARR3D(1, 0, 0, 1, 1)]+xyz##vel0[THARR3D(0, 1, 0, 1, 1)]+xyz##vel0[THARR3D(1, 1, 0, 1, 1)]);   \
+		const double uvw##gradz2 = (xyz##vel0[THARR3D(0, 0, 1, 1, 1)]+xyz##vel0[THARR3D(1, 0, 1, 1, 1)]+xyz##vel0[THARR3D(0, 1, 1, 1, 1)]+xyz##vel0[THARR3D(1, 1, 1, 1, 1)]);
 
-        GRADVARS(u)
-
-XEON_PHI_LOCAL_MEM_BARRIER;
-
-        GRADVARS(v)
+        GRADVARS(u, x)
 
 XEON_PHI_LOCAL_MEM_BARRIER;
 
-        GRADVARS(w)
+        GRADVARS(v, y)
+
+XEON_PHI_LOCAL_MEM_BARRIER;
+
+        GRADVARS(w, z)
 
 XEON_PHI_LOCAL_MEM_BARRIER;
 
