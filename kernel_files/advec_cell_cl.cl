@@ -180,7 +180,7 @@ __kernel void advec_cell_pre_vol_y
                 +(vol_flux_y[THARR2D(0, 1, 0)] - vol_flux_y[THARR2D(0, 0, 0)]
                 + vol_flux_x[THARR2D(1, 0, 1)] - vol_flux_x[THARR2D(0, 0, 1)]);
             post_vol[THARR2D(0, 0, 1)] = pre_vol[THARR2D(0, 0, 1)]
-                - (vol_flux_y[THARR2D(0, 1, 0)] - vol_flux_y[THARR2D(0, 0, 1)]);
+                - (vol_flux_y[THARR2D(0, 1, 0)] - vol_flux_y[THARR2D(0, 0, 0)]);
         }
         else
         {
