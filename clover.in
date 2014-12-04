@@ -18,8 +18,7 @@
  end_step=200
 
  use_opencl_kernels
- opencl_vendor=intel
- opencl_type=cpu
+ opencl_vendor=nvidia
 
  !profileR_on=1
 

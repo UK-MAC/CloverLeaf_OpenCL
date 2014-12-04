@@ -152,7 +152,7 @@ void CloverChunk::initOcl
     std::string type_name = typeRead(input);
     desired_type = typeMatch(type_name);
 
-    if (desired_type < 0)
+    if (desired_type == 0)
     {
         DIE("Invalid OpenCL device type '%s' specified in clover.in\n", type_name.c_str());
     }

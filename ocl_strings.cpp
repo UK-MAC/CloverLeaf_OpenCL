@@ -9,6 +9,7 @@ std::string matchParam
  const char* param_name)
 {
     std::string param_string;
+    param_string = std::string("NO_SETTING");
     static char name_buf[101];
     rewind(input);
     /* read in line from file */
@@ -24,10 +25,6 @@ std::string matchParam
                 char param_buf[100];
                 sscanf(name_buf, "%*s %s", param_buf);
                 param_string = std::string(param_buf);
-            }
-            else
-            {
-                param_string = std::string("NO_SETTING");
             }
             break;
         }
@@ -67,8 +64,7 @@ std::string typeRead
 int typeMatch
 (std::string& type_name)
 {
-
-    //fprintf(DBGOUT, "Matching with %s\n", type_name.c_str());
+    fprintf(stderr, "Matching with %s\n", type_name.c_str());
 
     // match
     if (type_name.find("cpu") != std::string::npos)
@@ -87,13 +83,13 @@ int typeMatch
     {
         return CL_DEVICE_TYPE_ALL;
     }
-    else if (type_name.find("NO_SETTING") != std::string::npos)
+    else if (type_name.find("no_setting") != std::string::npos)
     {
         return CL_DEVICE_TYPE_ALL;
     }
     else
     {
-        return -1;
+        return 0;
     }
 }
 
