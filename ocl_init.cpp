@@ -118,6 +118,7 @@ void CloverChunk::initOcl
 (void)
 {
     std::vector<cl::Platform> platforms;
+
     try
     {
         cl::Platform::get(&platforms);
@@ -175,7 +176,7 @@ void CloverChunk::initOcl
         fprintf(stdout, "Choosing first platform that matches device type\n");
 
         // go through all platforms
-        for (size_t ii = 0;;ii++)
+        for (size_t ii = 0;;)
         {
             std::vector<cl::Device> devices;
 
@@ -212,7 +213,7 @@ void CloverChunk::initOcl
                 break;
             }
             // if there are no platforms left to match
-            else if (platforms.size() == ii)
+            else if (platforms.size() == ++ii)
             {
                 fprintf(stderr, "Platforms available:\n");
 
