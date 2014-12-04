@@ -21,8 +21,8 @@
  end_step=300
 
  use_opencl_kernels
- opencl_vendor=nvidia
- opencl_type=GPU
+ opencl_vendor=any
+ opencl_vendor=gpu
  opencl_device=0
 
  !profiler_on=1

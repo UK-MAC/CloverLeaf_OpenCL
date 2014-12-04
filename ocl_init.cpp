@@ -6,6 +6,7 @@
 
 #include <sstream>
 #include <iostream>
+#include <algorithm>
 
 CloverChunk chunk;
 
@@ -122,6 +123,7 @@ void CloverChunk::initOcl
 (void)
 {
     std::vector<cl::Platform> platforms;
+
     try
     {
         cl::Platform::get(&platforms);
@@ -144,53 +146,116 @@ void CloverChunk::initOcl
         DIE("Input file not found\n");
     }
 
-    int desired_vendor = platformRead(input);
+    // use first device whatever happens (ignore MPI rank) for running across different platforms
+    bool usefirst = paramEnabled(input, "opencl_usefirst");
+
+    std::string desired_vendor = platformRead(input);
 
     int preferred_device = preferredDevice(input);
     preferred_device = (preferred_device < 0) ? 0 : preferred_device;
     fprintf(DBGOUT, "Preferred device is %d\n", preferred_device);
-    desired_type = typeRead(input);
 
-    // use first device whatever happens (ignore MPI rank) for running across different platforms
-    bool usefirst = paramEnabled(input, "opencl_usefirst");
+    std::string type_name = typeRead(input);
+    desired_type = typeMatch(type_name);
+
+    if (desired_type == 0)
+    {
+        DIE("Invalid OpenCL device type '%s' specified in clover.in\n", type_name.c_str());
+    }
 
     fclose(input);
 
-    switch(desired_vendor)
+    if (desired_vendor.find("no_setting") != std::string::npos)
     {
-    case NO_PLAT:
         DIE("No opencl_vendor specified in clover.in\n");
-
-    case LIST_PLAT:
+    }
+    else if (desired_vendor.find("list") != std::string::npos)
+    {
         // special case to print out platforms instead
         fprintf(stdout, "Listing platforms\n\n");
         listPlatforms(platforms);
         exit(0);
+    }
+    else if (desired_vendor.find("any") != std::string::npos)
+    {
+        fprintf(stdout, "Choosing first platform that matches device type\n");
 
-    case ANY_PLAT:
-        fprintf(stdout, "No platform specified - using platform 0\n");
-        platform = platforms.at(0);
-        break;
+        // go through all platforms
+        for (size_t ii = 0;;ii++)
+        {
+            // if there are no platforms left to match
+            if (platforms.size() == ii)
+            {
+                fprintf(stderr, "Platforms available:\n");
 
-    default:
+                listPlatforms(platforms);
+
+                DIE("No platform with specified device type was found\n");
+            }
+
+            std::vector<cl::Device> devices;
+
+            try
+            {
+                platforms.at(ii).getDevices(desired_type, &devices);
+            }
+            catch (cl::Error e)
+            {
+                if (e.err() == CL_DEVICE_NOT_FOUND)
+                {
+                    continue;
+                }
+                else
+                {
+                    DIE("Error %d (%s) in querying devices\n", e.err(), e.what());
+                }
+            }
+
+            if (devices.size() > 0)
+            {
+                platform = platforms.at(ii);
+
+                std::vector<cl::Platform> used(1, platform);
+                fprintf(stdout, "Using platform:\n");
+                listPlatforms(used);
+
+                // try to create a context with the desired type
+                cl_context_properties properties[3] = {CL_CONTEXT_PLATFORM,
+                    reinterpret_cast<cl_context_properties>(platform()), 0};
+
+                context = cl::Context(desired_type, properties);
+
+                break;
+            }
+        }
+    }
+    else
+    {
         // go through all platforms
         for (size_t ii = 0;;)
         {
             std::string plat_name;
             platforms.at(ii).getInfo(CL_PLATFORM_VENDOR, &plat_name);
+            std::transform(plat_name.begin(),
+                           plat_name.end(),
+                           plat_name.begin(),
+                           tolower);
             fprintf(DBGOUT, "Checking platform %s\n", plat_name.c_str());
 
             // if the platform name given matches one in the LUT
-            if (platformMatch(plat_name) == desired_vendor)
+            if (plat_name.find(desired_vendor) != std::string::npos)
             {
                 fprintf(DBGOUT, "Correct vendor platform found\n");
                 platform = platforms.at(ii);
+
+                std::vector<cl::Platform> used(1, platform);
+                fprintf(stdout, "Using platform:\n");
+                listPlatforms(used);
                 break;
             }
-
-            // if there are no platforms left to match
-            if (platforms.size() == ++ii)
+            else if (platforms.size() == ++ii)
             {
+                // if there are no platforms left to match
                 fprintf(stderr, "Platforms available:\n");
 
                 listPlatforms(platforms);
@@ -216,18 +281,17 @@ void CloverChunk::initOcl
             // if there's no device of the desired type in this context
             else if (e.err() == CL_DEVICE_NOT_FOUND)
             {
-                fprintf(stderr, "No devices of specified type found:\n");
+                fprintf(stderr, "No devices of specified type (%s) found in platform.\n", strType(desired_type).c_str());
+                fprintf(stderr, "Platforms available:\n");
                 listPlatforms(platforms);
 
-                DIE("Unable to get devices of desired type");
+                DIE("Unable to get devices of desired type on platform");
             }
             else
             {
                 DIE("Error %d (%s) in creating context\n", e.err(), e.what());
             }
         }
-
-        break;
     }
 
 #if defined(MPI_HDR)

@@ -9,11 +9,13 @@ std::string matchParam
  const char* param_name)
 {
     std::string param_string;
+    param_string = std::string("NO_SETTING");
     static char name_buf[101];
     rewind(input);
     /* read in line from file */
     while (NULL != fgets(name_buf, 100, input))
     {
+        if (NULL != strstr(name_buf, "!")) continue;
         /* if it has the parameter name, its the line we want */
         if (NULL != strstr(name_buf, param_name))
         {
@@ -23,81 +25,46 @@ std::string matchParam
                 char param_buf[100];
                 sscanf(name_buf, "%*s %s", param_buf);
                 param_string = std::string(param_buf);
-                break;
             }
-            else
-            {
-                param_string = std::string("NO_SETTING");
-                break;
-            }
+            break;
         }
     }
 
     return param_string;
 }
 
-int platformRead
+std::string platformRead
 (FILE* input)
 {
-    std::string param_string = matchParam(input, "opencl_vendor");
-    return platformMatch(param_string);
-}
+    std::string plat_name = matchParam(input, "opencl_vendor");
 
-int typeRead
-(FILE* input)
-{
-    std::string param_string = matchParam(input, "opencl_type");
-    return typeMatch(param_string);
-}
-
-int platformMatch
-(std::string& plat_name)
-{
     // convert to lower case
     std::transform(plat_name.begin(),
                    plat_name.end(),
                    plat_name.begin(),
                    tolower);
 
-    //fprintf(DBGOUT, "Matching with %s\n", plat_name.c_str());
-
-    // match
-    if (plat_name.find("advanced") != std::string::npos)
-    {
-        return AMD_PLAT;
-    }
-    else if (plat_name.find("intel") != std::string::npos)
-    {
-        return INTEL_PLAT;
-    }
-    else if (plat_name.find("nvidia") != std::string::npos)
-    {
-        return NVIDIA_PLAT;
-    }
-    else if (plat_name.find("list") != std::string::npos)
-    {
-        return LIST_PLAT;
-    }
-    else if (plat_name.find("any") != std::string::npos)
-    {
-        return ANY_PLAT;
-    }
-    else
-    {
-        return NO_PLAT;
-    }
+    return plat_name;
 }
 
-int typeMatch
-(std::string& type_name)
+std::string typeRead
+(FILE* input)
 {
+    std::string type_name = matchParam(input, "opencl_type");
+
     // convert to lower case
     std::transform(type_name.begin(),
                    type_name.end(),
                    type_name.begin(),
                    tolower);
 
-    //fprintf(DBGOUT, "Matching with %s\n", type_name.c_str());
+    return type_name;
+}
+
+int typeMatch
+(std::string& type_name)
+{
+    //fprintf(stderr, "Matching with %s\n", type_name.c_str());
 
     // match
     if (type_name.find("cpu") != std::string::npos)
@@ -116,9 +83,13 @@ int typeMatch
     {
         return CL_DEVICE_TYPE_ALL;
     }
-    else
+    else if (type_name.find("no_setting") != std::string::npos)
     {
         return CL_DEVICE_TYPE_ALL;
+    }
+    else
+    {
+        return 0;
     }
 }
 
@@ -169,5 +140,4 @@ int preferredDevice
 
     return preferred_device;
 }
-
 
