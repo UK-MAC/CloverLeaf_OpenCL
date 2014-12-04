@@ -18,7 +18,7 @@
  end_step=200
 
  use_opencl_kernels
- opencl_vendor=nvidia
+ opencl_vendor=any
 
  !profileR_on=1
 

@@ -64,7 +64,7 @@ std::string typeRead
 int typeMatch
 (std::string& type_name)
 {
-    fprintf(stderr, "Matching with %s\n", type_name.c_str());
+    //fprintf(stderr, "Matching with %s\n", type_name.c_str());
 
     // match
     if (type_name.find("cpu") != std::string::npos)

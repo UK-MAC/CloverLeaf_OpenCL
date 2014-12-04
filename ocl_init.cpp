@@ -176,8 +176,18 @@ void CloverChunk::initOcl
         fprintf(stdout, "Choosing first platform that matches device type\n");
 
         // go through all platforms
-        for (size_t ii = 0;;)
+        for (size_t ii = 0;;ii++)
         {
+            // if there are no platforms left to match
+            if (platforms.size() == ii)
+            {
+                fprintf(stderr, "Platforms available:\n");
+
+                listPlatforms(platforms);
+
+                DIE("No platform with specified device type was found\n");
+            }
+
             std::vector<cl::Device> devices;
 
             try
@@ -211,15 +221,6 @@ void CloverChunk::initOcl
                 context = cl::Context(desired_type, properties);
 
                 break;
-            }
-            // if there are no platforms left to match
-            else if (platforms.size() == ++ii)
-            {
-                fprintf(stderr, "Platforms available:\n");
-
-                listPlatforms(platforms);
-
-                DIE("No platform with specified device type was found\n");
             }
         }
     }
