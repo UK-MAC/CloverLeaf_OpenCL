@@ -18,8 +18,8 @@
  end_step=200
 
  use_opencl_kernels
- opencl_vendor=advanced
- opencl_type=gPU
+ opencl_vendor=intel
+ opencl_type=cpu
 
  !profileR_on=1
 

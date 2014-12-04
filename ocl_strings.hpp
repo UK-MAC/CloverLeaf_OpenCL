@@ -7,21 +7,14 @@ enum {AMD_PLAT, INTEL_PLAT, NVIDIA_PLAT, NO_PLAT, ANY_PLAT, LIST_PLAT};
 /*
  *  reads file given and finds the platform vendor to be used
  */
-int platformRead
+std::string platformRead
 (FILE* input);
 
 /*
  *  reads file given and finds the platform type
  */
-int typeRead
+std::string typeRead
 (FILE* input);
-
-/*
- *  takes the platform name from clGetPlatformInfo and matches against know
- *  values to convert to the relevant enumerated value for the vendor
- */
-int platformMatch
-(std::string& plat_name);
 
 /*
  *  Takes string of type of context and returns enumerated value
