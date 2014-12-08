@@ -21,6 +21,10 @@ void CloverChunk::initProgram
     options << "-Dz_min=" << z_min << " ";
     options << "-Dz_max=" << z_max << " ";
 
+#ifdef CL_VERSION_1_2
+    options << "-cl-kernel-arg-info ";
+#endif
+
     // local sizes
     options << "-DBLOCK_SZ=" << LOCAL_X*LOCAL_Y*LOCAL_Z << " ";
     options << "-DLOCAL_X=" << LOCAL_X << " ";

@@ -26,6 +26,10 @@ std::string matchParam
                 sscanf(name_buf, "%*s %s", param_buf);
                 param_string = std::string(param_buf);
             }
+            else
+            {
+                param_string = std::string(param_name);
+            }
             break;
         }
     }
@@ -113,7 +117,7 @@ bool paramEnabled
 (FILE* input, const char* param)
 {
     std::string param_string = matchParam(input, param);
-    return param_string.size() > 0 ? true : false;
+    return (param_string.find("NO_SETTING") == std::string::npos);
 }
 
 int preferredDevice

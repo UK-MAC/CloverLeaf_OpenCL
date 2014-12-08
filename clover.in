@@ -21,7 +21,7 @@
  end_step=300
 
  use_opencl_kernels
- opencl_vendor=any
+ opencl_vendor=list
  opencl_vendor=gpu
  opencl_device=0
 
