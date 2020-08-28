@@ -1193,7 +1193,11 @@ void CloverCL::initContext(
      */
     try {
 
-        context = cl::Context ( device_type, cprops, NULL, NULL, &err);
+        #ifdef OCL_IGNORE_PLATFORM
+          context = cl::Context ( device_type, NULL, NULL, NULL, &err);
+        #else
+          context = cl::Context ( device_type, cprops, NULL, NULL, &err);
+        #endif
 
     } catch (cl::Error err) {
         reportError(err, "Creating context");
@@ -1651,7 +1655,7 @@ void CloverCL::loadProgram(int xmin, int xmax, int ymin, int ymax)
                     "-DXMIN=%u -DXMINPLUSONE=%u -DXMAX=%u -DYMIN=%u -DYMINPLUSONE=%u -DYMINPLUSTWO=%u "
                     "-DYMAX=%u -DXMAXPLUSONE=%u -DXMAXPLUSTWO=%u -DXMAXPLUSTHREE=%u -DXMAXPLUSFOUR=%u "
                     "-DXMAXPLUSFIVE=%u -DYMAXPLUSONE=%u -DYMAXPLUSTWO=%u -DYMAXPLUSTHREE=%u -DWORKGROUP_SIZE=%u "
-                    "-DWORKGROUP_SIZE_DIVTWO=%u -DGPU_REDUCTION -cl-strict-aliasing", 
+                    "-DWORKGROUP_SIZE_DIVTWO=%u -DGPU_REDUCTION -cl-strict-aliasing -I.", 
                     xmin, xmin+1, xmax, ymin, ymin+1, ymin+2, ymax, xmax+1, xmax+2, xmax+3, xmax+4, xmax+5, 
                     ymax+1, ymax+2, ymax+3, workgroup_size, workgroup_size/2
                    );
@@ -1664,7 +1668,7 @@ void CloverCL::loadProgram(int xmin, int xmax, int ymin, int ymax)
                     "-DXMIN=%u -DXMINPLUSONE=%u -DXMAX=%u -DYMIN=%u -DYMINPLUSONE=%u -DYMINPLUSTWO=%u "
                     "-DYMAX=%u -DXMAXPLUSONE=%u -DXMAXPLUSTWO=%u -DXMAXPLUSTHREE=%u -DXMAXPLUSFOUR=%u "
                     "-DXMAXPLUSFIVE=%u -DYMAXPLUSONE=%u -DYMAXPLUSTWO=%u -DYMAXPLUSTHREE=%u -DWORKGROUP_SIZE=%u "
-                    "-DWORKGROUP_SIZE_DIVTWO=%u", 
+                    "-DWORKGROUP_SIZE_DIVTWO=%u -I.", 
                     xmin, xmin+1, xmax, ymin, ymin+1, ymin+2, ymax, xmax+1, xmax+2, xmax+3, xmax+4, xmax+5, 
                     ymax+1, ymax+2, ymax+3, workgroup_size, workgroup_size/2
                    );
