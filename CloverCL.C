@@ -1193,7 +1193,10 @@ void CloverCL::initContext(
      */
     try {
 
-        context = cl::Context ( device_type, cprops, NULL, NULL, &err);
+        if (preferred_type == "default")
+          context = cl::Context ( device_type, NULL, NULL, NULL, &err);
+        else
+          context = cl::Context ( device_type, cprops, NULL, NULL, &err);
 
     } catch (cl::Error err) {
         reportError(err, "Creating context");
